@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Tutor Interface</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="upload-section">
+            <h2>Upload Study Materials</h2>
+            <form id="upload-form">
+                <input type="file" id="file-input" accept=".pdf,.docx,.txt" multiple>
+                <button type="submit">Upload</button>
+            </form>
+            <div id="upload-status"></div>
+        </div>
+
+        <div class="chat-section">
+            <h2>Chat with AI Tutor</h2>
+            <div id="chat-history"></div>
+            <div class="chat-input">
+                <input type="text" id="query-input" placeholder="Ask your question...">
+                <button id="send-button">Send</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html> 
