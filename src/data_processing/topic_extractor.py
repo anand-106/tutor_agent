@@ -26,11 +26,10 @@ class TopicExtractor:
     def extract_topics(self, text: str) -> Dict:
         """Extract hierarchical topic structure from text"""
         try:
-            # Truncate text if too long
-            max_length = 15000
-            if len(text) > max_length:
-                text = text[:max_length]
-                self.logger.info(f"Text truncated from {len(text)} to {max_length} characters")
+            # Process text in chunks if it's very long
+            if len(text) > 15000:
+                self.logger.info(f"Text is very long ({len(text)} chars), processing in chunks")
+                return self._process_long_document(text)
             
             # If no model available, return basic structure
             if not self.model:
@@ -62,8 +61,12 @@ class TopicExtractor:
                 self.logger.error(f"Error extracting document title: {str(e)}")
                 title = "Document Title"
             
+            # Try multiple extraction strategies and combine results
+            all_topics = []
+            
             # Extract main topics using a strategy based on document type
             try:
+                # Try the specific document type strategy first
                 if doc_type == "academic":
                     topics = self._extract_academic_topics(text)
                 elif doc_type == "technical":
@@ -71,21 +74,56 @@ class TopicExtractor:
                 else:
                     topics = self._extract_general_topics(text)
                     
-                self.logger.info(f"Successfully extracted topics: {len(topics)} main topics found")
+                all_topics.extend(topics)
+                self.logger.info(f"Extracted {len(topics)} topics using {doc_type} strategy")
                 
-                # If no topics were found, try the general approach
-                if not topics and doc_type != "general":
-                    self.logger.warning(f"No topics found with {doc_type} strategy, trying general approach")
-                    topics = self._extract_general_topics(text)
+                # If we got very few topics, try the general approach as well
+                if len(topics) < 3 and doc_type != "general":
+                    self.logger.info(f"Got only {len(topics)} topics, trying general approach as well")
+                    general_topics = self._extract_general_topics(text)
+                    
+                    # Add any new topics that don't overlap with existing ones
+                    existing_titles = {t["title"].lower() for t in all_topics}
+                    for topic in general_topics:
+                        if topic["title"].lower() not in existing_titles:
+                            all_topics.append(topic)
+                            existing_titles.add(topic["title"].lower())
+                    
+                    self.logger.info(f"Added {len(all_topics) - len(topics)} additional topics from general strategy")
+                
+                # If we still have very few topics, try a direct approach
+                if len(all_topics) < 3:
+                    self.logger.info("Still have few topics, trying direct extraction")
+                    direct_topics = self._extract_direct_topics(text)
+                    
+                    # Add any new topics
+                    existing_titles = {t["title"].lower() for t in all_topics}
+                    for topic in direct_topics:
+                        if topic["title"].lower() not in existing_titles:
+                            all_topics.append(topic)
+                            existing_titles.add(topic["title"].lower())
+                    
+                    self.logger.info(f"Added {len(all_topics) - len(topics) - (len(general_topics) if 'general_topics' in locals() else 0)} additional topics from direct extraction")
+                
+                # Log the number of subtopics for each topic
+                for i, topic in enumerate(all_topics):
+                    subtopic_count = len(topic.get("subtopics", []))
+                    self.logger.info(f"Topic {i+1} '{topic['title']}' has {subtopic_count} subtopics")
+                    
+                    # Log second level subtopics
+                    for j, subtopic in enumerate(topic.get("subtopics", [])):
+                        sub_subtopic_count = len(subtopic.get("subtopics", []))
+                        self.logger.info(f"  Subtopic {i+1}.{j+1} '{subtopic['title']}' has {sub_subtopic_count} sub-subtopics")
+                
             except Exception as e:
                 self.logger.error(f"Error extracting main topics: {str(e)}")
-                topics = [{"title": "Document Content", "content": "Content could not be structured.", "subtopics": []}]
+                all_topics = [{"title": "Document Content", "content": "Content could not be structured.", "subtopics": []}]
             
             # Create topic structure
             topic_structure = {
                 "title": title,
                 "content": "Document overview",
-                "subtopics": topics
+                "subtopics": all_topics
             }
             
             return topic_structure
@@ -94,6 +132,95 @@ class TopicExtractor:
             self.logger.error(f"Error in topic extraction: {str(e)}")
             # Return a basic structure on error
             return self._create_basic_structure(f"Error: {str(e)}")
+
+    def _process_long_document(self, text: str) -> Dict:
+        """Process a long document by breaking it into chunks"""
+        try:
+            # Extract title from the beginning
+            title_text = text[:5000]
+            title_prompt = f"""Extract the main title or subject of this document. 
+            If there's no clear title, create a descriptive title based on the content.
+            Return ONLY the title, nothing else.
+            
+            Document text:
+            {title_text}"""
+            
+            title_response = self.model.generate_content(title_prompt)
+            title = title_response.text.strip()
+            self.logger.info(f"Extracted document title: {title}")
+            
+            # Break the document into chunks of 10000 characters with 2000 character overlap
+            chunk_size = 10000
+            overlap = 2000
+            chunks = []
+            
+            for i in range(0, len(text), chunk_size - overlap):
+                chunk = text[i:i + chunk_size]
+                chunks.append(chunk)
+                
+            self.logger.info(f"Split document into {len(chunks)} chunks")
+            
+            # Process each chunk
+            all_topics = []
+            existing_titles = set()
+            
+            for i, chunk in enumerate(chunks):
+                self.logger.info(f"Processing chunk {i+1}/{len(chunks)}")
+                
+                # Extract topics from this chunk
+                chunk_topics = self._extract_general_topics(chunk)
+                
+                # Add non-duplicate topics
+                for topic in chunk_topics:
+                    if topic["title"].lower() not in existing_titles:
+                        all_topics.append(topic)
+                        existing_titles.add(topic["title"].lower())
+            
+            self.logger.info(f"Extracted {len(all_topics)} unique topics from all chunks")
+            
+            # Create topic structure
+            topic_structure = {
+                "title": title,
+                "content": "Document overview",
+                "subtopics": all_topics
+            }
+            
+            return topic_structure
+            
+        except Exception as e:
+            self.logger.error(f"Error processing long document: {str(e)}")
+            return self._create_basic_structure(f"Error processing long document: {str(e)}")
+
+    def _extract_direct_topics(self, text: str) -> List[Dict]:
+        """Extract topics directly using a more aggressive approach"""
+        try:
+            prompt = """I need you to extract ALL possible topics from this document.
+            Be very thorough and don't miss any important topics or sections.
+            
+            For each topic:
+            1. Provide a clear title
+            2. Write a brief description
+            
+            Format as a numbered list with at least 5-10 topics.
+            Be comprehensive and include EVERYTHING of importance.
+            
+            Document text:
+            {text}"""
+            
+            response = self.model.generate_content(
+                prompt.format(text=text),
+                generation_config={
+                    "temperature": 0.3,  # Slightly higher temperature for more variety
+                    "max_output_tokens": 2000,  # Much higher token limit
+                    "top_p": 0.95,
+                    "top_k": 40
+                }
+            )
+            
+            return self._parse_topic_response(response.text)
+        except Exception as e:
+            self.logger.error(f"Error in direct topic extraction: {str(e)}")
+            return []
 
     def _detect_document_type(self, text: str) -> str:
         """Detect the type of document based on content patterns"""
@@ -216,7 +343,7 @@ class TopicExtractor:
                 content = content.strip()
                 
                 # Generate subtopics for this topic
-                subtopics = self._generate_subtopics(title, content)
+                subtopics = self._generate_subtopics(title, content, level=1)
                 
                 topics.append({
                     "title": title,
@@ -235,7 +362,7 @@ class TopicExtractor:
                     content = content.strip()
                     
                     # Generate subtopics for this topic
-                    subtopics = self._generate_subtopics(title, content)
+                    subtopics = self._generate_subtopics(title, content, level=1)
                     
                     topics.append({
                         "title": title,
@@ -271,7 +398,7 @@ class TopicExtractor:
         
             # Generate subtopics for each topic
             for topic in topics:
-                topic["subtopics"] = self._generate_subtopics(topic["title"], topic["content"])
+                topic["subtopics"] = self._generate_subtopics(topic["title"], topic["content"], level=1)
         
         # If we still have no topics, create a default one
         if not topics:
@@ -283,16 +410,30 @@ class TopicExtractor:
         
         return topics
 
-    def _generate_subtopics(self, topic_title: str, topic_content: str) -> List[Dict]:
-        """Generate subtopics for a main topic"""
+    def _generate_subtopics(self, topic_title: str, topic_content: str, level: int = 1, max_level: int = 4) -> List[Dict]:
+        """Generate subtopics for a topic, with support for nested levels"""
         try:
-            # Skip if content is too short
-            if len(topic_content) < 50:
+            # Skip if content is too short or we've reached max nesting level
+            if len(topic_content) < 30 or level > max_level:  # Reduced minimum content length
                 return []
             
-            prompt = f"""Based on this main topic and its description, identify all important subtopics or key points.
+            # Adjust prompt based on nesting level
+            if level == 1:
+                level_desc = "main"
+                min_subtopics = "at least 3-5"
+            elif level == 2:
+                level_desc = "second-level"
+                min_subtopics = "at least 2-4"
+            elif level == 3:
+                level_desc = "third-level"
+                min_subtopics = "at least 2-3"
+            else:
+                level_desc = "detailed"
+                min_subtopics = "at least 1-2"
             
-            Main Topic: {topic_title}
+            prompt = f"""Based on this {level_desc} topic, identify {min_subtopics} important subtopics or key points.
+            
+            Topic: {topic_title}
             Description: {topic_content}
             
             For each subtopic, provide:
@@ -300,75 +441,126 @@ class TopicExtractor:
             2. A brief description (1-2 sentences)
             
             Format as a numbered list with title and description for each subtopic.
-            Be comprehensive and include ALL important subtopics.
+            Be thorough and don't miss any important subtopics.
             """
             
-            response = self.model.generate_content(
-                prompt,
-                generation_config={"temperature": 0.2, "max_output_tokens": 800}
-            )
-            
-            # Parse the response using the same parsing strategies
+            # Try up to 2 times with different temperatures if we don't get enough subtopics
             subtopics = []
-            response_text = response.text
+            attempts = 0
+            max_attempts = 2
             
-            # Strategy 1: Look for numbered items
-            pattern1 = re.compile(r'(\d+)[.)\s]+([^:.\n-]+)[:.-]\s*(.+?)(?=\n\d+[.)\s]+|$)', re.DOTALL)
-            matches = pattern1.findall(response_text)
-            
-            if matches:
-                for _, title, content in matches:
-                    subtopics.append({
-                        "title": title.strip(),
-                        "content": content.strip(),
-                        "subtopics": []  # No further nesting for now
-                    })
-            
-            # Strategy 2: Look for bold or emphasized titles
-            if not subtopics:
-                pattern2 = re.compile(r'(?:\*\*|\*|__)([^*_]+)(?:\*\*|\*|__)[:.-]\s*(.+?)(?=\n\s*(?:\*\*|\*|__)|$)', re.DOTALL)
-                matches = pattern2.findall(response_text)
+            while len(subtopics) < 2 and attempts < max_attempts:
+                temperature = 0.2 + (attempts * 0.2)  # Increase temperature with each attempt
                 
-                if matches:
-                    for title, content in matches:
-                        subtopics.append({
-                            "title": title.strip(),
-                            "content": content.strip(),
-                            "subtopics": []
-                        })
-            
-            # Strategy 3: Simple line-by-line parsing
-            if not subtopics:
-                lines = response_text.split('\n')
-                current_subtopic = None
+                response = self.model.generate_content(
+                    prompt,
+                    generation_config={
+                        "temperature": temperature,
+                        "max_output_tokens": 1200,  # Further increased for more output
+                        "top_p": 0.95,
+                        "top_k": 40
+                    }
+                )
                 
-                for line in lines:
-                    line = line.strip()
-                    if not line:
-                        continue
-                        
-                    # Check if this looks like a title line
-                    if len(line) < 100 and not line.endswith('.'):
-                        # Start a new subtopic
-                        current_subtopic = {
-                            "title": line,
-                            "content": "",
-                            "subtopics": []
-                        }
-                        subtopics.append(current_subtopic)
-                    elif current_subtopic:
-                        # Add to current subtopic's content
-                        if current_subtopic["content"]:
-                            current_subtopic["content"] += " " + line
-                        else:
-                            current_subtopic["content"] = line
+                # Log the response for debugging
+                self.logger.debug(f"Level {level} subtopics response (attempt {attempts+1}) for '{topic_title}': {response.text[:200]}...")
+                
+                # Parse the response
+                attempt_subtopics = self._parse_subtopics(response.text, level, max_level)
+                
+                if len(attempt_subtopics) > len(subtopics):
+                    subtopics = attempt_subtopics
+                
+                attempts += 1
             
-            # Remove the limit on subtopics
             return subtopics
             
         except Exception as e:
-            self.logger.error(f"Error generating subtopics for {topic_title}: {str(e)}")
+            self.logger.error(f"Error generating level {level} subtopics for {topic_title}: {str(e)}")
             return []
+
+    def _parse_subtopics(self, response_text: str, level: int, max_level: int) -> List[Dict]:
+        """Parse subtopics from response text"""
+        subtopics = []
+        
+        # Strategy 1: Look for numbered items
+        pattern1 = re.compile(r'(\d+)[.)\s]+([^:.\n-]+)[:.-]\s*(.+?)(?=\n\d+[.)\s]+|$)', re.DOTALL)
+        matches = pattern1.findall(response_text)
+        
+        if matches:
+            for _, title, content in matches:
+                title = title.strip()
+                content = content.strip()
+                
+                # Recursively generate next level of subtopics if not at max level
+                next_level_subtopics = []
+                if level < max_level:
+                    next_level_subtopics = self._generate_subtopics(title, content, level=level+1, max_level=max_level)
+                
+                subtopics.append({
+                    "title": title,
+                    "content": content,
+                    "subtopics": next_level_subtopics
+                })
+        
+        # Strategy 2: Look for bold or emphasized titles
+        if not subtopics:
+            pattern2 = re.compile(r'(?:\*\*|\*|__)([^*_]+)(?:\*\*|\*|__)[:.-]\s*(.+?)(?=\n\s*(?:\*\*|\*|__)|$)', re.DOTALL)
+            matches = pattern2.findall(response_text)
+            
+            if matches:
+                for title, content in matches:
+                    title = title.strip()
+                    content = content.strip()
+                    
+                    # Recursively generate next level of subtopics if not at max level
+                    next_level_subtopics = []
+                    if level < max_level:
+                        next_level_subtopics = self._generate_subtopics(title, content, level=level+1, max_level=max_level)
+                    
+                    subtopics.append({
+                        "title": title,
+                        "content": content,
+                        "subtopics": next_level_subtopics
+                    })
+        
+        # Strategy 3: Simple line-by-line parsing
+        if not subtopics:
+            lines = response_text.split('\n')
+            current_subtopic = None
+            
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                    
+                # Check if this looks like a title line
+                if len(line) < 100 and not line.endswith('.'):
+                    # Start a new subtopic
+                    current_subtopic = {
+                        "title": line,
+                        "content": "",
+                        "subtopics": []
+                    }
+                    subtopics.append(current_subtopic)
+                elif current_subtopic:
+                    # Add to current subtopic's content
+                    if current_subtopic["content"]:
+                        current_subtopic["content"] += " " + line
+                    else:
+                        current_subtopic["content"] = line
+            
+            # Generate next level of subtopics for each subtopic if not at max level
+            if level < max_level:
+                for subtopic in subtopics:
+                    subtopic["subtopics"] = self._generate_subtopics(
+                        subtopic["title"], 
+                        subtopic["content"], 
+                        level=level+1,
+                        max_level=max_level
+                    )
+        
+        return subtopics
 
     def _create_basic_structure(self, reason: str) -> Dict:
         """Create a basic topic structure"""
