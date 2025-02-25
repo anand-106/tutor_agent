@@ -1,6 +1,6 @@
 from typing import List, Dict, Any
 import fitz  # PyMuPDF
-from docx import Document
+from docx import Document  # Make sure to use python-docx, not docx
 import re
 from pathlib import Path
 import logging

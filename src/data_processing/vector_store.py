@@ -1,6 +1,5 @@
 from typing import List, Dict
 import chromadb
-from chromadb.config import Settings
 import pinecone
 from sentence_transformers import SentenceTransformer
 from .text_chunker import TextChunk
@@ -36,6 +35,14 @@ class VectorStore:
                         api_key=pinecone_api_key,
                         environment=pinecone_environment
                     )
+                    
+                    if pinecone_index not in pinecone.list_indexes():
+                        pinecone.create_index(
+                            name=pinecone_index,
+                            dimension=384,  # dimension for 'all-MiniLM-L6-v2'
+                            metric='cosine'
+                        )
+                    
                     self.index = pinecone.Index(pinecone_index)
                     self.logger.info("Successfully initialized Pinecone")
                 except Exception as e:
@@ -43,11 +50,18 @@ class VectorStore:
                     raise
             else:
                 try:
-                    self.client = chromadb.Client(Settings(
-                        chroma_db_impl="duckdb+parquet",
-                        persist_directory="./chroma_db"
-                    ))
-                    self.collection = self.client.create_collection("education_content")
+                    # New ChromaDB initialization
+                    self.client = chromadb.PersistentClient(path="./chroma_db")
+                    
+                    # Get or create collection
+                    try:
+                        self.collection = self.client.get_collection("education_content")
+                    except:
+                        self.collection = self.client.create_collection(
+                            name="education_content",
+                            metadata={"hnsw:space": "cosine"}  # Use cosine similarity
+                        )
+                        
                     self.logger.info("Successfully initialized ChromaDB")
                 except Exception as e:
                     self.logger.error(f"Failed to initialize ChromaDB: {str(e)}")

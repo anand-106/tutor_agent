@@ -1,3 +1,6 @@
+// Add base URL configuration
+const API_BASE_URL = window.location.origin;
+
 document.addEventListener('DOMContentLoaded', function() {
     const uploadForm = document.getElementById('upload-form');
     const fileInput = document.getElementById('file-input');
@@ -5,6 +8,44 @@ document.addEventListener('DOMContentLoaded', function() {
     const chatHistory = document.getElementById('chat-history');
     const queryInput = document.getElementById('query-input');
     const sendButton = document.getElementById('send-button');
+
+    console.log("Page loaded. API Base URL:", API_BASE_URL);
+    console.log("Current location:", window.location.href);
+    
+    // Test API endpoints
+    fetch(`${API_BASE_URL}/api/ping`)
+        .then(response => response.json())
+        .then(data => console.log("Ping test:", data))
+        .catch(error => console.error("Ping test failed:", error));
+
+    async function handleResponse(response) {
+        try {
+            const contentType = response.headers.get("content-type");
+            console.log("Response:", {
+                url: response.url,
+                status: response.status,
+                contentType: contentType
+            });
+            
+            if (contentType && contentType.includes("application/json")) {
+                const result = await response.json();
+                console.log("Response data:", result);
+                return result;
+            } else {
+                const text = await response.text();
+                console.error("Unexpected response:", {
+                    url: response.url,
+                    status: response.status,
+                    contentType,
+                    text: text.substring(0, 500) // First 500 chars
+                });
+                throw new Error(`Server error (${response.status}): ${text.substring(0, 100)}`);
+            }
+        } catch (error) {
+            console.error("Response handling error:", error);
+            throw error;
+        }
+    }
 
     uploadForm.addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -22,16 +63,21 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('file', file);
             
             try {
-                const response = await fetch('/upload', {
+                const response = await fetch(`${API_BASE_URL}/api/upload`, {
                     method: 'POST',
                     body: formData
                 });
                 
-                if (!response.ok) throw new Error('Upload failed');
+                const result = await handleResponse(response);
                 
-                uploadStatus.textContent = 'Files uploaded successfully!';
+                if (!response.ok) {
+                    throw new Error(result.detail || 'Upload failed');
+                }
+                
+                uploadStatus.textContent = result.message || 'File uploaded successfully!';
                 fileInput.value = '';
             } catch (error) {
+                console.error("Upload error:", error);
                 uploadStatus.textContent = `Error: ${error.message}`;
             }
         }
@@ -46,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
         queryInput.value = '';
 
         try {
-            const response = await fetch('/chat', {
+            const response = await fetch(`${API_BASE_URL}/api/chat`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -54,12 +100,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify({ text: query })
             });
 
-            if (!response.ok) throw new Error('Failed to get response');
+            const result = await handleResponse(response);
+            
+            if (!response.ok) {
+                throw new Error(result.detail || 'Failed to get response');
+            }
 
-            const data = await response.json();
-            addMessage(data.response, 'ai');
+            addMessage(result.response, 'ai');
         } catch (error) {
-            addMessage('Sorry, there was an error processing your request.', 'ai');
+            console.error("Chat error:", error);
+            addMessage(`Error: ${error.message}`, 'ai');
         }
     }
 
