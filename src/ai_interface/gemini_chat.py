@@ -12,6 +12,7 @@ class GeminiTutor:
     ):
         self.logger = setup_logger('gemini_tutor')
         self.pipeline = pipeline
+        self.current_file = None
         
         try:
             genai.configure(api_key=gemini_api_key)
@@ -21,10 +22,21 @@ class GeminiTutor:
             self.logger.error(f"Failed to initialize Gemini model: {str(e)}")
             raise
 
+    def set_current_file(self, file_path: str):
+        """Set the current file being worked with"""
+        self.current_file = file_path
+        self.logger.info(f"Set current file to: {file_path}")
+
     def get_context(self, query: str, max_chunks: int = 5) -> str:
         """Retrieve relevant context from vector store"""
         try:
-            results = self.pipeline.search_content(query, top_k=max_chunks)
+            # Create filter for current file if set
+            filter_criteria = None
+            if self.current_file:
+                filter_criteria = {"file_path": self.current_file}
+                self.logger.info(f"Searching with filter for file: {self.current_file}")
+            
+            results = self.pipeline.search_content(query, filter_criteria, top_k=max_chunks)
             
             # Handle ChromaDB results
             if isinstance(results, dict):

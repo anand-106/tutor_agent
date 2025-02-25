@@ -6,54 +6,120 @@ import os
 from .logger_config import setup_logger
 
 class TopicExtractor:
-    def __init__(self, gemini_api_key: str):
+    def __init__(self, api_key: str = None):
         self.logger = setup_logger('topic_extractor')
-        try:
-            if not gemini_api_key:
-                self.logger.error("No Gemini API key provided")
-                raise ValueError("Gemini API key is required for topic extraction")
-                
-            genai.configure(api_key=gemini_api_key)
-            self.model = genai.GenerativeModel('gemini-pro')
-            self.logger.info("Initialized TopicExtractor with Gemini")
-        except Exception as e:
-            self.logger.error(f"Failed to initialize TopicExtractor: {str(e)}")
-            raise
+        self.api_key = api_key
+        
+        if api_key:
+            try:
+                genai.configure(api_key=api_key)
+                # Use gemini-1.5-pro instead of gemini-pro
+                self.model = genai.GenerativeModel('gemini-1.5-pro')
+                self.logger.info("Initialized Gemini model for topic extraction")
+            except Exception as e:
+                self.logger.error(f"Failed to initialize Gemini model: {str(e)}")
+                self.model = None
+        else:
+            self.logger.warning("No API key provided, topic extraction will be limited")
+            self.model = None
 
     def extract_topics(self, text: str) -> Dict:
-        """Extract topics and subtopics from text using AI"""
+        """Extract hierarchical topic structure from text"""
         try:
-            if not text or len(text.strip()) < 50:
-                self.logger.warning("Text is too short for meaningful topic extraction")
-                return self._create_basic_structure("Empty or very short document")
-            
             # Truncate text if too long
             max_length = 15000
             if len(text) > max_length:
-                truncated_text = text[:max_length]
-                self.logger.info(f"Text truncated from {len(text)} to {len(truncated_text)} characters")
-            else:
-                truncated_text = text
-
-            # First, extract the document title
-            title = self._extract_document_title(truncated_text)
+                text = text[:max_length]
+                self.logger.info(f"Text truncated from {len(text)} to {max_length} characters")
             
-            # Then extract main topics
-            main_topics = self._extract_main_topics(truncated_text)
+            # If no model available, return basic structure
+            if not self.model:
+                self.logger.warning("No Gemini model available, returning basic topic structure")
+                return {
+                    "title": "Document Title",
+                    "content": "Document overview",
+                    "subtopics": [
+                        {
+                            "title": "Document Content",
+                            "content": "The document content could not be automatically structured.",
+                            "subtopics": []
+                        }
+                    ]
+                }
             
-            # Create the structure
-            document_structure = {
+            # Extract document title
+            try:
+                title_prompt = f"""Extract the main title or subject of this document. 
+                Return ONLY the title, nothing else.
+                
+                Document text:
+                {text[:5000]}"""
+                
+                title_response = self.model.generate_content(title_prompt)
+                title = title_response.text.strip()
+                self.logger.info(f"Extracted document title: {title}")
+            except Exception as e:
+                self.logger.error(f"Error extracting document title: {str(e)}")
+                title = "Document Title"
+            
+            # Extract main topics
+            try:
+                topics_prompt = f"""Analyze this document and identify the main topics or sections.
+                Format your response as a simple list with one topic per line.
+                Limit to 5-7 main topics maximum.
+                
+                Document text:
+                {text}"""
+                
+                topics_response = self.model.generate_content(topics_prompt)
+                topics_text = topics_response.text.strip()
+                
+                # Parse the topics
+                main_topics = [
+                    line.strip() for line in topics_text.split('\n') 
+                    if line.strip() and not line.strip().startswith('-')
+                ]
+                
+                # Clean up any numbering or bullets
+                main_topics = [re.sub(r'^\d+\.\s*', '', topic) for topic in main_topics]
+                main_topics = [re.sub(r'^[-•*]\s*', '', topic) for topic in main_topics]
+                
+                self.logger.info(f"Successfully extracted topics: {len(main_topics)} main topics found")
+            except Exception as e:
+                self.logger.error(f"Error extracting main topics: {str(e)}")
+                main_topics = ["Document Content"]
+            
+            # Create topic structure
+            topic_structure = {
                 "title": title,
-                "subtopics": main_topics,
-                "content": "Document overview"
+                "content": "Document overview",
+                "subtopics": []
             }
             
-            self.logger.info(f"Successfully extracted topics: {len(main_topics)} main topics found")
-            return document_structure
-                
+            # Add main topics as subtopics
+            for topic in main_topics:
+                topic_structure["subtopics"].append({
+                    "title": topic,
+                    "content": f"Content related to {topic}",
+                    "subtopics": []
+                })
+            
+            return topic_structure
+            
         except Exception as e:
-            self.logger.error(f"Error extracting topics: {str(e)}")
-            return self._create_basic_structure(f"Error: {str(e)}")
+            self.logger.error(f"Error in topic extraction: {str(e)}")
+            # Return a basic structure on error
+            return {
+                "title": "Document Title",
+                "content": "Document overview",
+                "subtopics": [
+                    {
+                        "title": "Document Content",
+                        "content": "The document content could not be automatically structured.",
+                        "subtopics": []
+                    }
+                ]
+            }
     
     def _extract_document_title(self, text: str) -> str:
         """Extract the document title using AI"""

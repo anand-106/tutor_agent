@@ -361,7 +361,15 @@ async def upload_file(file: UploadFile = File(...)):
             buffer.write(content)
         
         try:
-            pipeline.process_file(str(file_path))
+            # Use a consistent key for the topics cache
+            consistent_key = f"current_document_{file.filename}"
+            pipeline.process_file(str(file_path), metadata={"consistent_key": consistent_key})
+            
+            # Set this as the current file for the tutor
+            tutor.set_current_file(consistent_key)
+            
+            # Store the original filename for reference
+            pipeline.current_filename = file.filename
         finally:
             if file_path.exists():
                 file_path.unlink()
@@ -525,6 +533,32 @@ async def get_all_topics():
     """Get topics structure for all processed files"""
     try:
         topics = pipeline.get_topics()
+        
+        # Log the topics for debugging
+        logger.info(f"Topics cache contains keys: {list(topics.keys())}")
+        
+        # If topics is empty, return a helpful message
+        if not topics:
+            return JSONResponse(
+                content={"message": "No topics available. Please upload a file first."},
+                status_code=200
+            )
+        
+        # If we have a current filename, use it for display
+        if hasattr(pipeline, 'current_filename') and pipeline.current_filename:
+            # Create a more user-friendly response
+            formatted_topics = {}
+            for key, value in topics.items():
+                if key.startswith("current_document_"):
+                    formatted_topics[pipeline.current_filename] = value
+                else:
+                    formatted_topics[key] = value
+            
+            return JSONResponse(
+                content={"topics": formatted_topics},
+                status_code=200
+            )
+            
         return JSONResponse(
             content={"topics": topics},
             status_code=200
@@ -576,6 +610,69 @@ async def get_topic_by_path(file_path: str, topic_path: str):
         )
     except Exception as e:
         logger.error(f"Error retrieving topic: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={"detail": str(e)}
+        )
+
+@app.post("/api/select-file")
+async def select_file(file_data: Dict[str, str]):
+    try:
+        file_path = file_data.get("file_path")
+        if not file_path:
+            return JSONResponse(
+                status_code=400,
+                content={"detail": "No file path provided"}
+            )
+            
+        # Check if we have topics for this file
+        if file_path not in pipeline.topics_cache:
+            return JSONResponse(
+                status_code=404,
+                content={"detail": f"File not found: {file_path}"}
+            )
+            
+        # Set as current file
+        tutor.set_current_file(file_path)
+        
+        return JSONResponse(
+            content={"message": f"Selected file: {file_path}"},
+            status_code=200
+        )
+    except Exception as e:
+        logger.error(f"Error selecting file: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={"detail": str(e)}
+        )
+
+@app.get("/api/files")
+async def get_files():
+    """Get list of all processed files"""
+    try:
+        files = list(pipeline.topics_cache.keys())
+        return JSONResponse(
+            content={"files": files},
+            status_code=200
+        )
+    except Exception as e:
+        logger.error(f"Error retrieving files: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={"detail": str(e)}
+        )
+
+@app.get("/api/debug/topics-cache")
+async def debug_topics_cache():
+    """Debug endpoint to check the state of the topics cache"""
+    try:
+        return {
+            "topics_cache_keys": list(pipeline.topics_cache.keys()),
+            "topics_cache_size": len(pipeline.topics_cache),
+            "current_file": tutor.current_file
+        }
+    except Exception as e:
+        logger.error(f"Error in debug topics cache: {str(e)}")
         return JSONResponse(
             status_code=500,
             content={"detail": str(e)}

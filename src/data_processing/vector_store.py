@@ -127,6 +127,8 @@ class VectorStore:
                 raise ValueError("Empty query provided")
                 
             self.logger.info(f"Searching with query: {query[:100]}...")
+            if filter_criteria:
+                self.logger.info(f"Using filter criteria: {filter_criteria}")
             
             try:
                 query_embedding = self.model.encode(query).tolist()
@@ -149,12 +151,25 @@ class VectorStore:
                     raise
             else:
                 try:
+                    # For ChromaDB, ensure the filter criteria is properly formatted
+                    where_filter = {}
+                    if filter_criteria and 'file_path' in filter_criteria:
+                        # Format the filter for ChromaDB
+                        where_filter = {"file_path": {"$eq": filter_criteria['file_path']}}
+                        self.logger.info(f"ChromaDB filter: {where_filter}")
+                    
                     results = self.collection.query(
                         query_embeddings=[query_embedding],
                         n_results=top_k,
-                        where=filter_criteria
+                        where=where_filter if where_filter else None
                     )
-                    self.logger.info(f"Found {len(results.get('ids', []))} results in ChromaDB")
+                    
+                    # Log the metadata of returned results for debugging
+                    if 'metadatas' in results and results['metadatas']:
+                        for i, metadata in enumerate(results['metadatas'][0]):
+                            self.logger.debug(f"Result {i} metadata: {metadata}")
+                    
+                    self.logger.info(f"Found {len(results.get('ids', [[]])[0])} results in ChromaDB")
                     return results
                 except Exception as e:
                     self.logger.error(f"Failed to query ChromaDB: {str(e)}")
@@ -162,4 +177,28 @@ class VectorStore:
                     
         except Exception as e:
             self.logger.error(f"Error in search: {str(e)}")
+            raise
+
+    def clear_collection(self):
+        """Clear all vectors from the collection"""
+        try:
+            if self.use_pinecone:
+                self.logger.info("Clearing Pinecone index")
+                self.index.delete(delete_all=True)
+            else:
+                self.logger.info("Clearing ChromaDB collection")
+                try:
+                    # Delete the collection
+                    self.client.delete_collection("education_content")
+                    # Recreate it
+                    self.collection = self.client.create_collection(
+                        name="education_content",
+                        metadata={"hnsw:space": "cosine"}
+                    )
+                    self.logger.info("Successfully cleared ChromaDB collection")
+                except Exception as e:
+                    self.logger.error(f"Failed to clear ChromaDB collection: {str(e)}")
+                    raise
+        except Exception as e:
+            self.logger.error(f"Error clearing collection: {str(e)}")
             raise 

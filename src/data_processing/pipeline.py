@@ -102,6 +102,29 @@ class DataProcessingPipeline:
         try:
             self.logger.info(f"Processing file: {file_path}")
             
+            # Clear existing vectors to start fresh
+            try:
+                self.vector_store.clear_collection()
+                self.logger.info("Cleared existing vectors")
+            except Exception as e:
+                self.logger.error(f"Failed to clear vectors: {str(e)}")
+                # Continue processing even if clearing fails
+            
+            # Clear topics cache
+            self.topics_cache = {}
+            self.logger.info("Cleared topics cache")
+            
+            if metadata is None:
+                metadata = {}
+            
+            # Use consistent key if provided
+            consistent_key = metadata.get("consistent_key")
+            
+            # Add file path to metadata
+            file_metadata = metadata.copy()
+            file_metadata['file_path'] = file_path
+            file_metadata['file_name'] = Path(file_path).name
+            
             # Extract text from document
             try:
                 text = self.document_processor.process_document(file_path)
@@ -113,15 +136,18 @@ class DataProcessingPipeline:
             # Extract topics
             try:
                 topics = self.topic_extractor.extract_topics(text)
-                self.topics_cache[file_path] = topics
-                self.logger.info(f"Extracted topics structure for {file_path}")
+                
+                # Use consistent key if provided, otherwise use file_path
+                cache_key = consistent_key if consistent_key else file_path
+                self.topics_cache[cache_key] = topics
+                self.logger.info(f"Extracted topics structure for {file_path}, stored with key {cache_key}")
             except Exception as e:
                 self.logger.error(f"Failed to extract topics from {file_path}: {str(e)}")
                 raise
             
             # Create chunks with metadata
             try:
-                chunks = self.text_chunker.create_chunks(text, metadata)
+                chunks = self.text_chunker.create_chunks(text, file_metadata)
                 self.logger.debug(f"Created {len(chunks)} chunks from {file_path}")
             except Exception as e:
                 self.logger.error(f"Failed to create chunks from {file_path}: {str(e)}")
