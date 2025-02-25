@@ -22,6 +22,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 STATIC_DIR = BASE_DIR / "static"
 UPLOAD_DIR = BASE_DIR / "uploads"
 
+# Get API keys
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+if not GEMINI_API_KEY:
+    logger.warning("GEMINI_API_KEY not found in environment variables. Topic extraction will not work.")
+
 def ensure_static_files():
     """Ensure static directory and files exist"""
     try:
@@ -305,8 +310,11 @@ async def log_requests(request: Request, call_next):
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 # Initialize components
-pipeline = DataProcessingPipeline(use_pinecone=False)
-gemini_api_key = os.getenv("GEMINI_API_KEY")
+pipeline = DataProcessingPipeline(
+    use_pinecone=False,
+    gemini_api_key=GEMINI_API_KEY
+)
+gemini_api_key = GEMINI_API_KEY
 if not gemini_api_key:
     logger.error("GEMINI_API_KEY not found in environment variables")
     raise ValueError("GEMINI_API_KEY environment variable is required")
@@ -510,4 +518,65 @@ async def debug_static():
             "all_files": [str(f.relative_to(STATIC_DIR)) for f in STATIC_DIR.glob("**/*") if f.is_file()]
         }
     except Exception as e:
-        return {"error": str(e)} 
+        return {"error": str(e)}
+
+@app.get("/api/topics")
+async def get_all_topics():
+    """Get topics structure for all processed files"""
+    try:
+        topics = pipeline.get_topics()
+        return JSONResponse(
+            content={"topics": topics},
+            status_code=200
+        )
+    except Exception as e:
+        logger.error(f"Error retrieving topics: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={"detail": str(e)}
+        )
+
+@app.get("/api/topics/{file_path:path}")
+async def get_file_topics(file_path: str):
+    """Get topics structure for a specific file"""
+    try:
+        topics = pipeline.get_topics(file_path)
+        return JSONResponse(
+            content={"topics": topics},
+            status_code=200
+        )
+    except KeyError:
+        return JSONResponse(
+            status_code=404,
+            content={"detail": f"No topics found for file: {file_path}"}
+        )
+    except Exception as e:
+        logger.error(f"Error retrieving topics: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={"detail": str(e)}
+        )
+
+@app.get("/api/topics/{file_path:path}/{topic_path:path}")
+async def get_topic_by_path(file_path: str, topic_path: str):
+    """Get specific topic/subtopic using path"""
+    try:
+        # Convert topic path string to list (e.g., "chapter1/section2" -> ["chapter1", "section2"])
+        path_parts = [p for p in topic_path.split("/") if p]
+        
+        topic = pipeline.get_topic_by_path(file_path, path_parts)
+        return JSONResponse(
+            content={"topic": topic},
+            status_code=200
+        )
+    except KeyError:
+        return JSONResponse(
+            status_code=404,
+            content={"detail": f"Topic path not found: {topic_path}"}
+        )
+    except Exception as e:
+        logger.error(f"Error retrieving topic: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={"detail": str(e)}
+        ) 

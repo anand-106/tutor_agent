@@ -4,12 +4,14 @@ from .document_processor import DocumentProcessor
 from .text_chunker import TextChunker
 from .vector_store import VectorStore
 from .logger_config import setup_logger
+from .topic_extractor import TopicExtractor
 
 class DataProcessingPipeline:
     def __init__(
         self,
         use_pinecone: bool = False,
-        pinecone_credentials: Dict = None
+        pinecone_credentials: Dict = None,
+        gemini_api_key: str = None
     ):
         self.logger = setup_logger('data_pipeline')
         
@@ -38,6 +40,14 @@ class DataProcessingPipeline:
                 self.logger.debug("Initialized VectorStore")
             except Exception as e:
                 self.logger.error(f"Failed to initialize VectorStore: {str(e)}")
+                raise
+                
+            try:
+                self.topic_extractor = TopicExtractor(gemini_api_key)
+                self.topics_cache = {}  # Cache for storing extracted topics
+                self.logger.debug("Initialized TopicExtractor")
+            except Exception as e:
+                self.logger.error(f"Failed to initialize TopicExtractor: {str(e)}")
                 raise
                 
             self.logger.info("Successfully initialized all components")
@@ -100,6 +110,15 @@ class DataProcessingPipeline:
                 self.logger.error(f"Failed to extract text from {file_path}: {str(e)}")
                 raise
             
+            # Extract topics
+            try:
+                topics = self.topic_extractor.extract_topics(text)
+                self.topics_cache[file_path] = topics
+                self.logger.info(f"Extracted topics structure for {file_path}")
+            except Exception as e:
+                self.logger.error(f"Failed to extract topics from {file_path}: {str(e)}")
+                raise
+            
             # Create chunks with metadata
             try:
                 chunks = self.text_chunker.create_chunks(text, metadata)
@@ -136,4 +155,47 @@ class DataProcessingPipeline:
             return results
         except Exception as e:
             self.logger.error(f"Error searching content: {str(e)}")
+            raise
+
+    def get_topics(self, file_path: str = None) -> Dict:
+        """Get topics structure for a specific file or all files"""
+        try:
+            if file_path:
+                if file_path not in self.topics_cache:
+                    raise KeyError(f"No topics found for file: {file_path}")
+                return self.topics_cache[file_path]
+            return self.topics_cache
+        except Exception as e:
+            self.logger.error(f"Error retrieving topics: {str(e)}")
+            raise
+
+    def get_topic_by_path(self, file_path: str, topic_path: List[str]) -> Dict:
+        """Get specific topic/subtopic using path"""
+        try:
+            topics = self.get_topics(file_path)
+            current = topics
+            
+            for key in topic_path:
+                found = False
+                if isinstance(current, list):
+                    for item in current:
+                        if item.get('title') == key:
+                            current = item
+                            found = True
+                            break
+                elif isinstance(current, dict):
+                    if 'subtopics' in current:
+                        for item in current['subtopics']:
+                            if item.get('title') == key:
+                                current = item
+                                found = True
+                                break
+                
+                if not found:
+                    raise KeyError(f"Topic path not found: {topic_path}")
+                    
+            return current
+            
+        except Exception as e:
+            self.logger.error(f"Error retrieving topic by path: {str(e)}")
             raise 
