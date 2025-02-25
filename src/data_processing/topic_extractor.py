@@ -131,19 +131,20 @@ class TopicExtractor:
     def _extract_academic_topics(self, text: str) -> List[Dict]:
         """Extract topics from academic documents"""
         try:
-            prompt = """This appears to be an academic document. Identify the main sections/topics.
+            prompt = """This appears to be an academic document. Identify all the main sections/topics.
             For each section, provide:
             1. The section title (e.g., Introduction, Methodology, Results)
             2. A brief summary of what this section covers
             
             Format your response as a numbered list with title and summary for each section.
+            Include ALL important sections from the document.
             
             Document text:
             {text}"""
             
             response = self.model.generate_content(
                 prompt.format(text=text),
-                generation_config={"temperature": 0.1, "max_output_tokens": 1000}
+                generation_config={"temperature": 0.1, "max_output_tokens": 1500}
             )
             
             return self._parse_topic_response(response.text)
@@ -154,19 +155,20 @@ class TopicExtractor:
     def _extract_technical_topics(self, text: str) -> List[Dict]:
         """Extract topics from technical documents"""
         try:
-            prompt = """This appears to be a technical document. Identify the main sections/topics.
+            prompt = """This appears to be a technical document. Identify all the main sections/topics.
             For each section, provide:
             1. The section title (e.g., Installation, Configuration, API Reference)
             2. A brief summary of what this section covers
             
             Format your response as a numbered list with title and summary for each section.
+            Include ALL important sections from the document.
             
             Document text:
             {text}"""
             
             response = self.model.generate_content(
                 prompt.format(text=text),
-                generation_config={"temperature": 0.1, "max_output_tokens": 1000}
+                generation_config={"temperature": 0.1, "max_output_tokens": 1500}
             )
             
             return self._parse_topic_response(response.text)
@@ -177,19 +179,20 @@ class TopicExtractor:
     def _extract_general_topics(self, text: str) -> List[Dict]:
         """Extract topics from general documents"""
         try:
-            prompt = """Analyze this document and identify 3-7 main topics or themes.
+            prompt = """Analyze this document and identify all main topics or themes.
             For each topic:
             1. Provide a clear, concise title
             2. Write a brief 1-2 sentence summary
             
             Format your response as a numbered list with title and summary for each topic.
+            Be comprehensive and include ALL important topics from the document.
             
             Document text:
             {text}"""
             
             response = self.model.generate_content(
                 prompt.format(text=text),
-                generation_config={"temperature": 0.2, "max_output_tokens": 1000}
+                generation_config={"temperature": 0.2, "max_output_tokens": 1500}
             )
             
             return self._parse_topic_response(response.text)
@@ -211,10 +214,14 @@ class TopicExtractor:
             for _, title, content in matches:
                 title = title.strip()
                 content = content.strip()
+                
+                # Generate subtopics for this topic
+                subtopics = self._generate_subtopics(title, content)
+                
                 topics.append({
                     "title": title,
                     "content": content,
-                    "subtopics": []
+                    "subtopics": subtopics
                 })
         
         # Strategy 2: Look for bold or emphasized titles
@@ -226,10 +233,14 @@ class TopicExtractor:
                 for title, content in matches:
                     title = title.strip()
                     content = content.strip()
+                    
+                    # Generate subtopics for this topic
+                    subtopics = self._generate_subtopics(title, content)
+                    
                     topics.append({
                         "title": title,
                         "content": content,
-                        "subtopics": []
+                        "subtopics": subtopics
                     })
         
         # Strategy 3: Simple line-by-line parsing
@@ -258,6 +269,10 @@ class TopicExtractor:
                     else:
                         current_topic["content"] = line
         
+            # Generate subtopics for each topic
+            for topic in topics:
+                topic["subtopics"] = self._generate_subtopics(topic["title"], topic["content"])
+        
         # If we still have no topics, create a default one
         if not topics:
             topics = [{
@@ -267,6 +282,93 @@ class TopicExtractor:
             }]
         
         return topics
+
+    def _generate_subtopics(self, topic_title: str, topic_content: str) -> List[Dict]:
+        """Generate subtopics for a main topic"""
+        try:
+            # Skip if content is too short
+            if len(topic_content) < 50:
+                return []
+            
+            prompt = f"""Based on this main topic and its description, identify all important subtopics or key points.
+            
+            Main Topic: {topic_title}
+            Description: {topic_content}
+            
+            For each subtopic, provide:
+            1. A clear, concise title
+            2. A brief description (1-2 sentences)
+            
+            Format as a numbered list with title and description for each subtopic.
+            Be comprehensive and include ALL important subtopics.
+            """
+            
+            response = self.model.generate_content(
+                prompt,
+                generation_config={"temperature": 0.2, "max_output_tokens": 800}
+            )
+            
+            # Parse the response using the same parsing strategies
+            subtopics = []
+            response_text = response.text
+            
+            # Strategy 1: Look for numbered items
+            pattern1 = re.compile(r'(\d+)[.)\s]+([^:.\n-]+)[:.-]\s*(.+?)(?=\n\d+[.)\s]+|$)', re.DOTALL)
+            matches = pattern1.findall(response_text)
+            
+            if matches:
+                for _, title, content in matches:
+                    subtopics.append({
+                        "title": title.strip(),
+                        "content": content.strip(),
+                        "subtopics": []  # No further nesting for now
+                    })
+            
+            # Strategy 2: Look for bold or emphasized titles
+            if not subtopics:
+                pattern2 = re.compile(r'(?:\*\*|\*|__)([^*_]+)(?:\*\*|\*|__)[:.-]\s*(.+?)(?=\n\s*(?:\*\*|\*|__)|$)', re.DOTALL)
+                matches = pattern2.findall(response_text)
+                
+                if matches:
+                    for title, content in matches:
+                        subtopics.append({
+                            "title": title.strip(),
+                            "content": content.strip(),
+                            "subtopics": []
+                        })
+            
+            # Strategy 3: Simple line-by-line parsing
+            if not subtopics:
+                lines = response_text.split('\n')
+                current_subtopic = None
+                
+                for line in lines:
+                    line = line.strip()
+                    if not line:
+                        continue
+                        
+                    # Check if this looks like a title line
+                    if len(line) < 100 and not line.endswith('.'):
+                        # Start a new subtopic
+                        current_subtopic = {
+                            "title": line,
+                            "content": "",
+                            "subtopics": []
+                        }
+                        subtopics.append(current_subtopic)
+                    elif current_subtopic:
+                        # Add to current subtopic's content
+                        if current_subtopic["content"]:
+                            current_subtopic["content"] += " " + line
+                        else:
+                            current_subtopic["content"] = line
+            
+            # Remove the limit on subtopics
+            return subtopics
+            
+        except Exception as e:
+            self.logger.error(f"Error generating subtopics for {topic_title}: {str(e)}")
+            return []
 
     def _create_basic_structure(self, reason: str) -> Dict:
         """Create a basic topic structure"""
