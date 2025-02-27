@@ -7,9 +7,15 @@ import os
 from typing import Dict
 from dotenv import load_dotenv
 from pathlib import Path
-from ..data_processing.pipeline import DataProcessingPipeline
-from ..ai_interface.gemini_chat import GeminiTutor
-from ..data_processing.logger_config import setup_logger
+import sys
+
+# Add the project root directory to Python path
+sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
+
+# Now use absolute imports instead of relative
+from src.data_processing.pipeline import DataProcessingPipeline
+from src.ai_interface.gemini_chat import GeminiTutor
+from src.data_processing.logger_config import setup_logger
 
 # Load environment variables
 load_dotenv()
@@ -24,8 +30,12 @@ UPLOAD_DIR = BASE_DIR / "uploads"
 
 # Get API keys
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_TOPIC_API_KEY = os.getenv("GEMINI_TOPIC_API_KEY")
+
 if not GEMINI_API_KEY:
-    logger.warning("GEMINI_API_KEY not found in environment variables. Topic extraction will not work.")
+    logger.warning("GEMINI_API_KEY not found in environment variables")
+if not GEMINI_TOPIC_API_KEY:
+    logger.warning("GEMINI_TOPIC_API_KEY not found in environment variables")
 
 def ensure_static_files():
     """Ensure static directory and files exist"""
@@ -312,7 +322,8 @@ app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 # Initialize components
 pipeline = DataProcessingPipeline(
     use_pinecone=False,
-    gemini_api_key=GEMINI_API_KEY
+    gemini_api_key=GEMINI_API_KEY,
+    topic_api_key=GEMINI_TOPIC_API_KEY
 )
 gemini_api_key = GEMINI_API_KEY
 if not gemini_api_key:
@@ -390,25 +401,43 @@ async def upload_file(file: UploadFile = File(...)):
             content={"detail": str(e)}
         )
 
-@app.post("/api/chat")  # Changed route to /api/chat
-async def chat(query: Dict[str, str]):
+@app.post("/api/chat")
+async def chat(request: Request):
     try:
-        if not query.get("text"):
-            return JSONResponse(
-                status_code=400,
-                content={"detail": "No query text provided"}
-            )
+        data = await request.json()
+        message = data.get('text')
+        if not message:
+            raise HTTPException(status_code=400, detail="No message provided")
             
-        response = tutor.chat(query["text"])
-        return JSONResponse(
-            content={"response": response},
-            status_code=200
-        )
+        # Get relevant content from vector store
+        results = pipeline.search_content(message, top_k=3)
+        
+        # Format the context from search results
+        context = ""
+        if isinstance(results, dict) and 'documents' in results:
+            # ChromaDB results
+            documents = results['documents']
+            if documents and isinstance(documents, list):
+                if documents and isinstance(documents[0], list):
+                    documents = [doc for sublist in documents for doc in sublist]
+                context = "\n\n".join(documents)
+        
+        # Generate response using context
+        response = tutor.chat(message, context=context)
+        
+        # Return response with appropriate status
+        if "rate limit" in response.lower() or "quota" in response.lower():
+            return JSONResponse(
+                content={"response": response},
+                status_code=429  # Too Many Requests
+            )
+        return JSONResponse(content={"response": response})
+        
     except Exception as e:
         logger.error(f"Error in chat: {str(e)}")
         return JSONResponse(
             status_code=500,
-            content={"detail": str(e)}
+            content={"response": "An error occurred. Please try again later."}
         )
 
 # Add debug route to check static file serving

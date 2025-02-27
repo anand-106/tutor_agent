@@ -1,5 +1,6 @@
 from typing import List, Dict
 import google.generativeai as genai
+import time
 from ..data_processing.pipeline import DataProcessingPipeline
 from ..data_processing.logger_config import setup_logger
 
@@ -13,6 +14,10 @@ class GeminiTutor:
         self.logger = setup_logger('gemini_tutor')
         self.pipeline = pipeline
         self.current_file = None
+        self.last_request_time = 0
+        self.min_request_interval = 2.0  # Increased to 2 seconds
+        self.retry_count = 0
+        self.max_retries = 3
         
         try:
             genai.configure(api_key=gemini_api_key)
@@ -60,28 +65,55 @@ class GeminiTutor:
             self.logger.error(f"Error retrieving context: {str(e)}")
             raise
 
-    def chat(self, query: str) -> str:
+    def _handle_rate_limit(self):
+        """Implement rate limiting with exponential backoff"""
+        current_time = time.time()
+        time_since_last_request = current_time - self.last_request_time
+        
+        # Calculate wait time with exponential backoff
+        wait_time = self.min_request_interval * (2 ** self.retry_count)
+        
+        if time_since_last_request < wait_time:
+            sleep_duration = wait_time - time_since_last_request
+            self.logger.info(f"Rate limiting: waiting {sleep_duration:.2f} seconds")
+            time.sleep(sleep_duration)
+            
+        self.last_request_time = time.time()
+
+    def chat(self, query: str, context: str = "") -> str:
         """Generate response using Gemini with context"""
         try:
-            context = self.get_context(query)
-            
             if not context:
-                self.logger.warning("No relevant context found for query")
                 return "I couldn't find any relevant information in the documents to answer your question."
             
-            prompt = f"""You are an intelligent AI tutor. Use the following context to answer the student's question. 
-            If the context doesn't contain relevant information, say so and provide general guidance.
-            
-            Context:
-            {context}
-            
-            Student's Question: {query}
-            
-            Please provide a clear, detailed explanation:"""
+            while self.retry_count < self.max_retries:
+                try:
+                    self._handle_rate_limit()
+                    
+                    prompt = f"""You are an intelligent AI tutor. Use the following context to answer the student's question.
+                    Be detailed and thorough in your explanation. If you're explaining a concept, include examples where helpful.
+                    
+                    Context:
+                    {context}
+                    
+                    Student's Question: {query}
+                    
+                    Please provide a clear, detailed explanation:"""
 
-            response = self.model.generate_content(prompt)
-            return response.text
-            
+                    response = self.model.generate_content(prompt)
+                    self.retry_count = 0  # Reset retry count on success
+                    return response.text
+                    
+                except Exception as e:
+                    if "429" in str(e) or "quota" in str(e).lower():
+                        self.retry_count += 1
+                        if self.retry_count >= self.max_retries:
+                            return ("I apologize, but I'm currently experiencing high traffic. "
+                                   "Please try again in a few minutes.")
+                        continue
+                    else:
+                        raise
+                
         except Exception as e:
             self.logger.error(f"Error generating response: {str(e)}")
-            raise 
+            return "I encountered an error while processing your request. Please try again in a moment." 

@@ -3,8 +3,7 @@ import 'package:get/get.dart';
 import 'package:agent/controllers/chat_controller.dart';
 import 'package:agent/widgets/chat_message_widget.dart';
 
-class ChatWidget extends StatelessWidget {
-  final ChatController controller = Get.find();
+class ChatWidget extends GetView<ChatController> {
   final TextEditingController textController = TextEditingController();
 
   @override
@@ -43,8 +42,10 @@ class ChatWidget extends StatelessWidget {
                     : IconButton(
                         icon: Icon(Icons.send),
                         onPressed: () {
-                          controller.sendMessage(textController.text);
-                          textController.clear();
+                          if (textController.text.isNotEmpty) {
+                            controller.sendMessage(textController.text);
+                            textController.clear();
+                          }
                         },
                       ),
               ),

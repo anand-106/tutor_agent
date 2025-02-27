@@ -3,10 +3,12 @@ import 'package:get/get.dart';
 import 'package:agent/views/home_view.dart';
 import 'package:agent/controllers/theme_controller.dart';
 import 'package:agent/services/api_service.dart';
+import 'package:agent/controllers/chat_controller.dart';
 
 void main() {
-  // Initialize services
+  // Initialize services and controllers
   Get.put(ApiService());
+  Get.put(ChatController());
 
   runApp(MyApp());
 }

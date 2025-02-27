@@ -28,8 +28,13 @@ class ApiService extends GetxService {
       final response = await _dio.post('/chat', data: {
         'text': message,
       });
-      return response.data['response'];
+
+      if (response.statusCode == 200 && response.data['response'] != null) {
+        return response.data['response'];
+      }
+      throw 'Invalid response from server';
     } catch (e) {
+      print('Chat error: $e'); // For debugging
       throw 'Failed to send message: $e';
     }
   }
@@ -57,6 +62,18 @@ class ApiService extends GetxService {
     } catch (e) {
       print('Error: $e');
       throw 'Failed to upload document: $e';
+    }
+  }
+
+  Future<Map<String, dynamic>> getTopics() async {
+    try {
+      final response = await _dio.get('/topics');
+      if (response.statusCode == 200) {
+        return response.data['topics'];
+      }
+      throw 'Failed to get topics: ${response.statusCode}';
+    } catch (e) {
+      throw 'Failed to get topics: $e';
     }
   }
 }

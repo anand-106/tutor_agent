@@ -28,6 +28,10 @@ class ChatController extends GetxController {
     }
   }
 
+  void addSystemMessage(String text) {
+    messages.add(ChatMessage(text: text, isUser: false));
+  }
+
   void clearChat() {
     messages.clear();
   }
