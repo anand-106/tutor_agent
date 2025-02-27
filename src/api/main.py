@@ -28,14 +28,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 STATIC_DIR = BASE_DIR / "static"
 UPLOAD_DIR = BASE_DIR / "uploads"
 
-# Get API keys
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-GEMINI_TOPIC_API_KEY = os.getenv("GEMINI_TOPIC_API_KEY")
+# Get API keys (now supports multiple keys)
+GEMINI_API_KEYS = [
+    os.getenv("GEMINI_API_KEY_1"),
+    os.getenv("GEMINI_API_KEY_2"),
+    os.getenv("GEMINI_API_KEY_3"),
+    # Add more as needed
+]
 
-if not GEMINI_API_KEY:
-    logger.warning("GEMINI_API_KEY not found in environment variables")
-if not GEMINI_TOPIC_API_KEY:
-    logger.warning("GEMINI_TOPIC_API_KEY not found in environment variables")
+# Filter out None values
+GEMINI_API_KEYS = [key for key in GEMINI_API_KEYS if key]
+
+if not GEMINI_API_KEYS:
+    logger.warning("No GEMINI API keys found in environment variables")
 
 def ensure_static_files():
     """Ensure static directory and files exist"""
@@ -322,16 +327,11 @@ app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 # Initialize components
 pipeline = DataProcessingPipeline(
     use_pinecone=False,
-    gemini_api_key=GEMINI_API_KEY,
-    topic_api_key=GEMINI_TOPIC_API_KEY
+    topic_api_key=GEMINI_API_KEYS[0] if GEMINI_API_KEYS else None
 )
-gemini_api_key = GEMINI_API_KEY
-if not gemini_api_key:
-    logger.error("GEMINI_API_KEY not found in environment variables")
-    raise ValueError("GEMINI_API_KEY environment variable is required")
 
 tutor = GeminiTutor(
-    gemini_api_key=gemini_api_key,
+    api_keys=GEMINI_API_KEYS,
     pipeline=pipeline
 )
 
