@@ -6,132 +6,163 @@ import os
 from .logger_config import setup_logger
 
 class TopicExtractor:
-    def __init__(self, api_key: str = None):
+    def __init__(self, api_keys: List[str] = None):
         self.logger = setup_logger('topic_extractor')
-        self.api_key = api_key
+        self.api_keys = api_keys or []
+        self.current_key_index = 0
+        self.retry_count = 0
+        self.max_retries = 3
         
-        if api_key:
-            try:
-                genai.configure(api_key=api_key)
-                # Use gemini-1.5-pro instead of gemini-pro
-                self.model = genai.GenerativeModel('gemini-1.5-pro')
-                self.logger.info("Initialized Gemini model for topic extraction")
-            except Exception as e:
-                self.logger.error(f"Failed to initialize Gemini model: {str(e)}")
-                self.model = None
-        else:
-            self.logger.warning("No API key provided, topic extraction will be limited")
-            self.model = None
-
-    def extract_topics(self, text: str) -> Dict:
-        """Extract hierarchical topic structure from text"""
+        if not self.api_keys:
+            raise ValueError("No API keys provided")
+            
         try:
-            # Process text in chunks if it's very long
-            if len(text) > 15000:
-                self.logger.info(f"Text is very long ({len(text)} chars), processing in chunks")
-                return self._process_long_document(text)
-            
-            # If no model available, return basic structure
-            if not self.model:
-                self.logger.warning("No Gemini model available, returning basic topic structure")
-                return self._create_basic_structure("No AI model available")
-            
-            # Check if text is substantial enough
-            if len(text.strip()) < 100:
-                self.logger.warning("Text is too short for meaningful topic extraction")
-                return self._create_basic_structure("Text too short")
-            
-            # Try to detect the document type/format to use appropriate extraction strategy
-            doc_type = self._detect_document_type(text)
-            self.logger.info(f"Detected document type: {doc_type}")
-            
-            # Extract document title
-            try:
-                title_prompt = f"""Extract the main title or subject of this document. 
-                If there's no clear title, create a descriptive title based on the content.
-                Return ONLY the title, nothing else.
-                
-                Document text:
-                {text[:5000]}"""
-                
-                title_response = self.model.generate_content(title_prompt)
-                title = title_response.text.strip()
-                self.logger.info(f"Extracted document title: {title}")
-            except Exception as e:
-                self.logger.error(f"Error extracting document title: {str(e)}")
-                title = "Document Title"
-            
-            # Try multiple extraction strategies and combine results
-            all_topics = []
-            
-            # Extract main topics using a strategy based on document type
-            try:
-                # Try the specific document type strategy first
-                if doc_type == "academic":
-                    topics = self._extract_academic_topics(text)
-                elif doc_type == "technical":
-                    topics = self._extract_technical_topics(text)
-                else:
-                    topics = self._extract_general_topics(text)
-                    
-                all_topics.extend(topics)
-                self.logger.info(f"Extracted {len(topics)} topics using {doc_type} strategy")
-                
-                # If we got very few topics, try the general approach as well
-                if len(topics) < 3 and doc_type != "general":
-                    self.logger.info(f"Got only {len(topics)} topics, trying general approach as well")
-                    general_topics = self._extract_general_topics(text)
-                    
-                    # Add any new topics that don't overlap with existing ones
-                    existing_titles = {t["title"].lower() for t in all_topics}
-                    for topic in general_topics:
-                        if topic["title"].lower() not in existing_titles:
-                            all_topics.append(topic)
-                            existing_titles.add(topic["title"].lower())
-                    
-                    self.logger.info(f"Added {len(all_topics) - len(topics)} additional topics from general strategy")
-                
-                # If we still have very few topics, try a direct approach
-                if len(all_topics) < 3:
-                    self.logger.info("Still have few topics, trying direct extraction")
-                    direct_topics = self._extract_direct_topics(text)
-                    
-                    # Add any new topics
-                    existing_titles = {t["title"].lower() for t in all_topics}
-                    for topic in direct_topics:
-                        if topic["title"].lower() not in existing_titles:
-                            all_topics.append(topic)
-                            existing_titles.add(topic["title"].lower())
-                    
-                    self.logger.info(f"Added {len(all_topics) - len(topics) - (len(general_topics) if 'general_topics' in locals() else 0)} additional topics from direct extraction")
-                
-                # Log the number of subtopics for each topic
-                for i, topic in enumerate(all_topics):
-                    subtopic_count = len(topic.get("subtopics", []))
-                    self.logger.info(f"Topic {i+1} '{topic['title']}' has {subtopic_count} subtopics")
-                    
-                    # Log second level subtopics
-                    for j, subtopic in enumerate(topic.get("subtopics", [])):
-                        sub_subtopic_count = len(subtopic.get("subtopics", []))
-                        self.logger.info(f"  Subtopic {i+1}.{j+1} '{subtopic['title']}' has {sub_subtopic_count} sub-subtopics")
-                
-            except Exception as e:
-                self.logger.error(f"Error extracting main topics: {str(e)}")
-                all_topics = [{"title": "Document Content", "content": "Content could not be structured.", "subtopics": []}]
-            
-            # Create topic structure
-            topic_structure = {
-                "title": title,
-                "content": "Document overview",
-                "subtopics": all_topics
-            }
-            
-            return topic_structure
-            
+            self._initialize_model()
+            self.logger.info("Initialized Gemini model for topic extraction")
         except Exception as e:
-            self.logger.error(f"Error in topic extraction: {str(e)}")
-            # Return a basic structure on error
-            return self._create_basic_structure(f"Error: {str(e)}")
+            self.logger.error(f"Failed to initialize Gemini model: {str(e)}")
+            raise
+
+    def _initialize_model(self):
+        """Initialize model with current API key"""
+        if not self.api_keys:
+            raise ValueError("No API keys available")
+            
+        genai.configure(api_key=self.api_keys[self.current_key_index])
+        self.model = genai.GenerativeModel('gemini-1.5-pro')
+
+    def _switch_api_key(self):
+        """Switch to next available API key"""
+        original_index = self.current_key_index
+        self.current_key_index = (self.current_key_index + 1) % len(self.api_keys)
+        
+        if self.current_key_index == original_index:
+            raise Exception("All API keys have been tried")
+            
+        self._initialize_model()
+        self.logger.info(f"Switched to API key {self.current_key_index + 1}")
+
+    def extract_topics(self, text: str, max_level: int = 3) -> Dict:
+        """Extract hierarchical topics from text"""
+        self.retry_count = 0
+        
+        while self.retry_count < self.max_retries:
+            try:
+                # Process text in chunks if it's very long
+                if len(text) > 15000:
+                    self.logger.info(f"Text is very long ({len(text)} chars), processing in chunks")
+                    return self._process_long_document(text)
+                
+                # If no model available, return basic structure
+                if not self.model:
+                    self.logger.warning("No Gemini model available, returning basic topic structure")
+                    return self._create_basic_structure("No AI model available")
+                
+                # Check if text is substantial enough
+                if len(text.strip()) < 100:
+                    self.logger.warning("Text is too short for meaningful topic extraction")
+                    return self._create_basic_structure("Text too short")
+                
+                # Try to detect the document type/format to use appropriate extraction strategy
+                doc_type = self._detect_document_type(text)
+                self.logger.info(f"Detected document type: {doc_type}")
+                
+                # Extract document title
+                try:
+                    title_prompt = f"""Extract the main title or subject of this document. 
+                    If there's no clear title, create a descriptive title based on the content.
+                    Return ONLY the title, nothing else.
+                    
+                    Document text:
+                    {text[:5000]}"""
+                    
+                    title_response = self.model.generate_content(title_prompt)
+                    title = title_response.text.strip()
+                    self.logger.info(f"Extracted document title: {title}")
+                except Exception as e:
+                    self.logger.error(f"Error extracting document title: {str(e)}")
+                    title = "Document Title"
+                
+                # Try multiple extraction strategies and combine results
+                all_topics = []
+                
+                # Extract main topics using a strategy based on document type
+                try:
+                    # Try the specific document type strategy first
+                    if doc_type == "academic":
+                        topics = self._extract_academic_topics(text)
+                    elif doc_type == "technical":
+                        topics = self._extract_technical_topics(text)
+                    else:
+                        topics = self._extract_general_topics(text)
+                        
+                    all_topics.extend(topics)
+                    self.logger.info(f"Extracted {len(topics)} topics using {doc_type} strategy")
+                    
+                    # If we got very few topics, try the general approach as well
+                    if len(topics) < 3 and doc_type != "general":
+                        self.logger.info(f"Got only {len(topics)} topics, trying general approach as well")
+                        general_topics = self._extract_general_topics(text)
+                        
+                        # Add any new topics that don't overlap with existing ones
+                        existing_titles = {t["title"].lower() for t in all_topics}
+                        for topic in general_topics:
+                            if topic["title"].lower() not in existing_titles:
+                                all_topics.append(topic)
+                                existing_titles.add(topic["title"].lower())
+                        
+                        self.logger.info(f"Added {len(all_topics) - len(topics)} additional topics from general strategy")
+                    
+                    # If we still have very few topics, try a direct approach
+                    if len(all_topics) < 3:
+                        self.logger.info("Still have few topics, trying direct extraction")
+                        direct_topics = self._extract_direct_topics(text)
+                        
+                        # Add any new topics
+                        existing_titles = {t["title"].lower() for t in all_topics}
+                        for topic in direct_topics:
+                            if topic["title"].lower() not in existing_titles:
+                                all_topics.append(topic)
+                                existing_titles.add(topic["title"].lower())
+                        
+                        self.logger.info(f"Added {len(all_topics) - len(topics) - (len(general_topics) if 'general_topics' in locals() else 0)} additional topics from direct extraction")
+                    
+                    # Log the number of subtopics for each topic
+                    for i, topic in enumerate(all_topics):
+                        subtopic_count = len(topic.get("subtopics", []))
+                        self.logger.info(f"Topic {i+1} '{topic['title']}' has {subtopic_count} subtopics")
+                        
+                        # Log second level subtopics
+                        for j, subtopic in enumerate(topic.get("subtopics", [])):
+                            sub_subtopic_count = len(subtopic.get("subtopics", []))
+                            self.logger.info(f"  Subtopic {i+1}.{j+1} '{subtopic['title']}' has {sub_subtopic_count} sub-subtopics")
+                
+                except Exception as e:
+                    self.logger.error(f"Error extracting main topics: {str(e)}")
+                    all_topics = [{"title": "Document Content", "content": "Content could not be structured.", "subtopics": []}]
+                
+                # Create topic structure
+                topic_structure = {
+                    "title": title,
+                    "content": "Document overview",
+                    "subtopics": all_topics
+                }
+                
+                return topic_structure
+                
+            except Exception as e:
+                if "429" in str(e) or "quota" in str(e).lower():
+                    self.retry_count += 1
+                    try:
+                        self._switch_api_key()
+                        continue
+                    except Exception as switch_error:
+                        if self.retry_count >= self.max_retries:
+                            self.logger.error("All API keys exhausted")
+                            return self._create_basic_structure("API quota exceeded")
+                        continue
+                else:
+                    raise
 
     def _process_long_document(self, text: str) -> Dict:
         """Process a long document by breaking it into chunks"""

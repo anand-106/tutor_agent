@@ -11,8 +11,7 @@ class DataProcessingPipeline:
         self,
         use_pinecone: bool = False,
         pinecone_credentials: Dict = None,
-        gemini_api_key: str = None,
-        topic_api_key: str = None
+        api_keys: List[str] = None  # Change to accept list of API keys
     ):
         self.logger = setup_logger('data_pipeline')
         
@@ -44,7 +43,7 @@ class DataProcessingPipeline:
                 raise
                 
             try:
-                self.topic_extractor = TopicExtractor(topic_api_key or gemini_api_key)
+                self.topic_extractor = TopicExtractor(api_keys=api_keys)
                 self.topics_cache = {}  # Cache for storing extracted topics
                 self.logger.debug("Initialized TopicExtractor")
             except Exception as e:

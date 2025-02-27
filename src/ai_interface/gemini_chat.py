@@ -195,10 +195,27 @@ class GeminiTutor:
                 Topic: {topic}
                 Context: {context}""",
                 
-            4: f"""Teach this topic using a Q&A format:
-                - Start with basic questions
-                - Progress to more complex ones
-                - Provide clear answers
+            4: f"""Create an interactive quiz about this topic.
+                Format the response in this exact JSON structure:
+                {{
+                    "topic": "Topic Title",
+                    "questions": [
+                        {{
+                            "question": "Clear, concise question?",
+                            "options": ["Option A", "Option B", "Option C", "Option D"],
+                            "correct_answer": "Correct option exactly as written above",
+                            "explanation": "Brief explanation of the correct answer"
+                        }}
+                    ]
+                }}
+
+                Rules:
+                - Create exactly 5 questions
+                - Keep questions clear and concise
+                - Each question must have exactly 4 options
+                - Ensure correct_answer matches one option exactly
+                - Questions should test understanding, not memorization
+                - Use the context provided to create relevant questions
                 
                 Topic: {topic}
                 Context: {context}""",
