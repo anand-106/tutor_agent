@@ -5,6 +5,7 @@ from sentence_transformers import SentenceTransformer
 from .text_chunker import TextChunk
 from .logger_config import setup_logger
 
+
 class VectorStore:
     def __init__(
         self,
