@@ -8,10 +8,13 @@ import 'package:agent/widgets/topic_item_widget.dart';
 import 'package:agent/services/api_service.dart';
 import 'dart:convert';
 import 'package:agent/widgets/quiz_widget.dart';
+import 'dart:ui';
+import 'package:agent/controllers/document_controller.dart';
 
 class ChatMessageWidget extends StatelessWidget {
   final ChatMessage message;
   final ChatController chatController = Get.find<ChatController>();
+  final DocumentController documentController = Get.find<DocumentController>();
 
   ChatMessageWidget({required this.message});
 
@@ -29,53 +32,174 @@ class ChatMessageWidget extends StatelessWidget {
           maxWidth: MediaQuery.of(context).size.width * 0.8,
         ),
         margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: message.isUser
-              ? Theme.of(context).primaryColor.withOpacity(0.1)
-              : Colors.grey[100],
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 5,
-              offset: Offset(0, 2),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+            child: Container(
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: message.isUser
+                    ? Theme.of(context).primaryColor.withOpacity(0.15)
+                    : Colors.white.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: message.isUser
+                      ? Theme.of(context).primaryColor.withOpacity(0.2)
+                      : Colors.white.withOpacity(0.08),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 10,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: message.isUser
+                  ? Text(
+                      message.text,
+                      style: GoogleFonts.inter(
+                        fontSize: 16,
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                    )
+                  : _buildAIResponse(context, message.text),
             ),
-          ],
+          ),
         ),
-        child: message.isUser
-            ? Text(
-                message.text,
-                style: GoogleFonts.inter(fontSize: 16),
-              )
-            : _buildAIResponse(context, message.text),
       ),
     );
   }
 
   Widget _buildAIResponse(BuildContext context, String text) {
-    // First check if it's a topics message
     if (isTopicsMessage()) {
-      return FutureBuilder<Map<String, dynamic>>(
-        future: Get.find<ApiService>().getTopics(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
-          }
-          if (snapshot.hasError) {
-            return Text('Error loading topics: ${snapshot.error}');
-          }
-          if (!snapshot.hasData) {
-            return Text('No topics available');
-          }
-          return buildTopicsWidget(context, snapshot.data!);
-        },
-      );
+      return Obx(() {
+        final topicsData = documentController.topics.value;
+        final status = topicsData['status'] as String;
+
+        switch (status) {
+          case 'loading':
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Theme.of(context).primaryColor,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'Loading topics...',
+                    style: GoogleFonts.inter(
+                      color: Colors.white.withOpacity(0.7),
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            );
+
+          case 'error':
+            return Container(
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.red.withOpacity(0.2),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.error_outline, color: Colors.red[300]),
+                      SizedBox(width: 8),
+                      Text(
+                        'Error Loading Topics',
+                        style: GoogleFonts.inter(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red[300],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    topicsData['message'] ?? 'An unknown error occurred',
+                    style: GoogleFonts.inter(
+                      color: Colors.red[200],
+                      fontSize: 14,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    icon: Icon(Icons.refresh),
+                    label: Text('Retry'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red.withOpacity(0.2),
+                      foregroundColor: Colors.red[300],
+                    ),
+                    onPressed: () => documentController.refreshTopics(),
+                  ),
+                ],
+              ),
+            );
+
+          case 'empty':
+            return Container(
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.08),
+                ),
+              ),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.topic_outlined,
+                    size: 48,
+                    color: Colors.white.withOpacity(0.3),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'No topics available yet',
+                    style: GoogleFonts.inter(
+                      color: Colors.white.withOpacity(0.7),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    'Upload a document to see topics',
+                    style: GoogleFonts.inter(
+                      color: Colors.white.withOpacity(0.5),
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            );
+
+          case 'success':
+            return buildTopicsWidget(context, topicsData);
+
+          default:
+            return Text(
+              'Unknown state',
+              style: GoogleFonts.inter(color: Colors.white70),
+            );
+        }
+      });
     }
 
-    // Then try to parse as JSON for quiz
     try {
-      // Clean up the text to handle markdown code blocks
       String jsonText = text;
       if (text.contains("```json")) {
         jsonText = text.split("```json")[1].split("```")[0].trim();
@@ -89,10 +213,8 @@ class ChatMessageWidget extends StatelessWidget {
       }
     } catch (e) {
       print('Error parsing quiz JSON: $e');
-      // Not JSON or wrong format, continue to markdown
     }
 
-    // Default to markdown
     return SingleChildScrollView(
       child: MarkdownBody(
         data: text,
@@ -107,23 +229,27 @@ class ChatMessageWidget extends StatelessWidget {
           h2: GoogleFonts.inter(
             fontSize: 20,
             fontWeight: FontWeight.w600,
-            color: Colors.black87,
+            color: Colors.white.withOpacity(0.9),
           ),
           p: GoogleFonts.inter(
             fontSize: 16,
-            color: Colors.black87,
+            color: Colors.white.withOpacity(0.9),
           ),
           listBullet: GoogleFonts.inter(
             fontSize: 16,
             color: Theme.of(context).primaryColor,
           ),
           code: GoogleFonts.firaCode(
-            backgroundColor: Colors.grey[200],
+            backgroundColor: Colors.black.withOpacity(0.3),
+            color: Colors.white.withOpacity(0.9),
             fontSize: 14,
           ),
           codeblockDecoration: BoxDecoration(
-            color: Colors.grey[200],
+            color: Colors.black.withOpacity(0.3),
             borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.1),
+            ),
           ),
         ),
       ),
@@ -131,52 +257,32 @@ class ChatMessageWidget extends StatelessWidget {
   }
 
   Widget buildTopicsWidget(BuildContext context, Map<String, dynamic> topics) {
-    // Check for error state in topics
-    if (topics.values.any((value) {
-      if (value is Map<String, dynamic>) {
-        return value['content']?.toString().contains('429') ?? false;
-      }
-      return false;
-    })) {
+    final topicsList = topics['topics'] as List?;
+
+    if (topicsList == null || topicsList.isEmpty) {
       return Container(
         padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.orange[50],
+          color: Colors.white.withOpacity(0.05),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.orange[200]!),
+          border: Border.all(
+            color: Colors.white.withOpacity(0.08),
+          ),
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Icon(Icons.warning_amber_rounded, color: Colors.orange),
-                SizedBox(width: 8),
-                Text(
-                  'Topics are being processed',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.orange[800],
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 12),
-            Text(
-              'Please wait a moment and try again. The system is currently processing your document.',
-              style: TextStyle(color: Colors.orange[900]),
+            Icon(
+              Icons.topic_outlined,
+              size: 48,
+              color: Colors.white.withOpacity(0.3),
             ),
             SizedBox(height: 16),
-            ElevatedButton.icon(
-              icon: Icon(Icons.refresh),
-              label: Text('Retry Loading Topics'),
-              onPressed: () {
-                chatController.sendMessage("Show me the topics");
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange[100],
-                foregroundColor: Colors.orange[900],
+            Text(
+              'No topics found',
+              style: GoogleFonts.inter(
+                color: Colors.white.withOpacity(0.7),
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
@@ -184,55 +290,41 @@ class ChatMessageWidget extends StatelessWidget {
       );
     }
 
-    // Normal topics display
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[200]!),
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.08),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
       ),
       margin: EdgeInsets.symmetric(vertical: 8),
-      padding: EdgeInsets.all(16),
+      padding: EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Document Topics',
-            style: TextStyle(
+            style: GoogleFonts.inter(
               fontSize: 20,
               fontWeight: FontWeight.bold,
               color: Theme.of(context).primaryColor,
             ),
           ),
           SizedBox(height: 16),
-          ...topics.entries.map((entry) {
-            if (entry.value is Map<String, dynamic>) {
-              final content = entry.value as Map<String, dynamic>;
-              if (content['subtopics'] == null ||
-                  (content['subtopics'] as List).isEmpty) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8),
-                  child: Text(
-                    'No topics available yet. Please try again in a moment.',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                );
-              }
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (content['subtopics'] != null)
-                    ...content['subtopics'].map<Widget>((subtopic) {
-                      return TopicItemWidget(
-                        title: subtopic['title'] ?? '',
-                        subtopics: subtopic['subtopics'],
-                        chatController: chatController,
-                      );
-                    }).toList(),
-                ],
+          ...topicsList.map((topic) {
+            if (topic is Map<String, dynamic>) {
+              return TopicItemWidget(
+                title: topic['title'] ?? '',
+                subtopics: topic['subtopics'],
+                chatController: chatController,
               );
             }
             return SizedBox.shrink();

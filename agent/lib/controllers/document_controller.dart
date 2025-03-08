@@ -1,86 +1,139 @@
 import 'package:get/get.dart';
-import 'package:agent/models/document.dart';
-import 'package:agent/services/api_service.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:agent/controllers/chat_controller.dart';
+import 'package:agent/services/api_service.dart';
+import 'package:flutter/material.dart';
 
 class DocumentController extends GetxController {
   final ApiService _apiService = Get.find<ApiService>();
-  final ChatController _chatController = Get.find<ChatController>();
-  final RxList<Document> documents = <Document>[].obs;
   final RxBool isUploading = false.obs;
+  final RxList<DocumentInfo> documents = <DocumentInfo>[].obs;
+  final Rx<Map<String, dynamic>> topics =
+      Rx<Map<String, dynamic>>({'status': 'empty', 'topics': []});
+
+  @override
+  void onInit() {
+    super.onInit();
+    topics.value = {'status': 'empty', 'topics': []};
+  }
 
   Future<void> uploadDocument() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf', 'docx', 'txt'],
-        withData: true,
       );
 
-      if (result != null && result.files.isNotEmpty) {
+      if (result != null) {
         isUploading.value = true;
-
         final file = result.files.first;
-        await _apiService.uploadDocument(file);
 
-        documents.add(Document(
-          name: file.name,
-          path: file.name,
-        ));
+        final success = await _apiService.uploadDocument(
+          file.bytes!,
+          file.name,
+        );
 
-        // Fetch and display topics
-        final topics = await _apiService.getTopics();
-        _displayTopics(topics);
+        if (success) {
+          documents.add(DocumentInfo(
+            name: file.name,
+            uploadTime: DateTime.now(),
+          ));
 
-        Get.snackbar('Success', 'Document uploaded successfully');
+          // Reset topics and fetch new ones
+          topics.value = {'status': 'loading', 'topics': []};
+
+          // Fetch topics after successful upload
+          await refreshTopics();
+
+          Get.snackbar(
+            'Success',
+            'Document uploaded successfully',
+            backgroundColor: Colors.green.withOpacity(0.1),
+            colorText: Colors.white,
+            duration: Duration(seconds: 3),
+          );
+        } else {
+          Get.snackbar(
+            'Error',
+            'Failed to upload document',
+            backgroundColor: Colors.red.withOpacity(0.1),
+            colorText: Colors.white,
+            duration: Duration(seconds: 3),
+          );
+        }
       }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to upload document: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to upload document: $e',
+        backgroundColor: Colors.red.withOpacity(0.1),
+        colorText: Colors.white,
+        duration: Duration(seconds: 3),
+      );
     } finally {
       isUploading.value = false;
     }
   }
 
-  void _displayTopics(Map<String, dynamic> topics) {
-    final topicsMarkdown = _convertTopicsToMarkdown(topics);
-    _chatController.addSystemMessage(
-        "Here are the topics extracted from your document:\n\n$topicsMarkdown");
-  }
-
-  String _convertTopicsToMarkdown(Map<String, dynamic> topics) {
-    StringBuffer markdown = StringBuffer();
-
-    topics.forEach((filename, content) {
-      if (content is Map<String, dynamic>) {
-        markdown.writeln('# ${content['title']}\n');
-
-        if (content['subtopics'] != null) {
-          _addSubtopics(markdown, content['subtopics'] as List, 0);
-        }
+  Future<Map<String, dynamic>> getTopics() async {
+    try {
+      if (topics.value['status'] == 'empty' ||
+          topics.value['status'] == 'error') {
+        await refreshTopics();
       }
-    });
-
-    return markdown.toString();
-  }
-
-  void _addSubtopics(StringBuffer markdown, List subtopics, int level) {
-    for (var subtopic in subtopics) {
-      if (subtopic is Map<String, dynamic>) {
-        String indent = '  ' * level;
-        String bullet = level == 0 ? '##' : '•';
-
-        markdown.writeln('$indent$bullet ${subtopic['title']}');
-        if (subtopic['content'] != null &&
-            subtopic['content'].toString().isNotEmpty) {
-          markdown.writeln('$indent  ${subtopic['content']}\n');
-        }
-
-        if (subtopic['subtopics'] != null &&
-            (subtopic['subtopics'] as List).isNotEmpty) {
-          _addSubtopics(markdown, subtopic['subtopics'] as List, level + 1);
-        }
-      }
+      return topics.value;
+    } catch (e) {
+      topics.value = {
+        'status': 'error',
+        'message': 'Failed to load topics: $e',
+        'topics': []
+      };
+      return topics.value;
     }
   }
+
+  Future<void> refreshTopics() async {
+    try {
+      topics.value = {'status': 'loading', 'topics': []};
+
+      final response = await _apiService.getTopics();
+      print('API Response: $response'); // Debug print
+
+      if (response.containsKey('topics')) {
+        final topicsList = response['topics'];
+        if (topicsList is List && topicsList.isNotEmpty) {
+          // The topics are already in the correct format
+          topics.value = {'status': 'success', 'topics': topicsList};
+        } else if (response['topics'] is Map<String, dynamic>) {
+          // Extract from the document structure
+          final documentTopics = response['topics'] as Map<String, dynamic>;
+          if (documentTopics.isNotEmpty) {
+            final firstDocument = documentTopics.values.first;
+            if (firstDocument is Map<String, dynamic>) {
+              final mainTopics = firstDocument['topics'] as List? ?? [];
+              topics.value = {'status': 'success', 'topics': mainTopics};
+            }
+          }
+        }
+      }
+
+      print('Final processed topics: ${topics.value}'); // Debug print
+    } catch (e) {
+      print('Error refreshing topics: $e');
+      topics.value = {
+        'status': 'error',
+        'message': 'Failed to refresh topics: $e',
+        'topics': []
+      };
+    }
+  }
+}
+
+class DocumentInfo {
+  final String name;
+  final DateTime uploadTime;
+
+  DocumentInfo({
+    required this.name,
+    required this.uploadTime,
+  });
 }

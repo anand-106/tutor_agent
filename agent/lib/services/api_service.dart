@@ -1,50 +1,43 @@
-import 'package:dio/dio.dart' as dio;
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:dio/dio.dart' as dio;
 
 class ApiService extends GetxService {
-  late final dio.Dio _dio;
-  final String baseUrl = 'http://127.0.0.1:8000/api';
+  final dio.Dio _dio = dio.Dio();
+  static const String baseUrl = 'http://127.0.0.1:8000/api';
 
   @override
   void onInit() {
     super.onInit();
-    _dio = dio.Dio(dio.BaseOptions(
-      baseUrl: baseUrl,
-      connectTimeout: Duration(seconds: 60),
-      receiveTimeout: Duration(seconds: 60),
-      sendTimeout: Duration(seconds: 60),
-      validateStatus: (status) => true,
-    ));
-
-    _dio.interceptors.add(dio.LogInterceptor(
-      requestBody: true,
-      responseBody: true,
-    ));
+    _dio.options.baseUrl = baseUrl;
+    _dio.options.connectTimeout = Duration(seconds: 60);
+    _dio.options.receiveTimeout = Duration(seconds: 60);
+    _dio.options.sendTimeout = Duration(seconds: 60);
   }
 
-  Future<String> sendChatMessage(String message) async {
+  Future<String> sendChatMessage(String text) async {
     try {
-      final response = await _dio.post('/chat', data: {
-        'text': message,
-      });
+      final response = await _dio.post(
+        '/chat',
+        data: {'text': text},
+      );
 
       if (response.statusCode == 200 && response.data['response'] != null) {
         return response.data['response'];
       }
       throw 'Invalid response from server';
     } catch (e) {
-      print('Chat error: $e'); // For debugging
       throw 'Failed to send message: $e';
     }
   }
 
-  Future<void> uploadDocument(PlatformFile file) async {
+  Future<bool> uploadDocument(List<int> fileBytes, String fileName) async {
     try {
       final formData = dio.FormData.fromMap({
-        'file': await dio.MultipartFile.fromBytes(
-          file.bytes!,
-          filename: file.name,
+        'file': dio.MultipartFile.fromBytes(
+          fileBytes,
+          filename: fileName,
         ),
       });
 
@@ -53,27 +46,67 @@ class ApiService extends GetxService {
         data: formData,
       );
 
-      if (response.statusCode != 200) {
-        throw 'Upload failed with status: ${response.statusCode}, message: ${response.data}';
-      }
-    } on dio.DioException catch (e) {
-      print('DioError: ${e.message}, ${e.response?.data}');
-      throw 'Network error: ${e.message}';
+      return response.statusCode == 200;
     } catch (e) {
-      print('Error: $e');
-      throw 'Failed to upload document: $e';
+      throw 'Error uploading document: $e';
     }
   }
 
   Future<Map<String, dynamic>> getTopics() async {
     try {
-      final response = await _dio.get('/topics');
+      // Use http package instead of Dio for this request to avoid web issues
+      final response = await http.get(Uri.parse('$baseUrl/topics'));
+
       if (response.statusCode == 200) {
-        return response.data['topics'];
+        final responseData = json.decode(response.body);
+        print('Raw API Response: $responseData'); // Debug print
+
+        if (responseData == null) {
+          return {
+            'status': 'error',
+            'message': 'Invalid response from server',
+            'topics': []
+          };
+        }
+
+        // If the response is already a Map<String, dynamic>
+        if (responseData is Map<String, dynamic>) {
+          final topics = responseData['topics'];
+          if (topics is Map<String, dynamic>) {
+            // Get the first document entry
+            final firstDocumentEntry = topics.entries.first;
+            final documentData = firstDocumentEntry.value;
+
+            if (documentData is Map<String, dynamic>) {
+              return {
+                'status': 'success',
+                'topics': [
+                  {
+                    'title': documentData['title'] ?? '',
+                    'content': documentData['content'] ?? '',
+                    'subtopics': documentData['topics'] ?? []
+                  }
+                ]
+              };
+            }
+          }
+        }
+
+        return {'status': 'success', 'topics': responseData['topics'] ?? []};
       }
-      throw 'Failed to get topics: ${response.statusCode}';
+
+      return {
+        'status': 'error',
+        'message': 'Server returned status ${response.statusCode}',
+        'topics': []
+      };
     } catch (e) {
-      throw 'Failed to get topics: $e';
+      print('Error getting topics: $e');
+      return {
+        'status': 'error',
+        'message': 'Failed to get topics: $e',
+        'topics': []
+      };
     }
   }
 }
