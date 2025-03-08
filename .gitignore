@@ -4,3 +4,5 @@ __pycache__/
 logs/
 uploads/
 chroma_db/ 
+.venv/Scripts/python.exe
+.venv/Lib/site-packages/watchfiles/_rust_notify.cp39-win_amd64.pyd
