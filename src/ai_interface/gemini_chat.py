@@ -141,6 +141,12 @@ class GeminiTutor:
     def _select_teaching_strategy(self, topic: str, context: str) -> str:
         """Select the best teaching strategy based on topic and context"""
         try:
+            # First check for explicit quiz requests
+            topic_lower = topic.lower()
+            if any(quiz_term in topic_lower for quiz_term in ['quiz', 'test', 'question', 'practice']):
+                self.logger.info(f"Quiz request detected in topic: {topic}")
+                return 4  # Quiz strategy
+
             prompt = f"""Analyze this topic and select the best teaching strategy.
             Choose between:
             1. Explanation (for conceptual topics)
@@ -151,6 +157,13 @@ class GeminiTutor:
 
             Topic: {topic}
             Context: {context}
+
+            Consider:
+            - If the topic asks for practice or testing, choose 4 (Q&A)
+            - If the topic involves procedures or methods, choose 3 (Step-by-step)
+            - If the topic is theoretical or abstract, choose 1 (Explanation)
+            - If the topic needs real-world application, choose 2 (Examples)
+            - If the topic is complex or technical, choose 5 (Analogies)
 
             Return ONLY the strategy number and a brief reason why.
             Format: <number>: <reason>"""
@@ -231,6 +244,59 @@ class GeminiTutor:
         
         return strategy_prompts.get(strategy, strategy_prompts[1])
 
+    def _generate_response(self, topic: str, context: str, strategy: int) -> str:
+        """Generate a response using the selected teaching strategy"""
+        try:
+            if strategy == 4:  # Quiz strategy
+                prompt = f"""Create an interactive quiz about this topic. Format the response as a JSON object inside a code block.
+                The JSON should have this structure:
+                ```json
+                {{
+                    "topic": "Topic Title",
+                    "questions": [
+                        {{
+                            "question": "Question text",
+                            "options": ["Option A", "Option B", "Option C", "Option D"],
+                            "correct_answer": "Correct option",
+                            "explanation": "Explanation of why this is correct"
+                        }}
+                    ]
+                }}
+                ```
+                Generate 3-5 questions based on this content:
+                Topic: {topic}
+                Context: {context}
+
+                Make sure:
+                1. Questions test understanding, not just memorization
+                2. Options are clear and distinct
+                3. Explanations are helpful and educational
+                4. The JSON is properly formatted
+                """
+                
+                response = self.model.generate_content(prompt)
+                return response.text.strip()
+
+            # Other strategies remain unchanged
+            strategy_prompts = {
+                1: "Explain this topic clearly and concisely:",
+                2: "Provide practical examples of this topic:",
+                3: "Explain this topic step by step:",
+                5: "Explain this topic using analogies:"
+            }
+            
+            prompt = f"""{strategy_prompts.get(strategy, strategy_prompts[1])}
+            Topic: {topic}
+            Context: {context}
+            """
+            
+            response = self.model.generate_content(prompt)
+            return response.text.strip()
+            
+        except Exception as e:
+            self.logger.error(f"Error generating response: {str(e)}")
+            return f"I apologize, but I encountered an error while generating the response: {str(e)}"
+
     def chat(self, query: str, context: str = "") -> str:
         """Generate response using Gemini with context and teaching strategy"""
         try:
@@ -243,16 +309,24 @@ class GeminiTutor:
                     
                     # Extract the topic and get strategy
                     topic = query.replace("Teach me about:", "").strip()
-                    strategy = self._select_teaching_strategy(topic, context)
                     
-                    # Get prompt for strategy
-                    prompt = self._get_strategy_prompt(strategy, topic, context)
+                    # Force quiz strategy if it's a quiz request
+                    if any(term in query.lower() for term in ['quiz', 'test me', 'practice questions']):
+                        strategy = 4
+                        self.logger.info("Forcing quiz strategy based on request")
+                    else:
+                        strategy = self._select_teaching_strategy(topic, context)
                     
                     try:
-                        response = self.model.generate_content(prompt)
-                        if response and response.text:
+                        response = self._generate_response(topic, context, strategy)
+                        if response:
+                            if strategy == 4:
+                                # Ensure quiz response is properly formatted
+                                if not response.startswith('```json'):
+                                    response = f"```json\n{response}\n```"
+                                self.logger.info("Generated quiz response")
                             self.retry_count = 0
-                            return response.text
+                            return response
                         else:
                             raise ValueError("Empty response from model")
                             

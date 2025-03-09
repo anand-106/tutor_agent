@@ -199,22 +199,47 @@ class ChatMessageWidget extends StatelessWidget {
       });
     }
 
-    try {
-      String jsonText = text;
-      if (text.contains("```json")) {
-        jsonText = text.split("```json")[1].split("```")[0].trim();
-      }
+    // Check if this is a quiz response
+    if (text.contains('```json')) {
+      try {
+        // Extract JSON content from code blocks
+        RegExp regExp = RegExp(r'```json\s*([\s\S]*?)\s*```');
+        Match? match = regExp.firstMatch(text);
 
-      final data = json.decode(jsonText);
-      if (data is Map<String, dynamic> &&
-          data.containsKey('questions') &&
-          data.containsKey('topic')) {
-        return QuizWidget(quizData: data);
+        if (match != null) {
+          String jsonText = match.group(1)?.trim() ?? '';
+          print('Found quiz JSON: $jsonText'); // Debug print
+
+          try {
+            // Clean up the JSON text
+            jsonText = jsonText
+                .replaceAll(RegExp(r',(\s*[}\]])', multiLine: true), r'$1')
+                .replaceAll(RegExp(r'[\n\r]'), '')
+                .trim();
+
+            final data = json.decode(jsonText);
+            print('Parsed quiz data: $data'); // Debug print
+
+            if (data is Map<String, dynamic> &&
+                data.containsKey('questions') &&
+                data.containsKey('topic')) {
+              print('Creating quiz widget with data: $data'); // Debug print
+              return QuizWidget(quizData: data);
+            } else {
+              print('Invalid quiz data format: $data'); // Debug print
+            }
+          } catch (e) {
+            print('Error parsing quiz JSON: $e'); // Debug print
+          }
+        } else {
+          print('No JSON content found in markdown blocks'); // Debug print
+        }
+      } catch (e) {
+        print('Error processing quiz response: $e'); // Debug print
       }
-    } catch (e) {
-      print('Error parsing quiz JSON: $e');
     }
 
+    // If not a quiz or quiz parsing failed, render as markdown
     return SingleChildScrollView(
       child: MarkdownBody(
         data: text,

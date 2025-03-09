@@ -17,12 +17,60 @@ class _QuizWidgetState extends State<QuizWidget> {
   int currentQuestionIndex = 0;
   Map<int, String> userAnswers = {};
   bool showResults = false;
-  bool showExplanation = false;
+
+  @override
+  void initState() {
+    super.initState();
+    print('Initializing QuizWidget with data: ${widget.quizData}');
+
+    // Validate quiz data structure
+    final questions = widget.quizData['questions'] as List?;
+    if (questions == null || questions.isEmpty) {
+      print('Warning: Quiz initialized with no questions');
+    } else {
+      print('Quiz initialized with ${questions.length} questions');
+      questions.asMap().forEach((index, question) {
+        print('Question $index: $question');
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final questions = widget.quizData['questions'] as List;
-    final currentQuestion = questions[currentQuestionIndex];
+    final questions = widget.quizData['questions'] as List?;
+
+    if (questions == null || questions.isEmpty) {
+      print('Error: No questions available in quiz data');
+      return Center(
+        child: Text(
+          'No questions available',
+          style: GoogleFonts.inter(
+            color: Colors.white.withOpacity(0.7),
+            fontSize: 16,
+          ),
+        ),
+      );
+    }
+
+    final currentQuestion =
+        questions[currentQuestionIndex] as Map<String, dynamic>;
+    print('Rendering question ${currentQuestionIndex + 1}: $currentQuestion');
+
+    // Validate current question structure
+    if (!currentQuestion.containsKey('question') ||
+        !currentQuestion.containsKey('options') ||
+        !currentQuestion.containsKey('correct_answer')) {
+      print('Error: Invalid question structure: $currentQuestion');
+      return Center(
+        child: Text(
+          'Invalid question format',
+          style: GoogleFonts.inter(
+            color: Colors.red.withOpacity(0.7),
+            fontSize: 16,
+          ),
+        ),
+      );
+    }
 
     return SingleChildScrollView(
       child: ClipRRect(
@@ -52,7 +100,7 @@ class _QuizWidgetState extends State<QuizWidget> {
                 children: [
                   // Quiz header
                   Text(
-                    widget.quizData['topic'],
+                    widget.quizData['topic'] ?? 'Quiz',
                     style: GoogleFonts.inter(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -93,7 +141,7 @@ class _QuizWidgetState extends State<QuizWidget> {
 
                   // Question
                   Text(
-                    currentQuestion['question'],
+                    currentQuestion['question'] ?? '',
                     style: GoogleFonts.inter(
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
@@ -103,21 +151,21 @@ class _QuizWidgetState extends State<QuizWidget> {
                   SizedBox(height: 24),
 
                   // Options
-                  ...List.generate(
-                    (currentQuestion['options'] as List).length,
-                    (index) => Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8),
-                      child: _buildOptionButton(
-                        currentQuestion['options'][index],
-                        currentQuestion,
-                        context,
-                      ),
-                    ),
-                  ),
+                  ...(currentQuestion['options'] as List? ?? [])
+                      .map(
+                        (option) => Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8),
+                          child: _buildOptionButton(
+                            option.toString(),
+                            currentQuestion,
+                            context,
+                          ),
+                        ),
+                      )
+                      .toList(),
 
                   // Explanation
-                  if (showExplanation &&
-                      userAnswers[currentQuestionIndex] != null)
+                  if (userAnswers[currentQuestionIndex] != null)
                     Container(
                       margin: EdgeInsets.only(top: 24),
                       padding: EdgeInsets.all(20),
@@ -141,7 +189,7 @@ class _QuizWidgetState extends State<QuizWidget> {
                           ),
                           SizedBox(height: 12),
                           Text(
-                            currentQuestion['explanation'],
+                            currentQuestion['explanation'] ?? '',
                             style: GoogleFonts.inter(
                               color: Colors.white.withOpacity(0.9),
                               fontSize: 15,
@@ -164,8 +212,6 @@ class _QuizWidgetState extends State<QuizWidget> {
                           onPressed: () {
                             setState(() {
                               currentQuestionIndex--;
-                              showExplanation =
-                                  userAnswers[currentQuestionIndex] != null;
                             });
                           },
                         ),
@@ -177,9 +223,6 @@ class _QuizWidgetState extends State<QuizWidget> {
                               ? () {
                                   setState(() {
                                     currentQuestionIndex++;
-                                    showExplanation =
-                                        userAnswers[currentQuestionIndex] !=
-                                            null;
                                   });
                                 }
                               : null,
@@ -245,7 +288,6 @@ class _QuizWidgetState extends State<QuizWidget> {
           onTap: () {
             setState(() {
               userAnswers[currentQuestionIndex] = option;
-              showExplanation = true;
             });
           },
           child: Padding(
