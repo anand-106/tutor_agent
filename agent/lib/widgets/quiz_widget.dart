@@ -46,7 +46,7 @@ class _QuizWidgetState extends State<QuizWidget> {
           'No questions available',
           style: GoogleFonts.inter(
             color: Colors.white.withOpacity(0.7),
-            fontSize: 16,
+            fontSize: 14,
           ),
         ),
       );
@@ -54,155 +54,177 @@ class _QuizWidgetState extends State<QuizWidget> {
 
     final currentQuestion =
         questions[currentQuestionIndex] as Map<String, dynamic>;
-    print('Rendering question ${currentQuestionIndex + 1}: $currentQuestion');
 
-    // Validate current question structure
-    if (!currentQuestion.containsKey('question') ||
-        !currentQuestion.containsKey('options') ||
-        !currentQuestion.containsKey('correct_answer')) {
-      print('Error: Invalid question structure: $currentQuestion');
-      return Center(
-        child: Text(
-          'Invalid question format',
-          style: GoogleFonts.inter(
-            color: Colors.red.withOpacity(0.7),
-            fontSize: 16,
-          ),
-        ),
-      );
-    }
-
-    return SingleChildScrollView(
+    return Container(
+      constraints: BoxConstraints(maxWidth: 600), // Limit maximum width
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(16),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.05),
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: Colors.white.withOpacity(0.08),
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 10,
-                  offset: Offset(0, 4),
-                ),
-              ],
             ),
-            margin: EdgeInsets.all(16),
-            child: Padding(
-              padding: EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Quiz header
-                  Text(
-                    widget.quizData['topic'] ?? 'Quiz',
-                    style: GoogleFonts.inter(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                  SizedBox(height: 24),
-
-                  // Progress indicator
-                  Container(
-                    height: 6,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(3),
-                      color: Colors.white.withOpacity(0.1),
-                    ),
-                    child: FractionallySizedBox(
-                      alignment: Alignment.centerLeft,
-                      widthFactor:
-                          (currentQuestionIndex + 1) / questions.length,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(3),
-                          color: Theme.of(context).primaryColor,
-                        ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Header with progress
+                Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: Colors.white.withOpacity(0.08),
                       ),
                     ),
                   ),
-                  SizedBox(height: 12),
-                  Text(
-                    'Question ${currentQuestionIndex + 1}/${questions.length}',
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      color: Colors.white.withOpacity(0.6),
-                    ),
-                  ),
-                  SizedBox(height: 24),
-
-                  // Question
-                  Text(
-                    currentQuestion['question'] ?? '',
-                    style: GoogleFonts.inter(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white.withOpacity(0.9),
-                    ),
-                  ),
-                  SizedBox(height: 24),
-
-                  // Options
-                  ...(currentQuestion['options'] as List? ?? [])
-                      .map(
-                        (option) => Padding(
-                          padding: EdgeInsets.symmetric(vertical: 8),
-                          child: _buildOptionButton(
-                            option.toString(),
-                            currentQuestion,
-                            context,
-                          ),
-                        ),
-                      )
-                      .toList(),
-
-                  // Explanation
-                  if (userAnswers[currentQuestionIndex] != null)
-                    Container(
-                      margin: EdgeInsets.only(top: 24),
-                      padding: EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.05),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.08),
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
                         children: [
+                          Icon(
+                            Icons.quiz_outlined,
+                            color: Theme.of(context).primaryColor,
+                            size: 20,
+                          ),
+                          SizedBox(width: 8),
                           Text(
-                            'Explanation:',
+                            widget.quizData['topic'] ?? 'Quiz',
                             style: GoogleFonts.inter(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).primaryColor,
                               fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white.withOpacity(0.9),
                             ),
                           ),
-                          SizedBox(height: 12),
+                          Spacer(),
                           Text(
-                            currentQuestion['explanation'] ?? '',
+                            '${currentQuestionIndex + 1}/${questions.length}',
                             style: GoogleFonts.inter(
-                              color: Colors.white.withOpacity(0.9),
-                              fontSize: 15,
+                              fontSize: 14,
+                              color: Colors.white.withOpacity(0.5),
                             ),
                           ),
                         ],
                       ),
+                      SizedBox(height: 12),
+                      // Progress bar
+                      Container(
+                        height: 4,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(2),
+                          color: Colors.white.withOpacity(0.1),
+                        ),
+                        child: FractionallySizedBox(
+                          alignment: Alignment.centerLeft,
+                          widthFactor:
+                              (currentQuestionIndex + 1) / questions.length,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(2),
+                              color: Theme.of(context).primaryColor,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Question and options
+                Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        currentQuestion['question'] ?? '',
+                        style: GoogleFonts.inter(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white.withOpacity(0.9),
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      // Options
+                      ...List.generate(
+                        (currentQuestion['options'] as List? ?? []).length,
+                        (index) => Padding(
+                          padding: EdgeInsets.only(bottom: 8),
+                          child: _buildOptionButton(
+                            (currentQuestion['options'] as List)[index]
+                                .toString(),
+                            currentQuestion,
+                            context,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Explanation (if answered)
+                if (userAnswers[currentQuestionIndex] != null)
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.03),
+                      border: Border(
+                        top: BorderSide(
+                          color: Colors.white.withOpacity(0.08),
+                        ),
+                      ),
                     ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.info_outline,
+                              size: 16,
+                              color: Theme.of(context).primaryColor,
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              'Explanation',
+                              style: GoogleFonts.inter(
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(context).primaryColor,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          currentQuestion['explanation'] ?? '',
+                          style: GoogleFonts.inter(
+                            color: Colors.white.withOpacity(0.9),
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
 
-                  SizedBox(height: 24),
-
-                  // Navigation buttons
-                  Row(
+                // Navigation
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      top: BorderSide(
+                        color: Colors.white.withOpacity(0.08),
+                      ),
+                    ),
+                  ),
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       if (currentQuestionIndex > 0)
@@ -214,7 +236,9 @@ class _QuizWidgetState extends State<QuizWidget> {
                               currentQuestionIndex--;
                             });
                           },
-                        ),
+                        )
+                      else
+                        SizedBox(width: 0),
                       if (currentQuestionIndex < questions.length - 1)
                         _buildNavigationButton(
                           icon: Icons.arrow_forward_rounded,
@@ -230,15 +254,15 @@ class _QuizWidgetState extends State<QuizWidget> {
                       else
                         _buildNavigationButton(
                           icon: Icons.check_rounded,
-                          label: 'Finish Quiz',
+                          label: 'Finish',
                           onPressed: userAnswers[currentQuestionIndex] != null
                               ? () => _showResults(context, questions)
                               : null,
                         ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -255,63 +279,56 @@ class _QuizWidgetState extends State<QuizWidget> {
     final bool isCorrect = option == question['correct_answer'];
     final bool showResult = isSelected;
 
-    Color getBackgroundColor() {
-      if (!showResult) {
-        return Colors.transparent;
-      }
-      return isCorrect
-          ? Colors.green.withOpacity(0.2)
-          : Colors.red.withOpacity(0.2);
-    }
-
-    Color getBorderColor() {
-      if (!showResult) {
-        return isSelected
-            ? Theme.of(context).primaryColor
-            : Colors.white.withOpacity(0.08);
-      }
-      return isCorrect
-          ? Colors.green.withOpacity(0.5)
-          : Colors.red.withOpacity(0.5);
-    }
-
-    return Container(
-      decoration: BoxDecoration(
-        color: getBackgroundColor(),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: getBorderColor()),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: () {
-            setState(() {
-              userAnswers[currentQuestionIndex] = option;
-            });
-          },
-          child: Padding(
-            padding: EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    option,
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      color: Colors.white.withOpacity(0.9),
-                      fontWeight:
-                          isSelected ? FontWeight.w600 : FontWeight.normal,
-                    ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: userAnswers[currentQuestionIndex] == null
+            ? () {
+                setState(() {
+                  userAnswers[currentQuestionIndex] = option;
+                });
+              }
+            : null,
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: showResult
+                ? (isCorrect
+                    ? Colors.green.withOpacity(0.1)
+                    : Colors.red.withOpacity(0.1))
+                : Colors.white.withOpacity(0.03),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: showResult
+                  ? (isCorrect
+                      ? Colors.green.withOpacity(0.3)
+                      : Colors.red.withOpacity(0.3))
+                  : isSelected
+                      ? Theme.of(context).primaryColor.withOpacity(0.5)
+                      : Colors.white.withOpacity(0.08),
+            ),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  option,
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    color: Colors.white.withOpacity(0.9),
+                    fontWeight:
+                        isSelected ? FontWeight.w500 : FontWeight.normal,
                   ),
                 ),
-                if (showResult)
-                  Icon(
-                    isCorrect ? Icons.check_circle : Icons.cancel,
-                    color: isCorrect ? Colors.green[400] : Colors.red[400],
-                  ),
-              ],
-            ),
+              ),
+              if (showResult)
+                Icon(
+                  isCorrect ? Icons.check_circle : Icons.cancel,
+                  size: 16,
+                  color: isCorrect ? Colors.green[400] : Colors.red[400],
+                ),
+            ],
           ),
         ),
       ),
@@ -323,22 +340,21 @@ class _QuizWidgetState extends State<QuizWidget> {
     required String label,
     required VoidCallback? onPressed,
   }) {
-    return ElevatedButton.icon(
-      icon: Icon(icon, size: 20),
+    return TextButton.icon(
+      icon: Icon(icon, size: 18),
       label: Text(
         label,
         style: GoogleFonts.inter(
-          fontWeight: FontWeight.w600,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
         ),
       ),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+      style: TextButton.styleFrom(
         foregroundColor: Theme.of(context).primaryColor,
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(8),
         ),
-        elevation: 0,
       ),
       onPressed: onPressed,
     );
@@ -356,37 +372,57 @@ class _QuizWidgetState extends State<QuizWidget> {
       context: context,
       builder: (context) => BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-        child: AlertDialog(
-          backgroundColor: Colors.white.withOpacity(0.1),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          content: Container(
+        child: Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.all(24),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.08),
+              ),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  '$correctAnswers/${questions.length}',
-                  style: GoogleFonts.inter(
-                    fontSize: 48,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColor,
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Theme.of(context).primaryColor.withOpacity(0.1),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '$correctAnswers/${questions.length}',
+                      style: GoogleFonts.inter(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ),
                   ),
                 ),
+                SizedBox(height: 16),
                 Text(
-                  'Correct Answers',
+                  'Quiz Complete!',
                   style: GoogleFonts.inter(
-                    fontSize: 16,
-                    color: Colors.white.withOpacity(0.6),
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white.withOpacity(0.9),
                   ),
                 ),
                 SizedBox(height: 24),
-                _buildNavigationButton(
-                  icon: Icons.refresh_rounded,
-                  label: 'Retry Quiz',
+                ElevatedButton.icon(
+                  icon: Icon(Icons.refresh_rounded, size: 18),
+                  label: Text('Try Again'),
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                   onPressed: () {
                     Navigator.of(context).pop();
                     setState(() {
