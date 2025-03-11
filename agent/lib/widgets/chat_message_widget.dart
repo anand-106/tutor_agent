@@ -8,6 +8,7 @@ import 'package:agent/widgets/topic_item_widget.dart';
 import 'package:agent/services/api_service.dart';
 import 'dart:convert';
 import 'package:agent/widgets/quiz_widget.dart';
+import 'package:agent/widgets/mermaid_diagram.dart';
 import 'dart:ui';
 import 'package:agent/controllers/document_controller.dart';
 
@@ -19,7 +20,7 @@ class ChatMessageWidget extends StatelessWidget {
   ChatMessageWidget({required this.message});
 
   bool isTopicsMessage() {
-    return message.text
+    return message.response
         .startsWith("Here are the topics extracted from your document:");
   }
 
@@ -58,13 +59,13 @@ class ChatMessageWidget extends StatelessWidget {
               ),
               child: message.isUser
                   ? Text(
-                      message.text,
+                      message.response,
                       style: GoogleFonts.inter(
                         fontSize: 16,
                         color: Colors.white.withOpacity(0.9),
                       ),
                     )
-                  : _buildAIResponse(context, message.text),
+                  : _buildAIResponse(context, message.response),
             ),
           ),
         ),
@@ -239,7 +240,42 @@ class ChatMessageWidget extends StatelessWidget {
       }
     }
 
-    // If not a quiz or quiz parsing failed, render as markdown
+    // If the message has a diagram, show both the text and diagram
+    if (message.hasDiagram && message.mermaidCode != null) {
+      print('Rendering diagram with code: ${message.mermaidCode}'); // Debug log
+
+      // Extract explanation text (everything before the Mermaid code block)
+      String explanation = message.response.split('```mermaid').first.trim();
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (explanation.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16.0),
+              child: MarkdownBody(data: explanation),
+            ),
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 8.0),
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.8,
+              maxHeight: 400,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.black12,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: MermaidDiagram(
+              diagramCode: message.mermaidCode!,
+              width: MediaQuery.of(context).size.width * 0.8,
+              height: 400,
+            ),
+          ),
+        ],
+      );
+    }
+
+    // If not a diagram or quiz, render as markdown
     return SingleChildScrollView(
       child: MarkdownBody(
         data: text,

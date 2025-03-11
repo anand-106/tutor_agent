@@ -141,11 +141,18 @@ class GeminiTutor:
     def _select_teaching_strategy(self, topic: str, context: str) -> str:
         """Select the best teaching strategy based on topic and context"""
         try:
-            # First check for explicit quiz requests
+            # First check for explicit quiz or diagram requests
             topic_lower = topic.lower()
             if any(quiz_term in topic_lower for quiz_term in ['quiz', 'test', 'question', 'practice']):
                 self.logger.info(f"Quiz request detected in topic: {topic}")
                 return 4  # Quiz strategy
+            
+            if any(diagram_term in topic_lower for diagram_term in [
+                'diagram', 'flowchart', 'sequence diagram', 'class diagram',
+                'architecture', 'process flow', 'workflow', 'structure'
+            ]):
+                self.logger.info(f"Diagram request detected in topic: {topic}")
+                return 6  # Diagram strategy
 
             prompt = f"""Analyze this topic and select the best teaching strategy.
             Choose between:
@@ -154,6 +161,7 @@ class GeminiTutor:
             3. Step-by-step (for processes)
             4. Q&A Format (for testing understanding)
             5. Analogies (for complex topics)
+            6. Visual Diagram (for processes, structures, or relationships)
 
             Topic: {topic}
             Context: {context}
@@ -164,6 +172,7 @@ class GeminiTutor:
             - If the topic is theoretical or abstract, choose 1 (Explanation)
             - If the topic needs real-world application, choose 2 (Examples)
             - If the topic is complex or technical, choose 5 (Analogies)
+            - If the topic involves processes, structures, or relationships, choose 6 (Visual Diagram)
 
             Return ONLY the strategy number and a brief reason why.
             Format: <number>: <reason>"""
@@ -239,6 +248,34 @@ class GeminiTutor:
                 - Connect the analogy to the concept
                 
                 Topic: {topic}
+                Context: {context}""",
+
+            6: f"""Create a Mermaid diagram to visualize this topic.
+                First, analyze the topic and choose the most appropriate diagram type:
+                1. Flowchart (for processes and workflows)
+                2. Sequence diagram (for interactions and message flows)
+                3. Class diagram (for structure and relationships)
+
+                Then, create a Mermaid diagram code block that clearly represents the topic.
+                Include a brief explanation before the diagram.
+
+                Format your response like this:
+                Brief explanation of what the diagram shows...
+
+                ```mermaid
+                [Your Mermaid diagram code here]
+                ```
+
+                Guidelines:
+                - Keep the diagram clear and focused
+                - Use meaningful labels and descriptions
+                - Show relationships and connections clearly
+                - Include a legend or explanation if needed
+                - For flowcharts, use TD (top-down) direction
+                - For sequence diagrams, show clear actor interactions
+                - For class diagrams, show important relationships
+
+                Topic: {topic}
                 Context: {context}"""
         }
         
@@ -248,51 +285,49 @@ class GeminiTutor:
         """Generate a response using the selected teaching strategy"""
         try:
             if strategy == 4:  # Quiz strategy
-                prompt = f"""Create an interactive quiz about this topic. Format the response as a JSON object inside a code block.
-                The JSON should have this structure:
-                ```json
-                {{
-                    "topic": "Topic Title",
-                    "questions": [
-                        {{
-                            "question": "Question text",
-                            "options": ["Option A", "Option B", "Option C", "Option D"],
-                            "correct_answer": "Correct option",
-                            "explanation": "Explanation of why this is correct"
-                        }}
-                    ]
-                }}
-                ```
-                Generate 3-5 questions based on this content:
+                prompt = self._get_strategy_prompt(strategy, topic, context)
+                response = self.model.generate_content(prompt)
+                return response.text.strip()
+            elif strategy == 6:  # Diagram strategy
+                prompt = self._get_strategy_prompt(strategy, topic, context)
+                response = self.model.generate_content(prompt)
+                # Ensure the response contains a Mermaid diagram
+                if "```mermaid" not in response.text:
+                    # Extract the diagram code
+                    lines = response.text.strip().split('\n')
+                    diagram_lines = []
+                    is_class_diagram = False
+                    
+                    for line in lines:
+                        if line.strip().startswith('class '):
+                            is_class_diagram = True
+                        diagram_lines.append(line)
+                    
+                    # Add appropriate header based on content
+                    if is_class_diagram:
+                        diagram_code = "classDiagram\n" + "\n".join(diagram_lines)
+                    else:
+                        diagram_code = "graph TD\n" + "\n".join(diagram_lines)
+                    
+                    return f"Here's a diagram to explain {topic}:\n\n```mermaid\n{diagram_code}\n```"
+                return response.text.strip()
+            else:
+                # Other strategies remain unchanged
+                strategy_prompts = {
+                    1: "Explain this topic clearly and concisely:",
+                    2: "Provide practical examples of this topic:",
+                    3: "Explain this topic step by step:",
+                    5: "Explain this topic using analogies:"
+                }
+                
+                prompt = f"""{strategy_prompts.get(strategy, strategy_prompts[1])}
                 Topic: {topic}
                 Context: {context}
-
-                Make sure:
-                1. Questions test understanding, not just memorization
-                2. Options are clear and distinct
-                3. Explanations are helpful and educational
-                4. The JSON is properly formatted
                 """
                 
                 response = self.model.generate_content(prompt)
                 return response.text.strip()
-
-            # Other strategies remain unchanged
-            strategy_prompts = {
-                1: "Explain this topic clearly and concisely:",
-                2: "Provide practical examples of this topic:",
-                3: "Explain this topic step by step:",
-                5: "Explain this topic using analogies:"
-            }
-            
-            prompt = f"""{strategy_prompts.get(strategy, strategy_prompts[1])}
-            Topic: {topic}
-            Context: {context}
-            """
-            
-            response = self.model.generate_content(prompt)
-            return response.text.strip()
-            
+                
         except Exception as e:
             self.logger.error(f"Error generating response: {str(e)}")
             return f"I apologize, but I encountered an error while generating the response: {str(e)}"

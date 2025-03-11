@@ -20,15 +20,61 @@ class ApiService extends GetxService {
     super.onInit();
   }
 
-  Future<String> sendChatMessage(String text) async {
+  Future<dynamic> sendChatMessage(String text) async {
     try {
       final response = await _dio.post(
         '/chat',
         data: {'text': text},
       );
 
-      if (response.statusCode == 200 && response.data['response'] != null) {
-        return response.data['response'];
+      if (response.statusCode == 200) {
+        if (response.data is Map<String, dynamic>) {
+          final data = response.data as Map<String, dynamic>;
+          print('Raw API Response: $data'); // Debug log
+
+          // Check if this is a diagram response
+          if (data['has_diagram'] == true && data['mermaid_code'] != null) {
+            print('Received diagram response from API'); // Debug log
+
+            // Clean up the Mermaid code by removing any extra backticks or mermaid tags
+            String mermaidCode = data['mermaid_code'] as String;
+            print('Original Mermaid code: $mermaidCode'); // Debug log
+
+            mermaidCode = mermaidCode
+                .replaceAll('```mermaid', '')
+                .replaceAll('```', '')
+                .trim();
+            print('Cleaned Mermaid code: $mermaidCode'); // Debug log
+
+            // Ensure proper diagram type prefix
+            String diagramType = data['diagram_type'] ?? 'flowchart';
+            print('Diagram type: $diagramType'); // Debug log
+
+            if (!mermaidCode.startsWith('graph') &&
+                !mermaidCode.startsWith('sequenceDiagram') &&
+                !mermaidCode.startsWith('classDiagram')) {
+              if (diagramType == 'sequence') {
+                mermaidCode = 'sequenceDiagram\n' + mermaidCode;
+              } else if (diagramType == 'class') {
+                mermaidCode = 'classDiagram\n' + mermaidCode;
+              } else {
+                mermaidCode = 'graph TD\n' + mermaidCode;
+              }
+            }
+
+            print('Final formatted Mermaid code: $mermaidCode'); // Debug log
+
+            // Return the formatted response
+            return {
+              'response': data['response'],
+              'has_diagram': true,
+              'mermaid_code': mermaidCode,
+              'diagram_type': diagramType
+            };
+          }
+          return data;
+        }
+        return {'response': response.data['response'], 'has_diagram': false};
       }
       throw 'Invalid response from server';
     } catch (e) {
@@ -64,53 +110,11 @@ class ApiService extends GetxService {
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         print('Raw API Response: $responseData'); // Debug print
-
-        if (responseData == null) {
-          return {
-            'status': 'error',
-            'message': 'Invalid response from server',
-            'topics': []
-          };
-        }
-
-        // If the response is already a Map<String, dynamic>
-        if (responseData is Map<String, dynamic>) {
-          final topics = responseData['topics'];
-          if (topics is Map<String, dynamic>) {
-            // Get the first document entry
-            final firstDocumentEntry = topics.entries.first;
-            final documentData = firstDocumentEntry.value;
-
-            if (documentData is Map<String, dynamic>) {
-              return {
-                'status': 'success',
-                'topics': [
-                  {
-                    'title': documentData['title'] ?? '',
-                    'content': documentData['content'] ?? '',
-                    'subtopics': documentData['topics'] ?? []
-                  }
-                ]
-              };
-            }
-          }
-        }
-
-        return {'status': 'success', 'topics': responseData['topics'] ?? []};
+        return responseData;
       }
-
-      return {
-        'status': 'error',
-        'message': 'Server returned status ${response.statusCode}',
-        'topics': []
-      };
+      throw 'Failed to get topics';
     } catch (e) {
-      print('Error getting topics: $e');
-      return {
-        'status': 'error',
-        'message': 'Failed to get topics: $e',
-        'topics': []
-      };
+      throw 'Error getting topics: $e';
     }
   }
 }

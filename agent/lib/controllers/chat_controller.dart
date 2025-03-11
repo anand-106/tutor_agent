@@ -11,7 +11,7 @@ class ChatController extends GetxController {
     if (text.trim().isEmpty) return;
 
     // Add user message
-    messages.add(ChatMessage(text: text, isUser: true));
+    messages.add(ChatMessage(response: text, isUser: true));
 
     try {
       isLoading.value = true;
@@ -19,8 +19,23 @@ class ChatController extends GetxController {
       // Get AI response
       final response = await _apiService.sendChatMessage(text);
 
-      // Add AI response
-      messages.add(ChatMessage(text: response, isUser: false));
+      // Add AI response with diagram if present
+      if (response is Map<String, dynamic>) {
+        final messageText = response['response'] as String;
+        final hasDiagram = response['has_diagram'] as bool? ?? false;
+        final mermaidCode = response['mermaid_code'] as String?;
+        final diagramType = response['diagram_type'] as String?;
+
+        messages.add(ChatMessage(
+          response: messageText,
+          isUser: false,
+          hasDiagram: hasDiagram,
+          mermaidCode: mermaidCode,
+          diagramType: diagramType,
+        ));
+      } else {
+        messages.add(ChatMessage(response: response.toString(), isUser: false));
+      }
     } catch (e) {
       Get.snackbar('Error', 'Failed to get response: $e');
     } finally {
@@ -29,7 +44,7 @@ class ChatController extends GetxController {
   }
 
   void addSystemMessage(String text) {
-    messages.add(ChatMessage(text: text, isUser: false));
+    messages.add(ChatMessage(response: text, isUser: false));
   }
 
   void clearChat() {

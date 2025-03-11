@@ -14,44 +14,72 @@
   <link rel="manifest" href="manifest.json">
 
   <!-- Load Mermaid -->
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@8.9.0/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 
   <script>
     // The value below is injected by flutter build, do not touch.
-    const serviceWorkerVersion = null;
+    var serviceWorkerVersion = '{{flutter_service_worker_version}}';
   </script>
 
   <script src="flutter.js" defer></script>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    window.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM Content Loaded - Initializing Mermaid...');
+      
       // Initialize mermaid with dark theme configuration
-      mermaid.initialize({
-        startOnLoad: false,  // We'll handle rendering manually
-        theme: 'dark',
-        securityLevel: 'loose',
-        flowchart: {
-          htmlLabels: true,
-          curve: 'linear',
-          nodeSpacing: 50,
-          rankSpacing: 50,
-          useMaxWidth: false
-        },
-        themeVariables: {
-          primaryColor: '#FFFFFF',
-          primaryTextColor: '#FFFFFF',
-          primaryBorderColor: '#FFFFFF',
-          lineColor: '#FFFFFF',
-          secondaryColor: '#1E1E1E',
-          tertiaryColor: '#1E1E1E',
-          fontFamily: 'arial',
-          fontSize: '16px'
-        }
-      });
+      if (typeof mermaid !== 'undefined') {
+        console.log('Mermaid library found, initializing...');
+        mermaid.initialize({
+          startOnLoad: true,
+          theme: 'dark',
+          securityLevel: 'loose',
+          logLevel: 'debug',
+          flowchart: {
+            htmlLabels: true,
+            curve: 'basis',
+            useMaxWidth: true
+          },
+          sequence: {
+            useMaxWidth: true,
+            showSequenceNumbers: false,
+            wrap: false
+          },
+          themeVariables: {
+            primaryColor: '#FFFFFF',
+            primaryTextColor: '#FFFFFF',
+            primaryBorderColor: '#FFFFFF',
+            lineColor: '#FFFFFF',
+            secondaryColor: '#2A2A2A',
+            tertiaryColor: '#2A2A2A'
+          }
+        });
+        console.log('Mermaid initialized successfully');
+      } else {
+        console.error('Mermaid library not found!');
+      }
 
       // Create global mermaid callback
-      window.mermaidCallback = function(svgCode) {
-        console.log('Mermaid callback called with SVG code');
+      window.renderMermaidDiagram = function(code, containerId) {
+        console.log('Render request received for container:', containerId);
+        console.log('Diagram code:', code);
+        
+        if (typeof mermaid !== 'undefined') {
+          try {
+            mermaid.render(containerId, code)
+              .then(result => {
+                console.log('Render successful:', result);
+                document.getElementById(containerId).innerHTML = result.svg;
+              })
+              .catch(error => {
+                console.error('Render error:', error);
+              });
+          } catch (error) {
+            console.error('Mermaid render error:', error);
+          }
+        } else {
+          console.error('Mermaid not available for rendering');
+        }
       };
     });
   </script>
@@ -119,14 +147,19 @@
 
   <script>
     window.addEventListener('load', function() {
-      _flutter.loader.loadEntrypoint({
+      console.log('Window loaded - Flutter initialization starting...');
+      _flutter.loader.load({
         serviceWorker: {
           serviceWorkerVersion: serviceWorkerVersion,
-        },
-        onEntrypointLoaded: async function(engineInitializer) {
-          const appRunner = await engineInitializer.initializeEngine();
-          await appRunner.runApp();
         }
+      }).then(function(engineInitializer) {
+        console.log('Flutter entrypoint loaded...');
+        return engineInitializer.initializeEngine();
+      }).then(function(appRunner) {
+        console.log('Engine initialized, running app...');
+        return appRunner.runApp();
+      }).then(function() {
+        console.log('Flutter app started');
       });
     });
   </script>

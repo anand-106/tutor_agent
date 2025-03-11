@@ -4,10 +4,11 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, HTMLResponse
 from fastapi.exceptions import RequestValidationError
 import os
-from typing import Dict
+from typing import Dict, Optional
 from dotenv import load_dotenv
 from pathlib import Path
 import sys
+from pydantic import BaseModel
 
 # Add the project root directory to Python path
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
@@ -401,6 +402,38 @@ async def upload_file(file: UploadFile = File(...)):
             content={"detail": str(e)}
         )
 
+class DiagramRequest(BaseModel):
+    text: str
+    diagram_type: Optional[str] = "flowchart"  # flowchart, sequence, class, etc.
+
+@app.post("/api/generate-diagram")
+async def generate_diagram(request: DiagramRequest):
+    try:
+        # Extract diagram type and description from request
+        diagram_type = request.diagram_type.lower()
+        description = request.text
+
+        # Generate Mermaid code based on the description and type
+        if diagram_type == "flowchart":
+            mermaid_code = f"""graph TD
+    {description}"""
+        elif diagram_type == "sequence":
+            mermaid_code = f"""sequenceDiagram
+    {description}"""
+        elif diagram_type == "class":
+            mermaid_code = f"""classDiagram
+    {description}"""
+        else:
+            mermaid_code = description  # Use raw description if type not recognized
+
+        return JSONResponse(content={"mermaid_code": mermaid_code})
+    except Exception as e:
+        logger.error(f"Error generating diagram: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={"error": "Failed to generate diagram"}
+        )
+
 @app.post("/api/chat")
 async def chat(request: Request):
     try:
@@ -425,13 +458,43 @@ async def chat(request: Request):
         # Generate response using context
         response = tutor.chat(message, context=context)
         
+        # Check if this is a diagram response
+        if "```mermaid" in response:
+            try:
+                # Extract the explanation and diagram code
+                parts = response.split("```mermaid")
+                explanation = parts[0].strip()
+                mermaid_code = parts[1].split("```")[0].strip()
+                
+                # Determine diagram type
+                diagram_type = "flowchart"  # default
+                if mermaid_code.startswith("classDiagram"):
+                    diagram_type = "class"
+                elif mermaid_code.startswith("sequenceDiagram"):
+                    diagram_type = "sequence"
+                
+                logger.info(f"Generated diagram of type: {diagram_type}")
+                logger.info(f"Mermaid code: {mermaid_code}")
+                
+                return JSONResponse(content={
+                    "response": response,
+                    "has_diagram": True,
+                    "mermaid_code": mermaid_code,
+                    "diagram_type": diagram_type,
+                    "explanation": explanation
+                })
+            except Exception as diagram_error:
+                logger.error(f"Error processing diagram: {str(diagram_error)}")
+                # Fall back to regular response if diagram processing fails
+                pass
+        
         # Return response with appropriate status
         if "rate limit" in response.lower() or "quota" in response.lower():
             return JSONResponse(
                 content={"response": response},
                 status_code=429  # Too Many Requests
             )
-        return JSONResponse(content={"response": response})
+        return JSONResponse(content={"response": response, "has_diagram": False})
         
     except Exception as e:
         logger.error(f"Error in chat: {str(e)}")

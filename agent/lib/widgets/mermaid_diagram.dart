@@ -1,7 +1,6 @@
 import 'dart:html' as html;
 import 'dart:ui_web' as ui_web;
 import 'package:flutter/material.dart';
-import 'package:mermaid/mermaid.dart' as mermaid;
 
 class MermaidDiagram extends StatefulWidget {
   final String diagramCode;
@@ -27,6 +26,7 @@ class _MermaidDiagramState extends State<MermaidDiagram> {
   void initState() {
     super.initState();
     _viewType = 'mermaid-${DateTime.now().millisecondsSinceEpoch}';
+    print('MermaidDiagram initialized with viewType: $_viewType');
     _initializeMermaid();
   }
 
@@ -34,137 +34,134 @@ class _MermaidDiagramState extends State<MermaidDiagram> {
     if (_initialized) return;
     _initialized = true;
 
+    print('Starting Mermaid initialization...');
+
     // Register view factory
-    ui_web.platformViewRegistry.registerViewFactory(
-      _viewType,
-      (int viewId) {
-        // Create the main container
-        final host = html.DivElement()
-          ..style.width = '100%'
-          ..style.height = '100%'
-          ..style.overflow = 'hidden'
-          ..style.backgroundColor = 'transparent'
-          ..style.display = 'flex'
-          ..style.justifyContent = 'center'
-          ..style.alignItems = 'center';
+    ui_web.platformViewRegistry.registerViewFactory(_viewType, (int viewId) {
+      print('Creating view for Mermaid diagram...');
+      print('ViewId: $viewId');
 
-        // Add custom styles for Mermaid diagrams
-        final styleElement = html.StyleElement()
-          ..text = '''
-            .mermaid {
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              width: 100%;
-              height: 100%;
-              background-color: transparent;
-              padding: 20px;
-            }
-            .mermaid svg {
-              width: auto !important;
-              height: auto !important;
-              max-width: 100% !important;
-              max-height: 100% !important;
-              object-fit: contain;
-            }
-            .mermaid .label {
-              font-family: 'Arial', sans-serif;
-              font-size: 16px !important;
-              fill: white !important;
-              color: white !important;
-            }
-            .mermaid .node rect,
-            .mermaid .node circle,
-            .mermaid .node ellipse,
-            .mermaid .node polygon,
-            .mermaid .node path {
-              fill: #2A2A2A !important;
-              stroke: #4A4A4A !important;
-            }
-            .mermaid .edgePath .path {
-              stroke: #7A7A7A !important;
-              stroke-width: 2px !important;
-            }
-            .mermaid .arrowheadPath {
-              fill: #7A7A7A !important;
-              stroke: none !important;
-            }
-            .mermaid .messageText,
-            .mermaid .noteText {
-              fill: white !important;
-              stroke: none !important;
-              font-size: 14px !important;
-            }
-            .mermaid .actor {
-              fill: #2A2A2A !important;
-              stroke: #4A4A4A !important;
-            }
-            .mermaid text.actor {
-              fill: white !important;
-              stroke: none !important;
-            }
-            .mermaid .note {
-              fill: #2A2A2A !important;
-              stroke: #4A4A4A !important;
-            }
-          ''';
+      // Ensure the diagram code starts with the correct syntax
+      String formattedCode = widget.diagramCode.trim();
+      if (!formattedCode.startsWith('classDiagram') &&
+          !formattedCode.startsWith('graph') &&
+          !formattedCode.startsWith('sequenceDiagram')) {
+        if (formattedCode.contains('class ')) {
+          formattedCode = 'classDiagram\n' + formattedCode;
+        } else {
+          formattedCode = 'graph TD\n' + formattedCode;
+        }
+      }
 
-        host.append(styleElement);
+      print('Formatted diagram code: $formattedCode');
 
-        // Add the mermaid diagram
-        host.appendHtml('''
-          <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
-            <pre class="mermaid">
-${widget.diagramCode}
-            </pre>
-          </div>
-        ''',
-            validator: html.NodeValidatorBuilder()
-              ..allowElement('pre', attributes: ['class'])
-              ..allowElement('div', attributes: ['style'])
-              ..allowElement('style')
-              ..allowHtml5());
+      final containerId = 'mermaid-container-$viewId';
+      final diagramId = 'mermaid-diagram-$viewId';
 
-        // Initialize mermaid with custom config
-        html.ScriptElement script = html.ScriptElement()
-          ..text = '''
-            mermaid.initialize({
-              startOnLoad: true,
-              theme: 'dark',
-              securityLevel: 'loose',
-              logLevel: 'error',
-              sequence: {
-                actorMargin: 80,
-                messageMargin: 40,
-                width: ${widget.width * 0.8},
-                height: ${widget.height * 0.8},
-                boxMargin: 20,
-                mirrorActors: false,
-                bottomMarginAdj: 20,
-                useMaxWidth: true,
-                wrap: false
-              },
-              flowchart: {
-                nodeSpacing: 60,
-                rankSpacing: 80,
-                padding: 20,
-                curve: 'basis',
-                useMaxWidth: true,
-                htmlLabels: true
-              },
-              themeVariables: {
-                fontSize: '16px',
-                fontFamily: 'Arial'
-              }
-            });
-            mermaid.init(undefined, document.querySelectorAll('.mermaid'));
-          ''';
+      // Create container element with fixed size
+      final container = html.DivElement()
+        ..id = containerId
+        ..style.width = '${widget.width}px'
+        ..style.height = '${widget.height}px'
+        ..style.backgroundColor = 'transparent'
+        ..style.display = 'flex'
+        ..style.justifyContent = 'center'
+        ..style.alignItems = 'center'
+        ..style.overflow = 'hidden'
+        ..style.position = 'relative';
 
-        host.append(script);
+      // Create diagram element with specific styling
+      final diagramElement = html.DivElement()
+        ..id = diagramId
+        ..className = 'mermaid'
+        ..style.width = '100%'
+        ..style.height = '100%'
+        ..style.display = 'flex'
+        ..style.justifyContent = 'center'
+        ..style.alignItems = 'center'
+        ..text = formattedCode;
 
-        return host;
-      },
-    );
+      container.children.add(diagramElement);
+
+      print('Created container with ID: $containerId');
+
+      // Add script to render diagram
+      html.ScriptElement script = html.ScriptElement()
+        ..text = '''
+          function initAndRenderMermaid() {
+            if (typeof mermaid === 'undefined') {
+              console.error('Mermaid not found, retrying in 100ms...');
+              setTimeout(initAndRenderMermaid, 100);
+              return;
+            }
+
+            try {
+              console.log('Initializing Mermaid for $diagramId');
+              mermaid.initialize({
+                startOnLoad: true,
+                theme: 'dark',
+                securityLevel: 'loose',
+                logLevel: 'debug',
+                flowchart: {
+                  htmlLabels: true,
+                  curve: 'basis',
+                  useMaxWidth: true,
+                  padding: 20
+                },
+                class: {
+                  useMaxWidth: true
+                },
+                sequence: {
+                  useMaxWidth: true,
+                  showSequenceNumbers: false,
+                  wrap: false,
+                  width: ${widget.width - 40}, // Account for padding
+                  height: ${widget.height - 40}
+                }
+              });
+
+              console.log('Running Mermaid render for $diagramId');
+              mermaid.run({
+                querySelector: '#$diagramId',
+                suppressErrors: false
+              }).then(() => {
+                console.log('Mermaid render successful for $diagramId');
+                const svg = document.querySelector('#$diagramId svg');
+                if (svg) {
+                  svg.style.maxWidth = '100%';
+                  svg.style.maxHeight = '100%';
+                  svg.style.width = 'auto';
+                  svg.style.height = 'auto';
+                  svg.style.backgroundColor = 'transparent';
+                  svg.style.display = 'block';
+                  svg.style.margin = 'auto';
+                  
+                  // Ensure SVG fits within container
+                  const bbox = svg.getBBox();
+                  const scale = Math.min(
+                    (${widget.width} - 40) / bbox.width,
+                    (${widget.height} - 40) / bbox.height
+                  );
+                  
+                  if (scale < 1) {
+                    svg.style.transform = `scale(\${scale})`;
+                  }
+                }
+              }).catch((error) => {
+                console.error('Mermaid render error:', error);
+              });
+            } catch (error) {
+              console.error('Error in mermaid initialization/render:', error);
+            }
+          }
+
+          // Start the initialization/render process
+          initAndRenderMermaid();
+        ''';
+
+      container.children.add(script);
+      return container;
+    });
   }
 
   @override
@@ -172,13 +169,11 @@ ${widget.diagramCode}
     return Container(
       width: widget.width,
       height: widget.height,
-      constraints: BoxConstraints(
-        minWidth: widget.width,
-        minHeight: widget.height,
-      ),
       decoration: BoxDecoration(
         color: Colors.transparent,
+        borderRadius: BorderRadius.circular(8),
       ),
+      clipBehavior: Clip.hardEdge,
       child: HtmlElementView(viewType: _viewType),
     );
   }
