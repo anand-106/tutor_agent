@@ -7,13 +7,17 @@ class ApiService extends GetxService {
   final dio.Dio _dio = dio.Dio();
   static const String baseUrl = 'http://127.0.0.1:8000/api';
 
-  @override
-  void onInit() {
-    super.onInit();
+  Future<ApiService> init() async {
     _dio.options.baseUrl = baseUrl;
     _dio.options.connectTimeout = Duration(seconds: 60);
     _dio.options.receiveTimeout = Duration(seconds: 60);
     _dio.options.sendTimeout = Duration(seconds: 60);
+    return this;
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
   }
 
   Future<String> sendChatMessage(String text) async {

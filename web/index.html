@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="AI Tutor Application">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="AI Tutor">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="icon" type="image/png" href="favicon.png"/>
+  <title>AI Tutor</title>
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Load Mermaid -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@8.9.0/dist/mermaid.min.js"></script>
+
+  <script>
+    // The value below is injected by flutter build, do not touch.
+    const serviceWorkerVersion = null;
+  </script>
+
+  <script src="flutter.js" defer></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize mermaid with dark theme configuration
+      mermaid.initialize({
+        startOnLoad: false,  // We'll handle rendering manually
+        theme: 'dark',
+        securityLevel: 'loose',
+        flowchart: {
+          htmlLabels: true,
+          curve: 'linear',
+          nodeSpacing: 50,
+          rankSpacing: 50,
+          useMaxWidth: false
+        },
+        themeVariables: {
+          primaryColor: '#FFFFFF',
+          primaryTextColor: '#FFFFFF',
+          primaryBorderColor: '#FFFFFF',
+          lineColor: '#FFFFFF',
+          secondaryColor: '#1E1E1E',
+          tertiaryColor: '#1E1E1E',
+          fontFamily: 'arial',
+          fontSize: '16px'
+        }
+      });
+
+      // Create global mermaid callback
+      window.mermaidCallback = function(svgCode) {
+        console.log('Mermaid callback called with SVG code');
+      };
+    });
+  </script>
+
+  <style>
+    body {
+      background-color: #121212;
+      margin: 0;
+      padding: 0;
+    }
+
+    .mermaid {
+      background-color: transparent !important;
+    }
+
+    .mermaid svg {
+      max-width: 100% !important;
+      height: auto !important;
+      background-color: transparent !important;
+    }
+
+    /* Dark theme styling */
+    .mermaid .node rect,
+    .mermaid .node circle,
+    .mermaid .node polygon {
+      fill: #1E1E1E !important;
+      stroke: #FFFFFF !important;
+      stroke-width: 2px !important;
+    }
+
+    .mermaid .edgePath .path {
+      stroke: #FFFFFF !important;
+      stroke-width: 2px !important;
+    }
+
+    .mermaid .edgeLabel {
+      background-color: transparent !important;
+      color: #FFFFFF !important;
+    }
+
+    .mermaid .label {
+      color: #FFFFFF !important;
+    }
+
+    .mermaid .cluster rect {
+      fill: #1E1E1E !important;
+      stroke: #FFFFFF !important;
+    }
+
+    .mermaid .flowchart-link {
+      stroke: #FFFFFF !important;
+    }
+
+    #flutter_target {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="flutter_target"></div>
+
+  <script>
+    window.addEventListener('load', function() {
+      _flutter.loader.loadEntrypoint({
+        serviceWorker: {
+          serviceWorkerVersion: serviceWorkerVersion,
+        },
+        onEntrypointLoaded: async function(engineInitializer) {
+          const appRunner = await engineInitializer.initializeEngine();
+          await appRunner.runApp();
+        }
+      });
+    });
+  </script>
+</body>
+</html> 

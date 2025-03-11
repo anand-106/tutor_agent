@@ -5,9 +5,11 @@ import 'package:agent/controllers/theme_controller.dart';
 import 'package:agent/services/api_service.dart';
 import 'package:agent/controllers/chat_controller.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   // Initialize services and controllers
-  Get.put(ApiService());
+  await Get.putAsync(() => ApiService().init());
   Get.put(ChatController());
 
   runApp(MyApp());
@@ -20,6 +22,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: 'AI Tutor',
+      home: HomeView(),
       theme: ThemeData(
         brightness: Brightness.dark,
         primaryColor: Color(0xFF2196F3),
@@ -78,7 +81,6 @@ class MyApp extends StatelessWidget {
         ),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: HomeView(),
       debugShowCheckedModeBanner: false,
     );
   }
