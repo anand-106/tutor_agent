@@ -6,6 +6,7 @@ import 'package:agent/controllers/document_controller.dart';
 import 'package:agent/widgets/chat_widget.dart';
 import 'package:agent/widgets/document_upload_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:agent/views/diagram_test_view.dart';
 
 class HomeView extends GetView<ChatController> {
   final DocumentController documentController = Get.put(DocumentController());
@@ -18,6 +19,24 @@ class HomeView extends GetView<ChatController> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.menu, color: Colors.white70),
+          onPressed: () => isLeftPanelExpanded.toggle(),
+        ),
+        title: Text(
+          'AI Tutor',
+          style: GoogleFonts.inter(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.auto_graph, color: Colors.white70),
+            tooltip: 'Test Mermaid Diagrams',
+            onPressed: () => Get.to(() => DiagramTestView()),
+          ),
+        ],
         flexibleSpace: ClipRect(
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
@@ -33,23 +52,6 @@ class HomeView extends GetView<ChatController> {
             ),
           ),
         ),
-        leading: IconButton(
-          icon: Icon(Icons.menu, color: Colors.white70),
-          onPressed: () => isLeftPanelExpanded.toggle(),
-        ),
-        title: Text(
-          'AI Tutor',
-          style: GoogleFonts.inter(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.delete_outline_rounded, color: Colors.white70),
-            onPressed: controller.clearChat,
-          ),
-        ],
       ),
       body: Container(
         decoration: BoxDecoration(
