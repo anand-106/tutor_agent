@@ -38,73 +38,79 @@ class DiagramTestView extends StatelessWidget {
       ),
       body: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1000),
+          constraints: const BoxConstraints(maxWidth: 1200),
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(32),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
                   'Flowchart Example',
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 28,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 32),
                 Container(
+                  width: double.infinity,
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: Colors.white.withOpacity(0.1),
+                      width: 2,
                     ),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.2),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
+                        blurRadius: 15,
+                        offset: const Offset(0, 5),
                       ),
                     ],
                   ),
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(32),
+                  margin: const EdgeInsets.symmetric(vertical: 8),
                   child: const MermaidDiagram(
                     diagramCode: flowchartExample,
-                    width: 800,
-                    height: 400,
+                    width: 1000,
+                    height: 500,
                   ),
                 ),
-                const SizedBox(height: 48),
+                const SizedBox(height: 64),
                 const Text(
                   'Sequence Diagram Example',
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 28,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 32),
                 Container(
+                  width: double.infinity,
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: Colors.white.withOpacity(0.1),
+                      width: 2,
                     ),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.2),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
+                        blurRadius: 15,
+                        offset: const Offset(0, 5),
                       ),
                     ],
                   ),
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(32),
+                  margin: const EdgeInsets.symmetric(vertical: 8),
                   child: const MermaidDiagram(
                     diagramCode: sequenceDiagramExample,
-                    width: 800,
-                    height: 500,
+                    width: 1000,
+                    height: 600,
                   ),
                 ),
               ],
