@@ -4,7 +4,7 @@ import json
 
 class FlashcardAgent(BaseAgent):
     def process(self, text: str, num_cards: int = 3) -> Dict:
-        """Generate focused study flashcards from text"""
+        """Generate focused study flashcards with memorizable bullet points"""
         self.retry_count = 0
         
         while self.retry_count < self.max_retries:
@@ -13,26 +13,36 @@ class FlashcardAgent(BaseAgent):
                     self.logger.warning("Text too short for meaningful flashcard generation")
                     return self._create_basic_flashcards("Text too short")
 
-                prompt = f"""Create focused study flashcards that help remember the main points of the text.
+                prompt = f"""Create focused study flashcards that help memorize key points for exam preparation.
 
                 IMPORTANT: Your response must be ONLY valid JSON, with no additional text or explanation.
                 
                 Required JSON structure:
                 {{
                     "topic": "Main Topic",
-                    "description": "Core concept to remember",
+                    "description": "Core concept to memorize",
                     "flashcards": [
                         {{
                             "id": "unique_number",
                             "front": {{
-                                "title": "Key concept or main point",
-                                "points": ["Point 1", "Point 2", "Point 3"]
+                                "title": "Key concept or definition to memorize",
+                                "points": [
+                                    "Concise bullet point 1",
+                                    "Concise bullet point 2",
+                                    "Concise bullet point 3",
+                                    "... more points as needed"
+                                ]
                             }},
                             "back": {{
-                                "title": "Main explanation",
-                                "points": ["Detail 1", "Detail 2", "Detail 3"]
+                                "title": "Detailed explanation",
+                                "points": [
+                                    "Expanded explanation of point 1",
+                                    "Expanded explanation of point 2",
+                                    "Expanded explanation of point 3",
+                                    "Additional important details"
+                                ]
                             }},
-                            "category": "Main Point/Core Concept/Key Term",
+                            "category": "Definition/Formula/Key Concept/Important Date/Fact",
                             "importance": "Critical/Important/Good to Know",
                             "is_pinned": false
                         }}
@@ -40,20 +50,26 @@ class FlashcardAgent(BaseAgent):
                 }}
 
                 Requirements:
-                1. Generate {num_cards} essential flashcards that capture the most important points
+                1. Generate {num_cards} essential flashcards focusing on content that must be memorized
                 2. Each flashcard must:
-                   - Focus on ONE key concept or main point
-                   - Have front content with a title and 2-3 key points
-                   - Have back content with a title and 2-4 detailed points
-                   - Be categorized by type of information
-                   - Be rated by importance for prioritized study
-                3. Points should be:
-                   - Clear and concise
-                   - Related to the main concept
-                   - Easy to understand
-                   - Listed in logical order
-                4. All content must be based on the provided text
-                5. Response must be valid JSON only
+                   - Focus on ONE key concept that needs memorization
+                   - Have front content with ALL important points to memorize
+                   - Keep each point short and concise (3-8 words each)
+                   - Have back content with detailed explanations of each point
+                   - Be categorized by type of memorizable content
+                   - Be rated by importance for exam preparation
+                3. Front points should be:
+                   - Very concise (3-8 words each)
+                   - Easy to recall during exams
+                   - Focus on key facts, formulas, or definitions
+                   - Include ALL important points (no limit on number of points)
+                   - Each point should be a standalone fact or concept
+                4. Back points should:
+                   - Expand on each front point
+                   - Provide context and examples
+                   - Include additional relevant details
+                5. All content must be based on the provided text
+                6. Response must be valid JSON only
 
                 Text to analyze:
                 {text[:10000]}"""
@@ -110,8 +126,23 @@ class FlashcardAgent(BaseAgent):
                             raise ValueError(f"Card {side} missing title or points")
                         if not isinstance(card[side]["points"], list):
                             raise ValueError(f"Card {side} points must be a list")
+                        
+                        # Validate point lengths for front side
+                        if side == "front":
+                            for i, point in enumerate(card[side]["points"]):
+                                words = point.split()
+                                if len(words) > 8:
+                                    self.logger.warning(f"Front point too long: {point}")
+                                    # Split into multiple points if too long
+                                    if len(words) <= 16:  # If it can be split into two reasonable points
+                                        mid = len(words) // 2
+                                        card[side]["points"][i] = " ".join(words[:mid])
+                                        card[side]["points"].insert(i + 1, " ".join(words[mid:]))
+                                    else:
+                                        # If too long to split nicely, truncate
+                                        card[side]["points"][i] = " ".join(words[:8]) + "..."
                 
-                self.logger.info(f"Successfully generated {len(flashcards_data['flashcards'])} focused flashcards")
+                self.logger.info(f"Successfully generated {len(flashcards_data['flashcards'])} memorization flashcards")
                 return flashcards_data
 
             except Exception as e:
