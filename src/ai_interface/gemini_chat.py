@@ -5,6 +5,7 @@ from .agents.topic_agent import TopicAgent
 from .agents.quiz_agent import QuizAgent
 from .agents.diagram_agent import DiagramAgent
 from .agents.explainer_agent import ExplainerAgent
+from .agents.flashcard_agent import FlashcardAgent
 import json
 
 class GeminiTutor:
@@ -23,6 +24,7 @@ class GeminiTutor:
         self.quiz_agent = QuizAgent(api_keys)
         self.diagram_agent = DiagramAgent(api_keys)
         self.explainer_agent = ExplainerAgent(api_keys)
+        self.flashcard_agent = FlashcardAgent(api_keys)
         
         self.logger.info("Initialized Gemini Tutor with all agents")
 
@@ -86,6 +88,14 @@ class GeminiTutor:
                         return f"```json\n{json.dumps(quiz, indent=2)}\n```"
                     return str(quiz)
                 
+                # For flashcard requests
+                elif any(trigger in query_lower for trigger in ["flashcard", "flash card", "study cards"]):
+                    self.logger.info("Using Flashcard Agent for general flashcards")
+                    flashcards = self.flashcard_agent.process(query)
+                    if isinstance(flashcards, dict):
+                        return f"```json\n{json.dumps(flashcards, indent=2)}\n```"
+                    return str(flashcards)
+                
                 # For general explanations
                 else:
                     self.logger.info("Using Explainer Agent for general explanation")
@@ -109,6 +119,15 @@ class GeminiTutor:
                 if isinstance(quiz, dict):
                     return f"```json\n{json.dumps(quiz, indent=2)}\n```"
                 return str(quiz)
+            
+            # Flashcard generation request
+            flashcard_triggers = ["flashcard", "flash card", "study cards"]
+            if any(trigger in query_lower for trigger in flashcard_triggers):
+                self.logger.info("Using Flashcard Agent")
+                flashcards = self.flashcard_agent.process(context)
+                if isinstance(flashcards, dict):
+                    return f"```json\n{json.dumps(flashcards, indent=2)}\n```"
+                return str(flashcards)
             
             # Diagram generation request
             diagram_triggers = ["diagram", "visualize", "flowchart", "sequence", "class diagram"]

@@ -9,6 +9,7 @@ class DocumentUploadWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Padding(
           padding: EdgeInsets.all(20),
@@ -59,7 +60,8 @@ class DocumentUploadWidget extends StatelessWidget {
         SizedBox(height: 20),
 
         // Document list
-        Expanded(
+        Container(
+          height: 200, // Fixed height for the document list
           child: Obx(
             () => ListView.builder(
               padding: EdgeInsets.symmetric(horizontal: 16),

@@ -11,13 +11,17 @@ import 'package:agent/widgets/quiz_widget.dart';
 import 'package:agent/widgets/mermaid_diagram.dart';
 import 'dart:ui';
 import 'package:agent/controllers/document_controller.dart';
+import 'package:agent/widgets/flashcard_widget.dart';
 
 class ChatMessageWidget extends StatelessWidget {
   final ChatMessage message;
   final ChatController chatController = Get.find<ChatController>();
   final DocumentController documentController = Get.find<DocumentController>();
 
-  ChatMessageWidget({required this.message});
+  ChatMessageWidget({
+    Key? key,
+    required this.message,
+  }) : super(key: key);
 
   bool isTopicsMessage() {
     return message.response
@@ -26,6 +30,109 @@ class ChatMessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Check if the response is a flashcard message
+    if (message.response is String) {
+      try {
+        // First try to parse the entire response as JSON
+        final Map<String, dynamic> jsonData = json.decode(message.response);
+        if (jsonData.containsKey('flashcards') &&
+            jsonData.containsKey('topic')) {
+          debugPrint('Creating flashcard widget from direct JSON');
+
+          // Ensure each flashcard has required fields
+          final List<Map<String, dynamic>> flashcards =
+              List<Map<String, dynamic>>.from(jsonData['flashcards']);
+          for (var i = 0; i < flashcards.length; i++) {
+            if (!flashcards[i].containsKey('id')) {
+              flashcards[i]['id'] = 'card_${i + 1}';
+            }
+            if (!flashcards[i].containsKey('is_pinned')) {
+              flashcards[i]['is_pinned'] = false;
+            }
+          }
+          jsonData['flashcards'] = flashcards;
+
+          debugPrint('Processed flashcards: ${json.encode(flashcards)}');
+          return FlashcardWidget(
+            flashcardsData: jsonData,
+            onPinCard: (card) {
+              debugPrint('Pin card called with: ${json.encode(card)}');
+              if (card['is_pinned']) {
+                chatController.pinCard(card);
+              } else {
+                chatController.unpinCard(card);
+              }
+            },
+            onPinAll: (cards) {
+              debugPrint('Pin all cards called with ${cards.length} cards');
+              chatController.pinAllCards(
+                  cards.map((c) => Map<String, dynamic>.from(c)).toList());
+            },
+          );
+        }
+      } catch (e) {
+        debugPrint('First JSON parse attempt failed: $e');
+        // If direct parsing fails, try to extract JSON from code blocks
+        if (message.response.contains('```json')) {
+          try {
+            RegExp regExp = RegExp(r'```json\s*([\s\S]*?)\s*```');
+            Match? match = regExp.firstMatch(message.response);
+
+            if (match != null) {
+              String jsonText = match.group(1)?.trim() ?? '';
+              jsonText = jsonText
+                  .replaceAll(RegExp(r',(\s*[}\]])', multiLine: true), r'$1')
+                  .replaceAll(RegExp(r'[\n\r]'), '')
+                  .trim();
+
+              final data = json.decode(jsonText);
+              if (data is Map<String, dynamic> &&
+                  data.containsKey('flashcards') &&
+                  data.containsKey('topic')) {
+                debugPrint('Creating flashcard widget from code block');
+
+                // Ensure each flashcard has required fields
+                final List<Map<String, dynamic>> flashcards =
+                    List<Map<String, dynamic>>.from(data['flashcards']);
+                for (var i = 0; i < flashcards.length; i++) {
+                  if (!flashcards[i].containsKey('id')) {
+                    flashcards[i]['id'] = 'card_${i + 1}';
+                  }
+                  if (!flashcards[i].containsKey('is_pinned')) {
+                    flashcards[i]['is_pinned'] = false;
+                  }
+                }
+                data['flashcards'] = flashcards;
+
+                debugPrint(
+                    'Processed flashcards from code block: ${json.encode(flashcards)}');
+                return FlashcardWidget(
+                  flashcardsData: data,
+                  onPinCard: (card) {
+                    debugPrint('Pin card called with: ${json.encode(card)}');
+                    if (card['is_pinned']) {
+                      chatController.pinCard(card);
+                    } else {
+                      chatController.unpinCard(card);
+                    }
+                  },
+                  onPinAll: (cards) {
+                    debugPrint(
+                        'Pin all cards called with ${cards.length} cards');
+                    chatController.pinAllCards(cards
+                        .map((c) => Map<String, dynamic>.from(c))
+                        .toList());
+                  },
+                );
+              }
+            }
+          } catch (e) {
+            debugPrint('Code block JSON parse attempt failed: $e');
+          }
+        }
+      }
+    }
+
     return Align(
       alignment: message.isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
@@ -417,6 +524,29 @@ class ChatMessageWidget extends StatelessWidget {
                     ],
                   ],
                 ),
+              );
+            }
+            // Check if this is a flashcard response
+            else if (data is Map<String, dynamic> &&
+                data.containsKey('flashcards') &&
+                data.containsKey('topic')) {
+              print(
+                  'Creating flashcard widget with data: $data'); // Debug print
+              return FlashcardWidget(
+                flashcardsData: data,
+                onPinCard: (card) {
+                  debugPrint('Pin card called with: ${json.encode(card)}');
+                  if (card['is_pinned']) {
+                    chatController.pinCard(card);
+                  } else {
+                    chatController.unpinCard(card);
+                  }
+                },
+                onPinAll: (cards) {
+                  debugPrint('Pin all cards called with ${cards.length} cards');
+                  chatController.pinAllCards(
+                      cards.map((c) => Map<String, dynamic>.from(c)).toList());
+                },
               );
             } else {
               print('Invalid data format: $data'); // Debug print
