@@ -259,6 +259,165 @@ class ChatMessageWidget extends StatelessWidget {
                   ),
                 ],
               );
+            }
+            // Check if this is an explanation response
+            else if (data is Map<String, dynamic> &&
+                data.containsKey('title') &&
+                data.containsKey('summary')) {
+              print(
+                  'Creating explanation widget with data: $data'); // Debug print
+              return Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.08),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      data['title'].toString(),
+                      style: GoogleFonts.inter(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      data['summary'].toString(),
+                      style: GoogleFonts.inter(
+                        fontSize: 16,
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                    ),
+                    if (data['key_points'] is List &&
+                        data['key_points'].isNotEmpty) ...[
+                      SizedBox(height: 16),
+                      Text(
+                        'Key Points:',
+                        style: GoogleFonts.inter(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white.withOpacity(0.9),
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      ...List.generate(
+                        data['key_points'].length,
+                        (index) => Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '• ',
+                                style: GoogleFonts.inter(
+                                  fontSize: 16,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  data['key_points'][index].toString(),
+                                  style: GoogleFonts.inter(
+                                    fontSize: 16,
+                                    color: Colors.white.withOpacity(0.9),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                    if (data['detailed_explanation']?.toString().isNotEmpty ??
+                        false) ...[
+                      SizedBox(height: 16),
+                      Text(
+                        'Detailed Explanation:',
+                        style: GoogleFonts.inter(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white.withOpacity(0.9),
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        data['detailed_explanation'].toString(),
+                        style: GoogleFonts.inter(
+                          fontSize: 16,
+                          color: Colors.white.withOpacity(0.9),
+                        ),
+                      ),
+                    ],
+                    if (data['examples'] is List &&
+                        data['examples'].isNotEmpty) ...[
+                      SizedBox(height: 16),
+                      Text(
+                        'Examples:',
+                        style: GoogleFonts.inter(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white.withOpacity(0.9),
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      ...List.generate(
+                        data['examples'].length,
+                        (index) => Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${index + 1}. ',
+                                style: GoogleFonts.inter(
+                                  fontSize: 16,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  data['examples'][index].toString(),
+                                  style: GoogleFonts.inter(
+                                    fontSize: 16,
+                                    color: Colors.white.withOpacity(0.9),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                    if (data['additional_notes']?.toString().isNotEmpty ??
+                        false) ...[
+                      SizedBox(height: 16),
+                      Text(
+                        'Additional Notes:',
+                        style: GoogleFonts.inter(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white.withOpacity(0.9),
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        data['additional_notes'].toString(),
+                        style: GoogleFonts.inter(
+                          fontSize: 16,
+                          color: Colors.white.withOpacity(0.9),
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              );
             } else {
               print('Invalid data format: $data'); // Debug print
             }
