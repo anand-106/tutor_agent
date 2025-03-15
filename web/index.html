@@ -31,27 +31,58 @@
       if (typeof mermaid !== 'undefined') {
         console.log('Mermaid library found, initializing...');
         mermaid.initialize({
-          startOnLoad: true,
+          startOnLoad: false,  // Let each diagram control its own rendering
           theme: 'dark',
           securityLevel: 'loose',
-          logLevel: 'debug',
+          logLevel: 'error',  // Reduce logging noise
+          deterministicIds: true,
+          fontFamily: 'arial,sans-serif',
+          fontSize: 14,
           flowchart: {
             htmlLabels: true,
-            curve: 'basis',
-            useMaxWidth: true
+            curve: 'linear',
+            useMaxWidth: false,
+            padding: 20,
+            nodeSpacing: 50,
+            rankSpacing: 50,
+            diagramPadding: 20
           },
           sequence: {
-            useMaxWidth: true,
+            useMaxWidth: false,
             showSequenceNumbers: false,
-            wrap: false
+            wrap: false,
+            padding: 20,
+            width: 150,
+            height: 65,
+            diagramMarginX: 50,
+            diagramMarginY: 30
+          },
+          class: {
+            useMaxWidth: false,
+            defaultRenderer: 'dagre',
+            htmlLabels: true,
+            diagramPadding: 20,
+            curve: 'linear'
           },
           themeVariables: {
+            darkMode: true,
+            background: '#1E1E1E',
             primaryColor: '#FFFFFF',
             primaryTextColor: '#FFFFFF',
             primaryBorderColor: '#FFFFFF',
             lineColor: '#FFFFFF',
             secondaryColor: '#2A2A2A',
-            tertiaryColor: '#2A2A2A'
+            tertiaryColor: '#2A2A2A',
+            noteTextColor: '#FFFFFF',
+            textColor: '#FFFFFF',
+            mainBkg: '#1E1E1E',
+            nodeBkg: '#2A2A2A',
+            nodeBorder: '#FFFFFF',
+            clusterBkg: '#2A2A2A',
+            clusterBorder: '#FFFFFF',
+            titleColor: '#FFFFFF',
+            edgeLabelBackground: '#2A2A2A',
+            classText: '#FFFFFF'
           }
         });
         console.log('Mermaid initialized successfully');

@@ -41,8 +41,10 @@ class _MermaidDiagramState extends State<MermaidDiagram> {
       print('Creating view for Mermaid diagram...');
       print('ViewId: $viewId');
 
-      // Ensure the diagram code starts with the correct syntax
+      // Clean up the code by removing problematic characters and fixing syntax
       String formattedCode = widget.diagramCode.trim();
+
+      // Ensure proper diagram type prefix
       if (!formattedCode.startsWith('classDiagram') &&
           !formattedCode.startsWith('graph') &&
           !formattedCode.startsWith('sequenceDiagram')) {
@@ -55,12 +57,9 @@ class _MermaidDiagramState extends State<MermaidDiagram> {
 
       print('Formatted diagram code: $formattedCode');
 
-      final containerId = 'mermaid-container-$viewId';
-      final diagramId = 'mermaid-diagram-$viewId';
-
-      // Create container element with fixed size
+      // Create container with unique ID
       final container = html.DivElement()
-        ..id = containerId
+        ..id = _viewType
         ..style.width = '${widget.width}px'
         ..style.height = '${widget.height}px'
         ..style.backgroundColor = 'transparent'
@@ -70,9 +69,8 @@ class _MermaidDiagramState extends State<MermaidDiagram> {
         ..style.overflow = 'hidden'
         ..style.position = 'relative';
 
-      // Create diagram element with specific styling
+      // Create diagram element
       final diagramElement = html.DivElement()
-        ..id = diagramId
         ..className = 'mermaid'
         ..style.width = '100%'
         ..style.height = '100%'
@@ -83,80 +81,54 @@ class _MermaidDiagramState extends State<MermaidDiagram> {
 
       container.children.add(diagramElement);
 
-      print('Created container with ID: $containerId');
-
       // Add script to render diagram
-      html.ScriptElement script = html.ScriptElement()
+      final script = html.ScriptElement()
         ..text = '''
-          function initAndRenderMermaid() {
-            if (typeof mermaid === 'undefined') {
-              console.error('Mermaid not found, retrying in 100ms...');
-              setTimeout(initAndRenderMermaid, 100);
-              return;
-            }
+          (function() {
+            function renderDiagram() {
+              if (typeof mermaid === 'undefined') {
+                console.log('Waiting for Mermaid to load...');
+                setTimeout(renderDiagram, 100);
+                return;
+              }
 
-            try {
-              console.log('Initializing Mermaid for $diagramId');
-              mermaid.initialize({
-                startOnLoad: true,
-                theme: 'dark',
-                securityLevel: 'loose',
-                logLevel: 'debug',
-                flowchart: {
-                  htmlLabels: true,
-                  curve: 'basis',
-                  useMaxWidth: true,
-                  padding: 20
-                },
-                class: {
-                  useMaxWidth: true
-                },
-                sequence: {
-                  useMaxWidth: true,
-                  showSequenceNumbers: false,
-                  wrap: false,
-                  width: ${widget.width - 40}, // Account for padding
-                  height: ${widget.height - 40}
-                }
-              });
-
-              console.log('Running Mermaid render for $diagramId');
-              mermaid.run({
-                querySelector: '#$diagramId',
-                suppressErrors: false
-              }).then(() => {
-                console.log('Mermaid render successful for $diagramId');
-                const svg = document.querySelector('#$diagramId svg');
-                if (svg) {
-                  svg.style.maxWidth = '100%';
-                  svg.style.maxHeight = '100%';
-                  svg.style.width = 'auto';
-                  svg.style.height = 'auto';
-                  svg.style.backgroundColor = 'transparent';
-                  svg.style.display = 'block';
-                  svg.style.margin = 'auto';
-                  
-                  // Ensure SVG fits within container
-                  const bbox = svg.getBBox();
-                  const scale = Math.min(
-                    (${widget.width} - 40) / bbox.width,
-                    (${widget.height} - 40) / bbox.height
-                  );
-                  
-                  if (scale < 1) {
-                    svg.style.transform = `scale(\${scale})`;
+              try {
+                console.log('Rendering diagram for ${_viewType}');
+                mermaid.run({
+                  querySelector: '#${_viewType} .mermaid',
+                  suppressErrors: false
+                }).then(() => {
+                  console.log('Render successful for ${_viewType}');
+                  const svg = document.querySelector('#${_viewType} svg');
+                  if (svg) {
+                    svg.style.maxWidth = '100%';
+                    svg.style.maxHeight = '100%';
+                    svg.style.width = 'auto';
+                    svg.style.height = 'auto';
+                    svg.style.backgroundColor = 'transparent';
+                    
+                    // Calculate and set viewBox
+                    const bbox = svg.getBBox();
+                    const padding = 20;
+                    svg.setAttribute('viewBox', 
+                      `\${bbox.x - padding} \${bbox.y - padding} \${bbox.width + padding * 2} \${bbox.height + padding * 2}`
+                    );
+                    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
                   }
-                }
-              }).catch((error) => {
-                console.error('Mermaid render error:', error);
-              });
-            } catch (error) {
-              console.error('Error in mermaid initialization/render:', error);
+                }).catch(error => {
+                  console.error('Render error:', error);
+                  const errorDiv = document.createElement('div');
+                  errorDiv.style.color = '#ff6b6b';
+                  errorDiv.style.padding = '16px';
+                  errorDiv.innerHTML = `Error rendering diagram: \${error.message || 'Unknown error'}`;
+                  document.querySelector('#${_viewType}').appendChild(errorDiv);
+                });
+              } catch (error) {
+                console.error('Error in render:', error);
+              }
             }
-          }
-
-          // Start the initialization/render process
-          initAndRenderMermaid();
+            renderDiagram();
+          })();
         ''';
 
       container.children.add(script);
