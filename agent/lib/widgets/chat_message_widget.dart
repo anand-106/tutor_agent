@@ -209,7 +209,7 @@ class ChatMessageWidget extends StatelessWidget {
 
         if (match != null) {
           String jsonText = match.group(1)?.trim() ?? '';
-          print('Found quiz JSON: $jsonText'); // Debug print
+          print('Found JSON: $jsonText'); // Debug print
 
           try {
             // Clean up the JSON text
@@ -219,60 +219,58 @@ class ChatMessageWidget extends StatelessWidget {
                 .trim();
 
             final data = json.decode(jsonText);
-            print('Parsed quiz data: $data'); // Debug print
+            print('Parsed data: $data'); // Debug print
 
+            // Check if this is a quiz response
             if (data is Map<String, dynamic> &&
                 data.containsKey('questions') &&
                 data.containsKey('topic')) {
               print('Creating quiz widget with data: $data'); // Debug print
               return QuizWidget(quizData: data);
+            }
+            // Check if this is a diagram response
+            else if (data is Map<String, dynamic> &&
+                data.containsKey('explanation') &&
+                data.containsKey('mermaid_code')) {
+              print('Creating diagram widget with data: $data'); // Debug print
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (data['explanation'].toString().isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16.0),
+                      child: MarkdownBody(data: data['explanation'].toString()),
+                    ),
+                  Container(
+                    margin: const EdgeInsets.symmetric(vertical: 8.0),
+                    constraints: BoxConstraints(
+                      maxWidth: MediaQuery.of(context).size.width * 0.8,
+                      maxHeight: 400,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.black12,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: MermaidDiagram(
+                      diagramCode: data['mermaid_code'].toString(),
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      height: 400,
+                    ),
+                  ),
+                ],
+              );
             } else {
-              print('Invalid quiz data format: $data'); // Debug print
+              print('Invalid data format: $data'); // Debug print
             }
           } catch (e) {
-            print('Error parsing quiz JSON: $e'); // Debug print
+            print('Error parsing JSON: $e'); // Debug print
           }
         } else {
           print('No JSON content found in markdown blocks'); // Debug print
         }
       } catch (e) {
-        print('Error processing quiz response: $e'); // Debug print
+        print('Error processing response: $e'); // Debug print
       }
-    }
-
-    // If the message has a diagram, show both the text and diagram
-    if (message.hasDiagram && message.mermaidCode != null) {
-      print('Rendering diagram with code: ${message.mermaidCode}'); // Debug log
-
-      // Extract explanation text (everything before the Mermaid code block)
-      String explanation = message.response.split('```mermaid').first.trim();
-
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (explanation.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16.0),
-              child: MarkdownBody(data: explanation),
-            ),
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 8.0),
-            constraints: BoxConstraints(
-              maxWidth: MediaQuery.of(context).size.width * 0.8,
-              maxHeight: 400,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.black12,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: MermaidDiagram(
-              diagramCode: message.mermaidCode!,
-              width: MediaQuery.of(context).size.width * 0.8,
-              height: 400,
-            ),
-          ),
-        ],
-      );
     }
 
     // If not a diagram or quiz, render as markdown
