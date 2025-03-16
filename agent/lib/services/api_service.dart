@@ -223,4 +223,61 @@ class ApiService extends GetxService {
       throw 'Error tracking user interaction: $e';
     }
   }
+
+  // Add these methods for lesson plan generation
+  Future<Map<String, dynamic>> generateLessonPlan(
+    String userId,
+    String topic,
+    double knowledgeLevel, {
+    List<Map<String, dynamic>>? subtopics,
+    int timeAvailable = 60,
+  }) async {
+    try {
+      final data = {
+        'user_id': userId,
+        'topic': topic,
+        'knowledge_level': knowledgeLevel,
+        if (subtopics != null) 'subtopics': subtopics,
+        'time_available': timeAvailable,
+      };
+
+      final response = await _dio.post(
+        '/generate-lesson-plan',
+        data: data,
+      );
+
+      if (response.statusCode == 200) {
+        return response.data as Map<String, dynamic>;
+      }
+      throw 'Failed to generate lesson plan';
+    } catch (e) {
+      throw 'Error generating lesson plan: $e';
+    }
+  }
+
+  Future<Map<String, dynamic>> generateCurriculum(
+    String userId,
+    List<Map<String, dynamic>> topics, {
+    int totalTimeAvailable = 600,
+  }) async {
+    try {
+      final data = {
+        'user_id': userId,
+        'topics': topics,
+        'total_time_available': totalTimeAvailable,
+      };
+
+      final response = await _dio.post(
+        '/generate-curriculum',
+        data: data,
+      );
+
+      if (response.statusCode == 200) {
+        return response.data as Map<String, dynamic>;
+      }
+      throw 'Failed to generate curriculum';
+    } catch (e) {
+      throw 'Error generating curriculum: $e';
+    }
+  }
 }

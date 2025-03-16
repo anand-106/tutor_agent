@@ -6,6 +6,8 @@ import 'package:agent/controllers/home_view_controller.dart';
 import 'package:agent/services/api_service.dart';
 import 'package:agent/controllers/chat_controller.dart';
 import 'package:agent/controllers/user_progress_controller.dart';
+import 'package:agent/controllers/lesson_plan_controller.dart';
+import 'package:agent/controllers/document_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,6 +17,8 @@ void main() async {
   Get.put(ChatController());
   Get.put(UserProgressController());
   Get.put(HomeViewController());
+  Get.put(LessonPlanController());
+  Get.put(DocumentController());
 
   runApp(MyApp());
 }

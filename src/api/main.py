@@ -1,14 +1,14 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException, Request
+from fastapi import FastAPI, UploadFile, File, HTTPException, Request, Response, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, HTMLResponse
 from fastapi.exceptions import RequestValidationError
 import os
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, Any
 from dotenv import load_dotenv
 from pathlib import Path
 import sys
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 # Add the project root directory to Python path
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
@@ -17,6 +17,7 @@ sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from src.data_processing.pipeline import DataProcessingPipeline
 from src.ai_interface.gemini_chat import GeminiTutor
 from src.data_processing.logger_config import setup_logger
+from src.ai_interface.agents import LessonPlanAgent
 
 # Load environment variables
 load_dotenv()
@@ -854,4 +855,60 @@ async def analyze_learning_patterns(user_id: str):
         return JSONResponse(
             status_code=500,
             content={"detail": str(e)}
-        ) 
+        )
+
+# Add these new models for lesson plan requests
+class LessonPlanRequest(BaseModel):
+    user_id: str
+    topic: str
+    knowledge_level: float = Field(..., ge=0, le=100)
+    subtopics: Optional[List[Dict[str, Any]]] = None
+    time_available: Optional[int] = 60
+
+class CurriculumRequest(BaseModel):
+    user_id: str
+    topics: List[Dict[str, Any]]
+    total_time_available: Optional[int] = 600
+
+# Add these new endpoints
+@app.post("/api/generate-lesson-plan")
+async def generate_lesson_plan(request: LessonPlanRequest):
+    """Generate a personalized lesson plan for a specific topic"""
+    try:
+        # Initialize the lesson plan agent
+        lesson_plan_agent = LessonPlanAgent(GEMINI_API_KEYS)
+        
+        # Generate the lesson plan
+        lesson_plan = lesson_plan_agent.process(
+            user_id=request.user_id,
+            topic=request.topic,
+            knowledge_level=request.knowledge_level,
+            subtopics=request.subtopics,
+            time_available=request.time_available
+        )
+        
+        return lesson_plan
+    except Exception as e:
+        logger.error(f"Error generating lesson plan: {str(e)}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Failed to generate lesson plan: {str(e)}")
+
+@app.post("/api/generate-curriculum")
+async def generate_curriculum(request: CurriculumRequest):
+    """Generate a comprehensive curriculum covering multiple topics"""
+    try:
+        # Initialize the lesson plan agent
+        lesson_plan_agent = LessonPlanAgent(GEMINI_API_KEYS)
+        
+        # Generate the curriculum
+        curriculum = lesson_plan_agent.generate_curriculum(
+            user_id=request.user_id,
+            topics=request.topics,
+            total_time_available=request.total_time_available
+        )
+        
+        return curriculum
+    except Exception as e:
+        logger.error(f"Error generating curriculum: {str(e)}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Failed to generate curriculum: {str(e)}") 

@@ -5,6 +5,8 @@ import 'package:agent/controllers/document_controller.dart';
 import 'package:agent/controllers/chat_controller.dart';
 import 'package:agent/controllers/user_progress_controller.dart';
 import 'package:agent/controllers/home_view_controller.dart';
+import 'package:agent/controllers/lesson_plan_controller.dart';
+import 'package:agent/views/lesson_plan_view.dart';
 
 class TopicsTab extends StatelessWidget {
   final DocumentController documentController = Get.find<DocumentController>();
@@ -12,6 +14,8 @@ class TopicsTab extends StatelessWidget {
   final UserProgressController userProgressController =
       Get.find<UserProgressController>();
   final HomeViewController homeViewController = Get.find<HomeViewController>();
+  final LessonPlanController lessonPlanController =
+      Get.find<LessonPlanController>();
 
   TopicsTab({Key? key}) : super(key: key);
 
@@ -110,8 +114,8 @@ class TopicsTab extends StatelessWidget {
                         icon: Icon(Icons.school, size: 16),
                         label: Text('Study'),
                         onPressed: () {
-                          // Implement study functionality
-                          _studyTopic(topic['title'], topic['content']);
+                          _studyTopic(topic['title'], topic['content'],
+                              subtopics: topic['subtopics']);
                         },
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.symmetric(
@@ -151,6 +155,134 @@ class TopicsTab extends StatelessWidget {
         );
       }),
     );
+  }
+
+  void _studyTopic(String title, String? content, {List<dynamic>? subtopics}) {
+    // Show dialog to ask if user wants to generate a lesson plan
+    Get.dialog(
+      AlertDialog(
+        backgroundColor: Color(0xFF1A1A1A),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(
+            color: Colors.white.withOpacity(0.1),
+          ),
+        ),
+        title: Text(
+          'Study $title',
+          style: GoogleFonts.inter(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Would you like to generate a personalized lesson plan for this topic?',
+              style: GoogleFonts.inter(
+                color: Colors.white.withOpacity(0.8),
+              ),
+            ),
+            SizedBox(height: 16),
+            Row(
+              children: [
+                Icon(Icons.timer,
+                    color: Colors.white.withOpacity(0.6), size: 20),
+                SizedBox(width: 8),
+                Text(
+                  'Select study time:',
+                  style: GoogleFonts.inter(
+                    color: Colors.white.withOpacity(0.8),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 8),
+            _buildTimeSelectionChips(),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.inter(
+                color: Colors.white.withOpacity(0.6),
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Get.back();
+              _generateLessonPlan(title, subtopics);
+            },
+            child: Text(
+              'Generate Plan',
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  final RxInt _selectedTime = 30.obs;
+
+  Widget _buildTimeSelectionChips() {
+    return Obx(() => Wrap(
+          spacing: 8,
+          children: [15, 30, 45, 60, 90, 120].map((time) {
+            return ChoiceChip(
+              label: Text(
+                '$time min',
+                style: GoogleFonts.inter(
+                  color: _selectedTime.value == time
+                      ? Colors.white
+                      : Colors.white.withOpacity(0.7),
+                  fontSize: 12,
+                ),
+              ),
+              selected: _selectedTime.value == time,
+              onSelected: (selected) {
+                if (selected) {
+                  _selectedTime.value = time;
+                }
+              },
+              backgroundColor: Colors.white.withOpacity(0.05),
+              selectedColor: Get.theme.primaryColor,
+            );
+          }).toList(),
+        ));
+  }
+
+  void _generateLessonPlan(String topic, List<dynamic>? subtopicsList) async {
+    // Convert subtopics to the format expected by the lesson plan controller
+    List<Map<String, dynamic>>? subtopics;
+    if (subtopicsList != null && subtopicsList.isNotEmpty) {
+      subtopics = subtopicsList.map((subtopic) {
+        if (subtopic is Map) {
+          return {
+            'name': subtopic['title'] ?? '',
+            'level': 0.0, // Default level, will be updated by the controller
+          };
+        }
+        return {'name': subtopic.toString(), 'level': 0.0};
+      }).toList();
+    }
+
+    // Generate the lesson plan
+    await lessonPlanController.generateLessonPlan(
+      topic,
+      subtopics: subtopics,
+      timeAvailable: _selectedTime.value,
+    );
+
+    // Navigate to the lesson plan view
+    Get.to(() => LessonPlanView());
   }
 
   Widget _buildSubtopic(BuildContext context, dynamic subtopic) {
@@ -216,8 +348,10 @@ class TopicsTab extends StatelessWidget {
                     icon: Icon(Icons.school, size: 14),
                     label: Text('Study'),
                     onPressed: () {
-                      // Implement study functionality for map subtopic
-                      _studyTopic(subtopic['title'], subtopic['content']);
+                      _studyTopic(
+                        subtopic['title'] ?? 'Subtopic',
+                        subtopic['content'],
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.symmetric(
@@ -282,8 +416,10 @@ class TopicsTab extends StatelessWidget {
                     icon: Icon(Icons.school, size: 14),
                     label: Text('Study'),
                     onPressed: () {
-                      // Implement study functionality for string subtopic
-                      _studyTopic(subtopic.toString(), null);
+                      _studyTopic(
+                        subtopic.toString(),
+                        null,
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.symmetric(
@@ -303,32 +439,5 @@ class TopicsTab extends StatelessWidget {
         ),
       );
     }
-  }
-
-  void _studyTopic(String topicTitle, String? topicContent) {
-    // Track the study session in user progress
-    userProgressController.trackStudySession(
-        topicTitle, 15); // Default 15 minutes session
-
-    // Create a study request message
-    String studyRequest = "Help me study about $topicTitle.";
-    if (topicContent != null && topicContent.isNotEmpty) {
-      studyRequest += " Here's what I know: $topicContent";
-    }
-
-    // Send the study request to the chat
-    chatController.sendMessage(studyRequest);
-
-    // Close the side panel
-    homeViewController.closeSidePanel();
-
-    // Show a snackbar to confirm
-    Get.snackbar(
-      'Study Session Started',
-      'Now studying: $topicTitle',
-      backgroundColor: Colors.green.withOpacity(0.1),
-      colorText: Colors.white,
-      duration: Duration(seconds: 2),
-    );
   }
 }

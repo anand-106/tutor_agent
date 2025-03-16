@@ -8,6 +8,7 @@ import 'package:agent/widgets/chat_widget.dart';
 import 'package:agent/widgets/document_upload_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:agent/views/diagram_test_view.dart';
+import 'package:agent/views/lesson_plan_view.dart';
 import 'package:agent/widgets/flashcard_widget.dart';
 import 'package:agent/widgets/side_panel.dart';
 
@@ -34,6 +35,11 @@ class HomeView extends GetView<ChatController> {
           ),
         ),
         actions: [
+          IconButton(
+            icon: Icon(Icons.school, color: Colors.white70),
+            tooltip: 'View Lesson Plan',
+            onPressed: () => Get.to(() => LessonPlanView()),
+          ),
           IconButton(
             icon: Icon(Icons.auto_graph, color: Colors.white70),
             tooltip: 'Test Mermaid Diagrams',
