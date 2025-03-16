@@ -2,9 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:agent/controllers/document_controller.dart';
+import 'package:agent/controllers/chat_controller.dart';
+import 'package:agent/controllers/user_progress_controller.dart';
+import 'package:agent/controllers/home_view_controller.dart';
 
 class TopicsTab extends StatelessWidget {
   final DocumentController documentController = Get.find<DocumentController>();
+  final ChatController chatController = Get.find<ChatController>();
+  final UserProgressController userProgressController =
+      Get.find<UserProgressController>();
+  final HomeViewController homeViewController = Get.find<HomeViewController>();
 
   TopicsTab({Key? key}) : super(key: key);
 
@@ -103,7 +110,8 @@ class TopicsTab extends StatelessWidget {
                         icon: Icon(Icons.school, size: 16),
                         label: Text('Study'),
                         onPressed: () {
-                          // TODO: Implement study functionality
+                          // Implement study functionality
+                          _studyTopic(topic['title'], topic['content']);
                         },
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.symmetric(
@@ -208,7 +216,8 @@ class TopicsTab extends StatelessWidget {
                     icon: Icon(Icons.school, size: 14),
                     label: Text('Study'),
                     onPressed: () {
-                      // TODO: Implement study functionality
+                      // Implement study functionality for map subtopic
+                      _studyTopic(subtopic['title'], subtopic['content']);
                     },
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.symmetric(
@@ -273,7 +282,8 @@ class TopicsTab extends StatelessWidget {
                     icon: Icon(Icons.school, size: 14),
                     label: Text('Study'),
                     onPressed: () {
-                      // TODO: Implement study functionality
+                      // Implement study functionality for string subtopic
+                      _studyTopic(subtopic.toString(), null);
                     },
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.symmetric(
@@ -293,5 +303,32 @@ class TopicsTab extends StatelessWidget {
         ),
       );
     }
+  }
+
+  void _studyTopic(String topicTitle, String? topicContent) {
+    // Track the study session in user progress
+    userProgressController.trackStudySession(
+        topicTitle, 15); // Default 15 minutes session
+
+    // Create a study request message
+    String studyRequest = "Help me study about $topicTitle.";
+    if (topicContent != null && topicContent.isNotEmpty) {
+      studyRequest += " Here's what I know: $topicContent";
+    }
+
+    // Send the study request to the chat
+    chatController.sendMessage(studyRequest);
+
+    // Close the side panel
+    homeViewController.closeSidePanel();
+
+    // Show a snackbar to confirm
+    Get.snackbar(
+      'Study Session Started',
+      'Now studying: $topicTitle',
+      backgroundColor: Colors.green.withOpacity(0.1),
+      colorText: Colors.white,
+      duration: Duration(seconds: 2),
+    );
   }
 }

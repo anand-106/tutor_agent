@@ -18,7 +18,7 @@
 
   <script>
     // The value below is injected by flutter build, do not touch.
-    var serviceWorkerVersion = '{{flutter_service_worker_version}}';
+    const serviceWorkerVersion = '{{flutter_service_worker_version}}';
   </script>
 
   <script src="flutter.js" defer></script>
@@ -182,15 +182,15 @@
       _flutter.loader.load({
         serviceWorker: {
           serviceWorkerVersion: serviceWorkerVersion,
-        }
-      }).then(function(engineInitializer) {
-        console.log('Flutter entrypoint loaded...');
-        return engineInitializer.initializeEngine();
+        },
+        target: document.getElementById('flutter_target')
       }).then(function(appRunner) {
-        console.log('Engine initialized, running app...');
+        console.log('Flutter engine initialized, running app...');
         return appRunner.runApp();
       }).then(function() {
         console.log('Flutter app started');
+      }).catch(function(error) {
+        console.error('Error initializing Flutter app:', error);
       });
     });
   </script>

@@ -117,4 +117,110 @@ class ApiService extends GetxService {
       throw 'Error getting topics: $e';
     }
   }
+
+  // User progress tracking methods
+  Future<Map<String, dynamic>> getUserKnowledgeSummary(String userId) async {
+    try {
+      final response =
+          await http.get(Uri.parse('$baseUrl/user/$userId/knowledge'));
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        print('User Knowledge Summary: $responseData'); // Debug print
+        return responseData;
+      }
+      throw 'Failed to get user knowledge summary';
+    } catch (e) {
+      throw 'Error getting user knowledge summary: $e';
+    }
+  }
+
+  Future<Map<String, dynamic>> getTopicProgress(
+      String userId, String topic) async {
+    try {
+      final encodedTopic = Uri.encodeComponent(topic);
+      final response = await http
+          .get(Uri.parse('$baseUrl/user/$userId/topic/$encodedTopic'));
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        print('Topic Progress: $responseData'); // Debug print
+        return responseData;
+      }
+      throw 'Failed to get topic progress';
+    } catch (e) {
+      throw 'Error getting topic progress: $e';
+    }
+  }
+
+  Future<Map<String, dynamic>> getLearningPatterns(String userId) async {
+    try {
+      final response =
+          await http.get(Uri.parse('$baseUrl/user/$userId/patterns'));
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        print('Learning Patterns: $responseData'); // Debug print
+        return responseData;
+      }
+
+      // Return default structure on error
+      print(
+          'Failed to get learning patterns: Status code ${response.statusCode}');
+      return {
+        "user_id": userId,
+        "interaction_counts": {},
+        "study_regularity": "none",
+        "insights": []
+      };
+    } catch (e) {
+      print('Error getting learning patterns: $e');
+      // Return default structure on exception
+      return {
+        "user_id": userId,
+        "interaction_counts": {},
+        "study_regularity": "none",
+        "insights": []
+      };
+    }
+  }
+
+  Future<Map<String, dynamic>> trackUserInteraction(
+    String userId,
+    String interactionType, {
+    String? topic,
+    int? score,
+    List<Map<String, dynamic>>? questions,
+    int? durationMinutes,
+    int? cardsReviewed,
+    int? correctRecalls,
+    int? viewDurationSeconds,
+  }) async {
+    try {
+      final data = {
+        'user_id': userId,
+        'interaction_type': interactionType,
+        if (topic != null) 'topic': topic,
+        if (score != null) 'score': score,
+        if (questions != null) 'questions': questions,
+        if (durationMinutes != null) 'duration_minutes': durationMinutes,
+        if (cardsReviewed != null) 'cards_reviewed': cardsReviewed,
+        if (correctRecalls != null) 'correct_recalls': correctRecalls,
+        if (viewDurationSeconds != null)
+          'view_duration_seconds': viewDurationSeconds,
+      };
+
+      final response = await _dio.post(
+        '/user/track',
+        data: data,
+      );
+
+      if (response.statusCode == 200) {
+        return response.data as Map<String, dynamic>;
+      }
+      throw 'Failed to track user interaction';
+    } catch (e) {
+      throw 'Error tracking user interaction: $e';
+    }
+  }
 }

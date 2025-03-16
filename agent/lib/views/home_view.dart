@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'dart:ui';
 import 'package:agent/controllers/chat_controller.dart';
 import 'package:agent/controllers/document_controller.dart';
+import 'package:agent/controllers/home_view_controller.dart';
 import 'package:agent/widgets/chat_widget.dart';
 import 'package:agent/widgets/document_upload_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -12,7 +13,7 @@ import 'package:agent/widgets/side_panel.dart';
 
 class HomeView extends GetView<ChatController> {
   final DocumentController documentController = Get.put(DocumentController());
-  final RxBool isLeftPanelExpanded = true.obs;
+  final HomeViewController homeViewController = Get.put(HomeViewController());
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +24,7 @@ class HomeView extends GetView<ChatController> {
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.menu, color: Colors.white70),
-          onPressed: () => isLeftPanelExpanded.toggle(),
+          onPressed: () => homeViewController.toggleSidePanel(),
         ),
         title: Text(
           'AI Tutor',
@@ -69,12 +70,13 @@ class HomeView extends GetView<ChatController> {
         child: Row(
           children: [
             // Left Panel
-            SidePanel(isExpanded: isLeftPanelExpanded),
+            SidePanel(isExpanded: homeViewController.isLeftPanelExpanded),
 
             // Vertical divider
             Obx(() => AnimatedOpacity(
                   duration: Duration(milliseconds: 300),
-                  opacity: isLeftPanelExpanded.value ? 1.0 : 0.0,
+                  opacity:
+                      homeViewController.isLeftPanelExpanded.value ? 1.0 : 0.0,
                   child: Container(
                     width: 1,
                     margin: EdgeInsets.symmetric(vertical: 16),

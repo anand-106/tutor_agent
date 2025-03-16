@@ -38,6 +38,12 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "cross_file",
+      "rootUri": "file:///C:/Users/gamin/AppData/Local/Pub/Cache/hosted/pub.dev/cross_file-0.3.4+2",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
       "name": "crypto",
       "rootUri": "file:///C:/Users/gamin/AppData/Local/Pub/Cache/hosted/pub.dev/crypto-3.0.6",
       "packageUri": "lib/",
@@ -75,9 +81,9 @@
     },
     {
       "name": "file_picker",
-      "rootUri": "file:///C:/Users/gamin/AppData/Local/Pub/Cache/hosted/pub.dev/file_picker-6.2.1",
+      "rootUri": "file:///C:/Users/gamin/AppData/Local/Pub/Cache/hosted/pub.dev/file_picker-9.1.0",
       "packageUri": "lib/",
-      "languageVersion": "2.19"
+      "languageVersion": "3.4"
     },
     {
       "name": "flutter",
@@ -458,7 +464,7 @@
       "languageVersion": "3.0"
     }
   ],
-  "generated": "2025-03-15T07:48:34.781481Z",
+  "generated": "2025-03-16T06:22:14.533257Z",
   "generator": "pub",
   "generatorVersion": "3.7.0",
   "flutterRoot": "file:///C:/Users/gamin/Documents/Flutter/flutter",

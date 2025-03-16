@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:agent/views/home_view.dart';
 import 'package:agent/controllers/theme_controller.dart';
+import 'package:agent/controllers/home_view_controller.dart';
 import 'package:agent/services/api_service.dart';
 import 'package:agent/controllers/chat_controller.dart';
+import 'package:agent/controllers/user_progress_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,6 +13,8 @@ void main() async {
   // Initialize services and controllers
   await Get.putAsync(() => ApiService().init());
   Get.put(ChatController());
+  Get.put(UserProgressController());
+  Get.put(HomeViewController());
 
   runApp(MyApp());
 }

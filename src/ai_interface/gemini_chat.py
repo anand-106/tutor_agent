@@ -6,6 +6,7 @@ from .agents.quiz_agent import QuizAgent
 from .agents.diagram_agent import DiagramAgent
 from .agents.explainer_agent import ExplainerAgent
 from .agents.flashcard_agent import FlashcardAgent
+from .agents.knowledge_tracking_agent import KnowledgeTrackingAgent
 import json
 
 class GeminiTutor:
@@ -25,6 +26,7 @@ class GeminiTutor:
         self.diagram_agent = DiagramAgent(api_keys)
         self.explainer_agent = ExplainerAgent(api_keys)
         self.flashcard_agent = FlashcardAgent(api_keys)
+        self.knowledge_tracking_agent = KnowledgeTrackingAgent(api_keys)
         
         self.logger.info("Initialized Gemini Tutor with all agents")
 
@@ -60,6 +62,52 @@ class GeminiTutor:
         except Exception as e:
             self.logger.error(f"Error retrieving context: {str(e)}")
             raise
+
+    def track_user_interaction(self, user_id: str, interaction_data: Dict) -> Dict:
+        """
+        Track user interaction and update knowledge model
+        
+        Args:
+            user_id: Unique identifier for the user
+            interaction_data: Data about the interaction (quiz results, study session, etc.)
+            
+        Returns:
+            Dict containing updated knowledge metrics
+        """
+        try:
+            self.logger.info(f"Tracking interaction for user {user_id}: {interaction_data.get('type', 'unknown')}")
+            result = self.knowledge_tracking_agent.process(user_id, interaction_data)
+            return result
+        except Exception as e:
+            self.logger.error(f"Error tracking user interaction: {str(e)}")
+            return {"status": "error", "message": str(e)}
+    
+    def get_user_knowledge_summary(self, user_id: str) -> Dict:
+        """Get a summary of the user's knowledge across all topics"""
+        try:
+            self.logger.info(f"Getting knowledge summary for user {user_id}")
+            return self.knowledge_tracking_agent.get_user_knowledge_summary(user_id)
+        except Exception as e:
+            self.logger.error(f"Error getting user knowledge summary: {str(e)}")
+            return {"status": "error", "message": str(e)}
+    
+    def get_topic_progress(self, user_id: str, topic: str) -> Dict:
+        """Get detailed progress for a specific topic"""
+        try:
+            self.logger.info(f"Getting topic progress for user {user_id}, topic {topic}")
+            return self.knowledge_tracking_agent.get_topic_progress(user_id, topic)
+        except Exception as e:
+            self.logger.error(f"Error getting topic progress: {str(e)}")
+            return {"status": "error", "message": str(e)}
+    
+    def analyze_learning_patterns(self, user_id: str) -> Dict:
+        """Analyze learning patterns and provide insights"""
+        try:
+            self.logger.info(f"Analyzing learning patterns for user {user_id}")
+            return self.knowledge_tracking_agent.analyze_learning_patterns(user_id)
+        except Exception as e:
+            self.logger.error(f"Error analyzing learning patterns: {str(e)}")
+            return {"status": "error", "message": str(e)}
 
     def chat(self, query: str, context: str = "") -> str:
         """Process user query and generate appropriate response"""

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:agent/widgets/upload_tab.dart';
 import 'package:agent/widgets/topics_tab.dart';
 import 'package:agent/widgets/pinned_tab.dart';
+import 'package:agent/widgets/progress_dashboard.dart';
 
 class SidePanel extends StatelessWidget {
   final RxBool isExpanded;
@@ -35,7 +36,7 @@ class SidePanel extends StatelessWidget {
                 ),
               ),
               child: DefaultTabController(
-                length: 3,
+                length: 4,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -53,6 +54,7 @@ class SidePanel extends StatelessWidget {
                           _buildTab(Icons.upload_file, 'Upload'),
                           _buildTab(Icons.topic, 'Topics'),
                           _buildTab(Icons.bookmark, 'Pinned'),
+                          _buildTab(Icons.analytics, 'Progress'),
                         ],
                         indicatorColor: Theme.of(context).primaryColor,
                         indicatorWeight: 3,
@@ -61,6 +63,8 @@ class SidePanel extends StatelessWidget {
                         labelStyle: GoogleFonts.inter(
                           fontWeight: FontWeight.w600,
                         ),
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        labelPadding: EdgeInsets.symmetric(horizontal: 16),
                       ),
                     ),
                     Expanded(
@@ -69,6 +73,7 @@ class SidePanel extends StatelessWidget {
                           UploadTab(),
                           TopicsTab(),
                           PinnedTab(),
+                          ProgressDashboard(),
                         ],
                       ),
                     ),
@@ -84,22 +89,12 @@ class SidePanel extends StatelessWidget {
 
   Widget _buildTab(IconData icon, String text) {
     return Tab(
-      child: Container(
-        constraints: BoxConstraints(maxWidth: 90),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 18),
-            SizedBox(width: 4),
-            Flexible(
-              child: Text(
-                text,
-                style: GoogleFonts.inter(fontSize: 13),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
+      height: 48,
+      icon: Icon(icon, size: 24),
+      // Tooltip to show the tab name on hover
+      child: Tooltip(
+        message: text,
+        child: Container(),
       ),
     );
   }

@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, HTMLResponse
 from fastapi.exceptions import RequestValidationError
 import os
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 from dotenv import load_dotenv
 from pathlib import Path
 import sys
@@ -765,6 +765,92 @@ async def debug_topics_cache():
         }
     except Exception as e:
         logger.error(f"Error in debug topics cache: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={"detail": str(e)}
+        )
+
+# Add these new models after the existing BaseModel classes
+class UserInteractionRequest(BaseModel):
+    user_id: str
+    interaction_type: str
+    topic: Optional[str] = None
+    duration_minutes: Optional[int] = None
+    score: Optional[int] = None
+    questions: Optional[List[Dict]] = None
+    cards_reviewed: Optional[int] = None
+    correct_recalls: Optional[int] = None
+    view_duration_seconds: Optional[int] = None
+
+# Add these new endpoints after the existing endpoints
+
+@app.post("/api/user/track")
+async def track_user_interaction(request: UserInteractionRequest):
+    """Track user interaction and update knowledge model"""
+    try:
+        interaction_data = {
+            "type": request.interaction_type,
+            "topic": request.topic,
+        }
+        
+        # Add optional fields based on interaction type
+        if request.interaction_type == "quiz_result" and request.score is not None:
+            interaction_data["score"] = request.score
+            interaction_data["questions"] = request.questions or []
+            
+        elif request.interaction_type == "study_session" and request.duration_minutes is not None:
+            interaction_data["duration_minutes"] = request.duration_minutes
+            
+        elif request.interaction_type == "flashcard_review":
+            interaction_data["cards_reviewed"] = request.cards_reviewed or 0
+            interaction_data["correct_recalls"] = request.correct_recalls or 0
+            
+        elif request.interaction_type == "topic_view":
+            interaction_data["view_duration_seconds"] = request.view_duration_seconds or 0
+        
+        result = tutor.track_user_interaction(request.user_id, interaction_data)
+        return JSONResponse(content=result, status_code=200)
+    except Exception as e:
+        logger.error(f"Error tracking user interaction: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={"detail": str(e)}
+        )
+
+@app.get("/api/user/{user_id}/knowledge")
+async def get_user_knowledge_summary(user_id: str):
+    """Get a summary of the user's knowledge across all topics"""
+    try:
+        result = tutor.get_user_knowledge_summary(user_id)
+        return JSONResponse(content=result, status_code=200)
+    except Exception as e:
+        logger.error(f"Error getting user knowledge summary: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={"detail": str(e)}
+        )
+
+@app.get("/api/user/{user_id}/topic/{topic}")
+async def get_topic_progress(user_id: str, topic: str):
+    """Get detailed progress for a specific topic"""
+    try:
+        result = tutor.get_topic_progress(user_id, topic)
+        return JSONResponse(content=result, status_code=200)
+    except Exception as e:
+        logger.error(f"Error getting topic progress: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={"detail": str(e)}
+        )
+
+@app.get("/api/user/{user_id}/patterns")
+async def analyze_learning_patterns(user_id: str):
+    """Analyze learning patterns and provide insights"""
+    try:
+        result = tutor.analyze_learning_patterns(user_id)
+        return JSONResponse(content=result, status_code=200)
+    except Exception as e:
+        logger.error(f"Error analyzing learning patterns: {str(e)}")
         return JSONResponse(
             status_code=500,
             content={"detail": str(e)}
