@@ -2,9 +2,16 @@ import 'package:get/get.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:agent/services/api_service.dart';
 import 'package:flutter/material.dart';
+import 'package:agent/controllers/lesson_plan_controller.dart';
+import 'package:agent/controllers/user_progress_controller.dart';
+import 'package:agent/models/lesson_plan.dart';
 
 class DocumentController extends GetxController {
   final ApiService _apiService = Get.find<ApiService>();
+  final LessonPlanController _lessonPlanController =
+      Get.find<LessonPlanController>();
+  final UserProgressController _userProgressController =
+      Get.find<UserProgressController>();
   final RxBool isUploading = false.obs;
   final RxList<DocumentInfo> documents = <DocumentInfo>[].obs;
   final Rx<Map<String, dynamic>> topics =
@@ -27,12 +34,12 @@ class DocumentController extends GetxController {
         isUploading.value = true;
         final file = result.files.first;
 
-        final success = await _apiService.uploadDocument(
+        final response = await _apiService.uploadDocument(
           file.bytes!,
           file.name,
         );
 
-        if (success) {
+        if (response.containsKey('message')) {
           documents.add(DocumentInfo(
             name: file.name,
             uploadTime: DateTime.now(),
@@ -41,8 +48,29 @@ class DocumentController extends GetxController {
           // Reset topics and fetch new ones
           topics.value = {'status': 'loading', 'topics': []};
 
-          // Fetch topics after successful upload
-          await refreshTopics();
+          // Check if the response contains topics
+          if (response.containsKey('topics')) {
+            topics.value = {
+              'status': 'success',
+              'topics': response['topics']['topics']
+            };
+          } else {
+            // Fetch topics after successful upload if not included in response
+            await refreshTopics();
+          }
+
+          // Check if the response contains a lesson plan
+          if (response.containsKey('lesson_plan')) {
+            // Use the lesson plan from the response
+            _lessonPlanController.currentLessonPlan.value =
+                await _createLessonPlanFromResponse(response['lesson_plan']);
+
+            // Navigate to the lesson plan view
+            Get.toNamed('/lesson-plan');
+          } else {
+            // Generate lesson plans for the main topics if not included in response
+            await _generateLessonPlansFromTopics();
+          }
 
           Get.snackbar(
             'Success',
@@ -124,6 +152,68 @@ class DocumentController extends GetxController {
         'message': 'Failed to refresh topics: $e',
         'topics': []
       };
+    }
+  }
+
+  Future<void> _generateLessonPlansFromTopics() async {
+    try {
+      // Check if we have topics
+      if (topics.value['status'] != 'success' ||
+          topics.value['topics'] == null ||
+          (topics.value['topics'] as List).isEmpty) {
+        print('No topics available for lesson plan generation');
+        return;
+      }
+
+      final topicsList = topics.value['topics'] as List;
+
+      // Get the first main topic
+      if (topicsList.isNotEmpty) {
+        final mainTopic = topicsList[0];
+
+        // Extract topic name and subtopics
+        final String topicName = mainTopic['title'];
+        final List<dynamic> rawSubtopics = mainTopic['subtopics'] ?? [];
+
+        // Convert subtopics to the required format
+        final List<Map<String, dynamic>> subtopics =
+            rawSubtopics.map((subtopic) {
+          return {
+            'title': subtopic['title'],
+            'content': subtopic['content'],
+          };
+        }).toList();
+
+        // Track the topic view to update knowledge tracking
+        await _userProgressController.trackTopicView(
+            topicName, 60); // 60 seconds view time
+
+        // Generate a lesson plan for this topic
+        await _lessonPlanController.generateLessonPlan(
+          topicName,
+          subtopics: subtopics,
+          timeAvailable: 60, // Default to 60 minutes
+        );
+
+        print('Generated lesson plan for topic: $topicName');
+
+        // Navigate to the lesson plan view
+        Get.toNamed('/lesson-plan');
+      }
+    } catch (e) {
+      print('Error generating lesson plans from topics: $e');
+    }
+  }
+
+  // Helper method to create a LessonPlan from the API response
+  Future<LessonPlan> _createLessonPlanFromResponse(
+      Map<String, dynamic> lessonPlanData) async {
+    try {
+      // Create a LessonPlan from the response data
+      return LessonPlan.fromJson(lessonPlanData);
+    } catch (e) {
+      print('Error creating lesson plan from response: $e');
+      throw e;
     }
   }
 }

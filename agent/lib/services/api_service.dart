@@ -20,11 +20,12 @@ class ApiService extends GetxService {
     super.onInit();
   }
 
-  Future<dynamic> sendChatMessage(String text) async {
+  Future<dynamic> sendChatMessage(String text,
+      {String userId = 'default_user'}) async {
     try {
       final response = await _dio.post(
         '/chat',
-        data: {'text': text},
+        data: {'text': text, 'user_id': userId},
       );
 
       if (response.statusCode == 200) {
@@ -82,7 +83,8 @@ class ApiService extends GetxService {
     }
   }
 
-  Future<bool> uploadDocument(List<int> fileBytes, String fileName) async {
+  Future<Map<String, dynamic>> uploadDocument(
+      List<int> fileBytes, String fileName) async {
     try {
       final formData = dio.FormData.fromMap({
         'file': dio.MultipartFile.fromBytes(
@@ -96,7 +98,14 @@ class ApiService extends GetxService {
         data: formData,
       );
 
-      return response.statusCode == 200;
+      if (response.statusCode == 200) {
+        // Check if the response contains a lesson plan
+        if (response.data is Map<String, dynamic>) {
+          return response.data as Map<String, dynamic>;
+        }
+        return {'message': 'Document uploaded successfully'};
+      }
+      throw 'Failed to upload document';
     } catch (e) {
       throw 'Error uploading document: $e';
     }

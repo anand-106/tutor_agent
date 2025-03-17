@@ -1,10 +1,13 @@
 import 'package:get/get.dart';
 import 'package:agent/models/chat_message.dart';
 import 'package:agent/services/api_service.dart';
+import 'package:agent/controllers/user_progress_controller.dart';
 import 'dart:convert';
 
 class ChatController extends GetxController {
   final ApiService _apiService = Get.find<ApiService>();
+  final UserProgressController _userProgressController =
+      Get.find<UserProgressController>();
   final RxList<ChatMessage> messages = <ChatMessage>[].obs;
   final RxBool isLoading = false.obs;
   final RxList<Map<String, dynamic>> pinnedFlashcards =
@@ -19,8 +22,11 @@ class ChatController extends GetxController {
     try {
       isLoading.value = true;
 
-      // Get AI response
-      final response = await _apiService.sendChatMessage(text);
+      // Get AI response with user ID
+      final response = await _apiService.sendChatMessage(
+        text,
+        userId: _userProgressController.userId.value,
+      );
       print('Received response: $response'); // Debug print
 
       if (response is Map<String, dynamic>) {

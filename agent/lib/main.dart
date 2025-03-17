@@ -8,29 +8,38 @@ import 'package:agent/controllers/chat_controller.dart';
 import 'package:agent/controllers/user_progress_controller.dart';
 import 'package:agent/controllers/lesson_plan_controller.dart';
 import 'package:agent/controllers/document_controller.dart';
+import 'package:agent/views/lesson_plan_view.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize services and controllers
   await Get.putAsync(() => ApiService().init());
-  Get.put(ChatController());
-  Get.put(UserProgressController());
+
+  // Initialize controllers in the correct order
+  Get.put(UserProgressController()); // Initialize UserProgressController first
   Get.put(HomeViewController());
+  Get.put(
+      ChatController()); // Now ChatController can find UserProgressController
   Get.put(LessonPlanController());
   Get.put(DocumentController());
+  Get.put(ThemeController());
 
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final ThemeController themeController = Get.put(ThemeController());
+  final ThemeController themeController = Get.find<ThemeController>();
 
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: 'AI Tutor',
-      home: HomeView(),
+      initialRoute: '/',
+      getPages: [
+        GetPage(name: '/', page: () => HomeView()),
+        GetPage(name: '/lesson-plan', page: () => LessonPlanView()),
+      ],
       theme: ThemeData(
         brightness: Brightness.dark,
         primaryColor: Color(0xFF2196F3),

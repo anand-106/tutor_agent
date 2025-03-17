@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 import sys
 from pydantic import BaseModel, Field
+import json
 
 # Add the project root directory to Python path
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
@@ -383,6 +384,58 @@ async def upload_file(file: UploadFile = File(...)):
             
             # Store the original filename for reference
             pipeline.current_filename = file.filename
+            
+            # Extract topics from the document
+            topics_data = None
+            lesson_plan = None
+            try:
+                # Get topics from the pipeline's cache
+                topics_data = pipeline.get_topics(consistent_key)
+                logger.info(f"Extracted topics: {topics_data}")
+                
+                # Generate a lesson plan for the main topic if topics were extracted
+                if topics_data and 'topics' in topics_data and topics_data['topics']:
+                    main_topic = topics_data['topics'][0]
+                    topic_title = main_topic.get('title', 'Document Topic')
+                    
+                    # Extract subtopics
+                    subtopics = []
+                    if 'subtopics' in main_topic and main_topic['subtopics']:
+                        for subtopic in main_topic['subtopics']:
+                            subtopics.append({
+                                'title': subtopic.get('title', ''),
+                                'content': subtopic.get('content', '')
+                            })
+                    
+                    # Initialize the lesson plan agent
+                    lesson_plan_agent = LessonPlanAgent(GEMINI_API_KEYS)
+                    
+                    # Generate a lesson plan with default knowledge level (30 - intermediate beginner)
+                    lesson_plan = lesson_plan_agent.process(
+                        user_id="default_user",
+                        topic=topic_title,
+                        knowledge_level=30.0,  # Default to beginner-intermediate level
+                        subtopics=subtopics,
+                        time_available=60  # Default to 60 minutes
+                    )
+                    
+                    # Set the lesson plan in the tutor agent
+                    tutor.set_lesson_plan(lesson_plan)
+                    logger.info(f"Set lesson plan for topic: {topic_title}")
+                    
+                    # Add the lesson plan to the response
+                    return JSONResponse(
+                        content={
+                            "message": "File processed successfully",
+                            "topics": topics_data,
+                            "lesson_plan": lesson_plan
+                        },
+                        status_code=200
+                    )
+            except Exception as e:
+                logger.error(f"Error extracting topics or generating lesson plan: {str(e)}")
+                # Continue with normal response if topic extraction or lesson plan generation fails
+            
         finally:
             if file_path.exists():
                 file_path.unlink()
@@ -397,10 +450,10 @@ async def upload_file(file: UploadFile = File(...)):
             content={"detail": str(e.detail)}
         )
     except Exception as e:
-        logger.error(f"Error processing upload: {str(e)}")
+        logger.error(f"Error processing file: {str(e)}")
         return JSONResponse(
             status_code=500,
-            content={"detail": str(e)}
+            content={"detail": f"Error processing file: {str(e)}"}
         )
 
 class DiagramRequest(BaseModel):
@@ -440,6 +493,8 @@ async def chat(request: Request):
     try:
         data = await request.json()
         message = data.get('text')
+        user_id = data.get('user_id', 'default_user')
+        
         if not message:
             raise HTTPException(status_code=400, detail="No message provided")
             
@@ -456,8 +511,19 @@ async def chat(request: Request):
                     documents = [doc for sublist in documents for doc in sublist]
                 context = "\n\n".join(documents)
         
-        # Generate response using context
-        response = tutor.chat(message, context=context)
+        # Generate response using the tutor agent
+        response = tutor.chat(message, context=context, user_id=user_id)
+        
+        # Check if the response is already in JSON format
+        if response.startswith('```json') and response.endswith('```'):
+            # Extract the JSON content
+            json_str = response[7:-3].strip()
+            try:
+                response_data = json.loads(json_str)
+                return JSONResponse(content=response_data)
+            except json.JSONDecodeError:
+                logger.error(f"Failed to parse JSON response: {json_str[:100]}...")
+                # Fall back to returning the raw response
         
         # Check if this is a diagram response
         if "```mermaid" in response:

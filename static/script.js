@@ -1,3 +1,4 @@
+
 // Add base URL configuration
 const API_BASE_URL = window.location.origin;
 
@@ -37,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     url: response.url,
                     status: response.status,
                     contentType,
-                    text: text.substring(0, 500) // First 500 chars
+                    text: text.substring(0, 500)
                 });
                 throw new Error(`Server error (${response.status}): ${text.substring(0, 100)}`);
             }
@@ -87,7 +88,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const query = queryInput.value.trim();
         if (!query) return;
 
-        // Add user message to chat
         addMessage(query, 'user');
         queryInput.value = '';
 
@@ -125,4 +125,4 @@ document.addEventListener('DOMContentLoaded', function() {
     queryInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') sendMessage();
     });
-}); 
+});
