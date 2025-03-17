@@ -1,7 +1,10 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 from .base_agent import BaseAgent
 
 class DiagramAgent(BaseAgent):
+    def __init__(self, api_keys: list, shared_state: Optional[Dict[str, Any]] = None):
+        super().__init__(api_keys, shared_state)
+        
     def process(self, text: str, diagram_type: Optional[str] = None) -> Dict:
         """Generate Mermaid diagram from text"""
         self.retry_count = 0

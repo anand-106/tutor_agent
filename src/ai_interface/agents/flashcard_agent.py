@@ -1,8 +1,11 @@
-from typing import Dict, List
+from typing import Dict, List, Any, Optional
 from .base_agent import BaseAgent
 import json
 
 class FlashcardAgent(BaseAgent):
+    def __init__(self, api_keys: list, shared_state: Optional[Dict[str, Any]] = None):
+        super().__init__(api_keys, shared_state)
+        
     def process(self, text: str, num_cards: int = 3) -> Dict:
         """Generate focused study flashcards with memorizable bullet points"""
         self.retry_count = 0

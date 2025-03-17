@@ -1,4 +1,4 @@
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 from .base_agent import BaseAgent
 import json
 import datetime
@@ -10,8 +10,8 @@ class LessonPlanAgent(BaseAgent):
     tailored to the user's current knowledge level.
     """
     
-    def __init__(self, api_keys: List[str]):
-        super().__init__(api_keys)
+    def __init__(self, api_keys: List[str], shared_state: Optional[Dict[str, Any]] = None):
+        super().__init__(api_keys, shared_state)
     
     def process(self, user_id: str, topic: str, knowledge_level: float, 
                 subtopics: List[Dict] = None, time_available: int = 60) -> Dict:

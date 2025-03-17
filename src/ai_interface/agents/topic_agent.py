@@ -1,11 +1,16 @@
-from typing import Dict
+from typing import Dict, Any, Optional
 from .base_agent import BaseAgent
 import json
 
 class TopicAgent(BaseAgent):
+    def __init__(self, api_keys: list, shared_state: Optional[Dict[str, Any]] = None):
+        super().__init__(api_keys, shared_state)
+        self.logger.info("TopicAgent initialized")
+    
     def process(self, text: str, max_level: int = 3) -> Dict:
         """Extract hierarchical topics from text"""
         self.retry_count = 0
+        self.logger.info(f"Processing text of length {len(text)} to extract topics")
         
         while self.retry_count < self.max_retries:
             try:
@@ -97,6 +102,14 @@ class TopicAgent(BaseAgent):
                         topic["subtopics"] = []
                 
                 self.logger.info(f"Successfully extracted {len(topic_structure['topics'])} topics")
+                
+                # Update shared state with extracted topics if available
+                if self.shared_state is not None:
+                    self.logger.info(f"Updating shared state with {len(topic_structure['topics'])} topics")
+                    self.update_shared_state("topics", topic_structure["topics"])
+                    self.update_shared_state("current_topic", topic_structure["title"])
+                    self.logger.info(f"Set current_topic to '{topic_structure['title']}'")
+                
                 return topic_structure
 
             except Exception as e:
@@ -116,23 +129,31 @@ class TopicAgent(BaseAgent):
 
     def _process_long_document(self, text: str) -> Dict:
         """Process a long document by breaking it into chunks"""
+        self.logger.info(f"Processing long document in chunks")
         chunks = [text[i:i+10000] for i in range(0, len(text), 8000)]
+        self.logger.info(f"Split document into {len(chunks)} chunks")
         base_structure = self.process(chunks[0])
         
-        for chunk in chunks[1:]:
+        for i, chunk in enumerate(chunks[1:], 1):
+            self.logger.info(f"Processing chunk {i+1}/{len(chunks)}")
             chunk_topics = self.process(chunk)
             if "topics" in chunk_topics:
                 existing_titles = {t["title"].lower() for t in base_structure["topics"]}
+                new_topics_count = 0
                 for topic in chunk_topics["topics"]:
                     if topic["title"].lower() not in existing_titles:
                         base_structure["topics"].append(topic)
                         existing_titles.add(topic["title"].lower())
+                        new_topics_count += 1
+                self.logger.info(f"Added {new_topics_count} new topics from chunk {i+1}")
         
+        self.logger.info(f"Finished processing long document, found {len(base_structure['topics'])} total topics")
         return base_structure
 
     def _create_basic_structure(self, reason: str) -> Dict:
         """Create a basic topic structure"""
-        return {
+        self.logger.info(f"Creating basic topic structure due to: {reason}")
+        basic_structure = {
             "title": "Document Structure",
             "content": f"Automatically generated structure ({reason})",
             "topics": [
@@ -142,4 +163,12 @@ class TopicAgent(BaseAgent):
                     "subtopics": []
                 }
             ]
-        } 
+        }
+        
+        # Update shared state with basic structure if available
+        if self.shared_state is not None:
+            self.update_shared_state("topics", basic_structure["topics"])
+            self.update_shared_state("current_topic", basic_structure["title"])
+            self.logger.info(f"Updated shared state with basic topic structure")
+            
+        return basic_structure 

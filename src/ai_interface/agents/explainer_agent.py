@@ -1,7 +1,10 @@
-from typing import Dict
+from typing import Dict, Any, Optional
 from .base_agent import BaseAgent
 
 class ExplainerAgent(BaseAgent):
+    def __init__(self, api_keys: list, shared_state: Optional[Dict[str, Any]] = None):
+        super().__init__(api_keys, shared_state)
+        
     def process(self, text: str, query: str = "") -> Dict:
         """Generate detailed explanations from text"""
         self.retry_count = 0

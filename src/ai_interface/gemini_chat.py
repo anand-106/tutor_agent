@@ -123,29 +123,112 @@ class GeminiTutor:
             self.logger.error(f"Error analyzing learning patterns: {str(e)}")
             return {"status": "error", "message": str(e)}
 
+    def get_shared_state(self) -> Dict:
+        """
+        Get the current shared state dictionary from the tutor agent.
+        
+        Returns:
+            Dict containing the shared state that all agents can access
+        """
+        try:
+            self.logger.info("Getting shared state")
+            return self.tutor_agent.get_shared_state()
+        except Exception as e:
+            self.logger.error(f"Error getting shared state: {str(e)}")
+            return {"status": "error", "message": str(e)}
+    
+    def update_shared_state(self, key: str, value) -> Dict:
+        """
+        Update a specific field in the shared state dictionary.
+        
+        Args:
+            key: The key to update in the shared state
+            value: The new value to set
+            
+        Returns:
+            Dict containing the updated shared state
+        """
+        try:
+            self.logger.info(f"Updating shared state: {key}")
+            self.tutor_agent.update_shared_state(key, value)
+            return {"status": "success", "message": f"Updated {key} in shared state"}
+        except Exception as e:
+            self.logger.error(f"Error updating shared state: {str(e)}")
+            return {"status": "error", "message": str(e)}
+    
+    def update_rag_content(self, content: str) -> Dict:
+        """
+        Update the RAG content in the shared state.
+        
+        Args:
+            content: The text content of the PDF or document
+            
+        Returns:
+            Dict containing status of the update
+        """
+        try:
+            self.logger.info(f"Updating RAG content: {len(content)} characters")
+            self.tutor_agent.update_shared_state("rag_content", content)
+            
+            # Also extract topics from the content
+            topics = self.topic_agent.process(content)
+            if isinstance(topics, dict) and "topics" in topics:
+                self.tutor_agent.update_shared_state("topics", topics["topics"])
+                self.tutor_agent.update_shared_state("current_topic", topics.get("title", "Document"))
+            
+            return {"status": "success", "message": "Updated RAG content and extracted topics"}
+        except Exception as e:
+            self.logger.error(f"Error updating RAG content: {str(e)}")
+            return {"status": "error", "message": str(e)}
+
     def chat(self, query: str, context: str = "", user_id: str = "default_user") -> str:
         """Process user query and generate appropriate response using the main tutor agent"""
         try:
             self.logger.info(f"Processing query with tutor agent: {query[:50]}...")
             
+            # Log the current state of the shared state
+            shared_state = self.tutor_agent.get_shared_state()
+            self.logger.info(f"Current shared state before processing:")
+            self.logger.info(f"  - topics: {len(shared_state['topics'])} topics")
+            self.logger.info(f"  - current_topic: {shared_state['current_topic']}")
+            self.logger.info(f"  - progress: {len(shared_state['progress'])} topics tracked")
+            self.logger.info(f"  - lesson_plan: {'Present' if shared_state['lesson_plan'] else 'None'}")
+            
+            # Update shared state with context and user input
+            self.tutor_agent.update_shared_state("rag_content", context)
+            self.tutor_agent.update_shared_state("user_input", query)
+            
             # Use the main tutor agent to handle the query
             response = self.tutor_agent.process(context, query, user_id)
+            
+            # Log the updated state of the shared state
+            shared_state = self.tutor_agent.get_shared_state()
+            self.logger.info(f"Updated shared state after processing:")
+            self.logger.info(f"  - topics: {len(shared_state['topics'])} topics")
+            self.logger.info(f"  - current_topic: {shared_state['current_topic']}")
+            self.logger.info(f"  - progress: {len(shared_state['progress'])} topics tracked")
+            self.logger.info(f"  - lesson_plan: {'Present' if shared_state['lesson_plan'] else 'None'}")
             
             # If the response is a dictionary, format it appropriately
             if isinstance(response, dict):
                 # Check if there are special components that need to be formatted
                 if "quiz" in response:
+                    self.logger.info("Response contains quiz data")
                     return f"```json\n{json.dumps(response, indent=2)}\n```"
                 elif "flashcards" in response:
+                    self.logger.info("Response contains flashcard data")
                     return f"```json\n{json.dumps(response, indent=2)}\n```"
                 elif "has_diagram" in response and response["has_diagram"]:
+                    self.logger.info("Response contains diagram data")
                     # Return the response as is, the frontend will handle the diagram
                     return f"```json\n{json.dumps(response, indent=2)}\n```"
                 else:
                     # Just return the text response
+                    self.logger.info("Returning text response")
                     return response["response"]
             
             # If it's not a dictionary, return as string
+            self.logger.info("Returning non-dictionary response as string")
             return str(response)
                 
         except Exception as e:

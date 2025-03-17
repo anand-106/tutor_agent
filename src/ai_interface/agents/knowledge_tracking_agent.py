@@ -1,4 +1,4 @@
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 from .base_agent import BaseAgent
 import json
 import datetime
@@ -10,8 +10,8 @@ class KnowledgeTrackingAgent(BaseAgent):
     to build a comprehensive model of user knowledge.
     """
     
-    def __init__(self, api_keys: List[str]):
-        super().__init__(api_keys)
+    def __init__(self, api_keys: List[str], shared_state: Optional[Dict[str, Any]] = None):
+        super().__init__(api_keys, shared_state)
         self.user_knowledge_map = {}  # Maps user_id -> topic -> knowledge level
         self.interaction_history = {}  # Maps user_id -> list of interactions
         

@@ -20,14 +20,27 @@ class TutorAgent(BaseAgent):
     def __init__(self, api_keys: List[str]):
         super().__init__(api_keys)
         
-        # Initialize all specialized agents
-        self.topic_agent = TopicAgent(api_keys)
-        self.quiz_agent = QuizAgent(api_keys)
-        self.diagram_agent = DiagramAgent(api_keys)
-        self.explainer_agent = ExplainerAgent(api_keys)
-        self.flashcard_agent = FlashcardAgent(api_keys)
-        self.knowledge_tracking_agent = KnowledgeTrackingAgent(api_keys)
-        self.lesson_plan_agent = LessonPlanAgent(api_keys)
+        # Initialize shared state dictionary that all agents can access
+        self.shared_state = {
+            "topics": [],  # List of topics and subtopics identified by the Topic Extractor Agent
+            "lesson_plan": None,  # Ordered list of topics to be taught, created by the Lesson Planner Agent
+            "current_topic": None,  # The topic currently being taught to the user
+            "progress": {},  # Dictionary where each key is a topic, and the value is another dictionary containing the user's score and mastery level
+            "user_input": None,  # The most recent input from the user (e.g., answers to quiz questions or responses to flashcards)
+            "rag_content": None,  # The text content of the PDF or document being used for teaching
+        }
+        self.logger.info("Initialized shared state dictionary")
+        
+        # Initialize all specialized agents with shared state
+        self.logger.info("Initializing specialized agents with shared state")
+        self.topic_agent = TopicAgent(api_keys, self.shared_state)
+        self.quiz_agent = QuizAgent(api_keys, self.shared_state)
+        self.diagram_agent = DiagramAgent(api_keys, self.shared_state)
+        self.explainer_agent = ExplainerAgent(api_keys, self.shared_state)
+        self.flashcard_agent = FlashcardAgent(api_keys, self.shared_state)
+        self.knowledge_tracking_agent = KnowledgeTrackingAgent(api_keys, self.shared_state)
+        self.lesson_plan_agent = LessonPlanAgent(api_keys, self.shared_state)
+        self.logger.info("All specialized agents initialized with shared state")
         
         # Conversation state
         self.conversation_history = []
@@ -40,7 +53,7 @@ class TutorAgent(BaseAgent):
         self.current_activity_index = 0
         self.is_teaching_lesson_plan = False
         
-        self.logger.info("Initialized Tutor Agent with all specialized agents")
+        self.logger.info("Initialized Tutor Agent with all specialized agents and shared state")
     
     def process(self, context: str, query: str, user_id: str = "default_user", 
                 conversation_history: Optional[List[Dict[str, str]]] = None) -> Dict[str, Any]:
@@ -57,9 +70,24 @@ class TutorAgent(BaseAgent):
             Dict containing the tutor's response and any additional data
         """
         self.retry_count = 0
+        self.logger.info(f"Processing query for user {user_id}: {query[:50]}...")
+        
+        # Log the current state of the shared state
+        self.logger.info(f"Current shared state summary:")
+        self.logger.info(f"  - topics: {len(self.shared_state['topics'])} topics")
+        self.logger.info(f"  - current_topic: {self.shared_state['current_topic']}")
+        self.logger.info(f"  - progress: {len(self.shared_state['progress'])} topics tracked")
+        self.logger.info(f"  - lesson_plan: {'Present' if self.shared_state['lesson_plan'] else 'None'}")
+        
+        # Update shared state with context and user input
+        self.update_shared_state("rag_content", context)
+        self.update_shared_state("user_input", query)
         
         if conversation_history:
             self.conversation_history = conversation_history
+            self.logger.info(f"Using provided conversation history with {len(conversation_history)} turns")
+        else:
+            self.logger.info(f"Using existing conversation history with {len(self.conversation_history)} turns")
         
         # Add the current query to conversation history
         self.conversation_history.append({"role": "student", "content": query})
@@ -68,47 +96,68 @@ class TutorAgent(BaseAgent):
             try:
                 # Check if we're in lesson plan teaching mode
                 if self.is_teaching_lesson_plan and self.current_lesson_plan:
+                    self.logger.info("Processing query in lesson plan teaching mode")
                     # Process the query in the context of the current lesson plan
                     response = self._process_lesson_plan_interaction(query, context, user_id)
                 else:
                     # Check for lesson plan commands
                     if "start lesson" in query.lower() or "teach me" in query.lower() or "begin lesson" in query.lower():
+                        self.logger.info("Detected lesson plan command in query")
                         # If we have a lesson plan, start teaching it
                         if self.current_lesson_plan:
+                            self.logger.info("Starting existing lesson plan")
                             self.is_teaching_lesson_plan = True
                             response = self._start_lesson_plan_teaching(user_id)
                         else:
+                            self.logger.info("No existing lesson plan, analyzing query")
                             # Analyze the query to determine intent and required agents
                             intent, required_agents = self._analyze_query(query, context)
+                            self.logger.info(f"Query intent: {intent}, required agents: {required_agents}")
                             
                             # If the intent is to request a lesson plan, generate one
                             if "lesson_plan" in required_agents:
+                                self.logger.info("Generating lesson plan")
                                 response = self._generate_response(intent, required_agents, context, query, user_id)
                                 
                                 # If a lesson plan was generated, start teaching it
                                 if "lesson_plan" in response:
+                                    self.logger.info("Lesson plan generated, starting teaching")
                                     self.current_lesson_plan = response["lesson_plan"]
+                                    self.update_shared_state("lesson_plan", response["lesson_plan"])
                                     self.is_teaching_lesson_plan = True
                                     self.current_activity_index = 0
                                     response = self._start_lesson_plan_teaching(user_id)
                             else:
                                 # Generate a standard response
+                                self.logger.info("Generating standard response")
                                 response = self._generate_response(intent, required_agents, context, query, user_id)
                     else:
+                        self.logger.info("Processing regular query")
                         # Analyze the query to determine intent and required agents
                         intent, required_agents = self._analyze_query(query, context)
+                        self.logger.info(f"Query intent: {intent}, required agents: {required_agents}")
                         
                         # Update teaching mode based on intent
                         self._update_teaching_mode(intent)
+                        self.logger.info(f"Teaching mode updated to: {self.teaching_mode}")
                         
                         # Generate response based on intent and required agents
                         response = self._generate_response(intent, required_agents, context, query, user_id)
                 
                 # Add the response to conversation history
                 self.conversation_history.append({"role": "tutor", "content": response["response"]})
+                self.logger.info(f"Added response to conversation history, now {len(self.conversation_history)} turns")
                 
                 # Track this interaction for knowledge modeling
+                self.logger.info("Tracking interaction for knowledge modeling")
                 self._track_interaction(user_id, "general", query, response)
+                
+                # Log the updated state of the shared state
+                self.logger.info(f"Updated shared state summary after processing:")
+                self.logger.info(f"  - topics: {len(self.shared_state['topics'])} topics")
+                self.logger.info(f"  - current_topic: {self.shared_state['current_topic']}")
+                self.logger.info(f"  - progress: {len(self.shared_state['progress'])} topics tracked")
+                self.logger.info(f"  - lesson_plan: {'Present' if self.shared_state['lesson_plan'] else 'None'}")
                 
                 return response
                 
@@ -135,6 +184,7 @@ class TutorAgent(BaseAgent):
             lesson_plan: The lesson plan to teach
         """
         self.current_lesson_plan = lesson_plan
+        self.update_shared_state("lesson_plan", lesson_plan)
         self.current_activity_index = 0
         self.logger.info(f"Set lesson plan: {lesson_plan.get('title', 'Untitled')}")
     
@@ -664,6 +714,8 @@ class TutorAgent(BaseAgent):
                 topics = self.topic_agent.process(context)
                 if isinstance(topics, dict) and "topics" in topics and len(topics["topics"]) > 0:
                     self.current_topic = topics["title"]
+                    self.update_shared_state("current_topic", topics["title"])
+                    self.update_shared_state("topics", topics["topics"])
                     intro = f"We're currently looking at {topics['title']}. Would you like me to explain any specific part of it?"
                     response_parts.append(intro)
             
@@ -741,17 +793,24 @@ class TutorAgent(BaseAgent):
                     plan_intro = f"I've created a personalized lesson plan for {topic} based on your current knowledge level:"
                     response_parts.append(plan_intro)
                     additional_data["lesson_plan"] = lesson_plan
+                    
+                    # Update shared state with the lesson plan
+                    self.shared_state["lesson_plan"] = lesson_plan
                 else:
                     response_parts.append(str(lesson_plan))
                     
             elif agent == "topic":
                 topics = self.topic_agent.process(context)
                 if isinstance(topics, dict):
+                    # Update shared state with topics
+                    self.shared_state["topics"] = topics.get("topics", [])
+                    
                     # Extract the new topic from the query
                     topic_match = re.search(r"about\s+(.+?)(?:\s+instead|\s+rather|\s+$)", query)
                     if topic_match:
                         new_topic = topic_match.group(1)
                         self.current_topic = new_topic
+                        self.update_shared_state("current_topic", new_topic)
                         
                         # Find if the requested topic exists in our topics
                         found = False
@@ -904,7 +963,20 @@ class TutorAgent(BaseAgent):
                 "response_type": ",".join(response.keys())
             }
             
-            self.knowledge_tracking_agent.process(user_id, interaction_data)
+            # Process the interaction and update the knowledge tracking
+            knowledge_update = self.knowledge_tracking_agent.process(user_id, interaction_data)
+            
+            # Update the progress in shared state if we have knowledge updates
+            if isinstance(knowledge_update, dict) and "topic" in knowledge_update and "knowledge_level" in knowledge_update:
+                topic = knowledge_update["topic"]
+                if topic not in self.shared_state["progress"]:
+                    self.shared_state["progress"][topic] = {}
+                
+                self.shared_state["progress"][topic] = {
+                    "score": knowledge_update.get("knowledge_level", 0),
+                    "mastery": knowledge_update.get("knowledge_level", 0) / 100.0  # Convert to 0-1 scale
+                }
+                
         except Exception as e:
             self.logger.error(f"Error tracking interaction: {str(e)}")
     
@@ -913,4 +985,53 @@ class TutorAgent(BaseAgent):
         return {
             "response": message,
             "fallback": True
-        } 
+        }
+        
+    def get_shared_state(self) -> Dict[str, Any]:
+        """
+        Get the current shared state dictionary.
+        
+        Returns:
+            Dict containing the shared state that all agents can access
+        """
+        return self.shared_state
+        
+    def update_shared_state(self, key: str, value: Any) -> None:
+        """
+        Update a specific field in the shared state dictionary.
+        
+        Args:
+            key: The key to update in the shared state
+            value: The new value to set
+        """
+        if key in self.shared_state:
+            old_value = self.shared_state[key]
+            self.shared_state[key] = value
+            
+            # Log the update with appropriate detail based on the type
+            if isinstance(value, dict) and isinstance(old_value, dict):
+                # For dictionaries, log the keys that changed
+                old_keys = set(old_value.keys())
+                new_keys = set(value.keys())
+                added_keys = new_keys - old_keys
+                removed_keys = old_keys - new_keys
+                updated_keys = {k for k in old_keys & new_keys if old_value[k] != value[k]}
+                
+                if added_keys:
+                    self.logger.info(f"Added keys to shared_state['{key}']: {added_keys}")
+                if removed_keys:
+                    self.logger.info(f"Removed keys from shared_state['{key}']: {removed_keys}")
+                if updated_keys:
+                    self.logger.info(f"Updated keys in shared_state['{key}']: {updated_keys}")
+                
+                self.logger.info(f"Updated shared state: {key} (dictionary with {len(value)} items)")
+            elif isinstance(value, list) and isinstance(old_value, list):
+                # For lists, log the change in length
+                self.logger.info(f"Updated shared state: {key} (list changed from {len(old_value)} to {len(value)} items)")
+            else:
+                # For other types, log a simple update message
+                self.logger.info(f"Updated shared state: {key} (value changed)")
+        else:
+            self.logger.warning(f"Attempted to update unknown shared state key: {key}")
+            self.shared_state[key] = value
+            self.logger.info(f"Added new key to shared state: {key}") 
