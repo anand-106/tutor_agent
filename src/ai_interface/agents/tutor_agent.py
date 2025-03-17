@@ -606,81 +606,72 @@ class TutorAgent(BaseAgent):
         
         return response
     
-    def _analyze_query(self, query: str, context: str) -> tuple:
+    def _analyze_query(self, query, context=None):
         """
-        Analyze the student's query to determine intent and required agents.
+        Analyze the query to determine the intent.
         
+        Args:
+            query (str): The user's query.
+            context (str, optional): The context for the query, such as previous messages. Defaults to None.
+            
         Returns:
-            Tuple of (intent, list_of_required_agents)
+            tuple: A tuple containing the intent and required agents.
         """
-        query_lower = query.lower()
-        
-        # Define intent patterns
+        # Intent patterns
         intent_patterns = {
-            "greeting": r"\b(hi|hello|hey|greetings)\b",
-            "question": r"\b(what|why|how|when|where|who|can you|could you explain)\b.*\?",
-            "request_explanation": r"\b(explain|clarify|elaborate|tell me about)\b",
-            "request_summary": r"\b(summarize|summary|overview|recap)\b",
-            "request_example": r"\b(example|instance|show me|demonstrate)\b",
-            "request_quiz": r"\b(quiz|test|question|assessment|evaluate)\b",
-            "request_flashcards": r"\b(flashcard|flash card|study card|memorize)\b",
-            "request_diagram": r"\b(diagram|visualize|flowchart|sequence|class diagram)\b",
-            "request_lesson_plan": r"\b(lesson plan|study plan|learning path|curriculum)\b",
-            "feedback": r"\b(thanks|thank you|helpful|good|great|excellent|not helpful|confused)\b",
-            "topic_change": r"\b(let's talk about|change topic|switch to|instead of)\b"
+            "greeting": r"(?i)^(hello|hi|hey|greetings|howdy)[\s\.\,\!\?]*$",
+            "how_are_you": r"(?i)^(how are you|how('s| is) it going|how('s| are) you doing|how do you do|what('s| is) up)[\s\.\,\!\?]*$",
+            "gratitude": r"(?i)^(thank you|thanks|thank)[\s\.\,\!\?]*$",
+            "request_quiz": r"(?i)(quiz|test|assessment|evaluate|examination|check|verify).*?(knowledge|learning|understanding|concepts?|comprehension|retention)",
+            "request_flashcards": r"(?i)(create|make|prepare|generate|give me|provide|show|display|get|give|i want|can you|could you).*?(flashcards?|flash cards?|study cards?|memory cards?|review cards?|learning cards?)",
+            "request_diagram": r"(?i)(create|make|draw|show|visualize|illustrate|diagram|graph|chart|map|sketch|plot).*?(diagram|flowchart|chart|graph|visualization|illustration|map|plot|sketch)",
+            "explain_concept": r"(?i)(explain|clarify|tell me about|describe|elaborate on|what is|define|expound upon|elucidate|summarize|break down|simplify)",
+            "feedback": r"(?i)(good|great|excellent|awesome|amazing|fantastic|wonderful|perfect|nice|well done|bad|terrible|awful|poor|horrible|wrong|incorrect|mistake|error|not right|could be better)",
+            "refocus": r"(?i)(refocus|let's refocus|focus on|back to|return to|let's get back to|continue with|let's continue|proceed with|move on to)",
+            "goodbye": r"(?i)^(goodbye|bye|see you|farewell|later|so long|au revoir)[\s\.\,\!\?]*$",
+            "thanks_and_goodbye": r"(?i)(thank you|thanks).*?(goodbye|bye|see you|farewell|later)",
+            "check_progress": r"(?i)(progress|how am i doing|status|standing|performance|advancement|development|improvement|growth)",
         }
         
-        # Determine primary intent
-        intent = "general_question"  # default
+        # Check the intent
+        intent = "general_question"  # Default intent
         for intent_name, pattern in intent_patterns.items():
-            if re.search(pattern, query_lower):
+            if re.search(pattern, query):
                 intent = intent_name
+                self.logger.info(f"Intent detected: {intent}")
                 break
         
-        # Determine required agents based on intent and query content
+        # If no specific intent was found, check if it's a flashcard request outside standard patterns
+        if intent == "general_question":
+            if any(keyword in query.lower() for keyword in ["flashcard", "flash card", "study card", "memory card", "review card"]):
+                intent = "request_flashcards"
+                self.logger.info(f"Intent updated to: {intent} based on flashcard keywords")
+        
+        # Determine required agents based on intent
         required_agents = []
         
-        if intent == "request_explanation" or intent == "question":
-            required_agents.append("explainer")
-            
-            # Check if we should add diagram for visual explanation
-            if any(term in query_lower for term in ["process", "workflow", "steps", "relationship", "structure"]):
-                required_agents.append("diagram")
-        
-        elif intent == "request_summary":
-            required_agents.append("explainer")
-            
-        elif intent == "request_example":
-            required_agents.append("explainer")
-            
-        elif intent == "request_quiz":
-            required_agents.append("quiz")
-            
+        if intent == "request_quiz":
+            required_agents = ["quiz"]
         elif intent == "request_flashcards":
-            required_agents.append("flashcard")
-            
+            required_agents = ["flashcard"]
         elif intent == "request_diagram":
-            required_agents.append("diagram")
+            required_agents = ["diagram"]
+        elif intent == "explain_concept":
+            required_agents = ["explainer"]
+        elif intent == "check_progress":
+            required_agents = ["knowledge_tracking"]
+        elif intent in ["greeting", "how_are_you", "gratitude", "goodbye", "feedback", "refocus", "thanks_and_goodbye"]:
+            # No additional agents required for these intents
+            required_agents = []
+        else:
+            # For general questions, use the explainer
+            required_agents = ["explainer"]
             
-        elif intent == "request_lesson_plan":
-            required_agents.append("lesson_plan")
-            
-        elif intent == "topic_change":
-            required_agents.append("topic")
-            
-        elif intent == "greeting" or intent == "feedback":
-            # No specialized agent needed, just conversational response
-            pass
-            
-        else:  # general_question
-            # For general questions, use explainer as default
-            required_agents.append("explainer")
-            
-            # Check context to see if we should add other agents
-            if len(context.strip()) > 100:
-                # If context is substantial, check for potential diagram needs
-                if any(term in context.lower() for term in ["process", "workflow", "steps", "sequence", "class", "structure"]):
-                    required_agents.append("diagram")
+            # Check for specific words that might indicate a diagram would be helpful
+            diagram_keywords = ["visualize", "diagram", "sketch", "draw", "illustration", "chart", "graph", "flow", "map", "picture", "visual"]
+            if any(keyword in query.lower() for keyword in diagram_keywords) and "flashcard" not in query.lower():
+                # Only add diagram if flashcard is not mentioned, prioritizing flashcard over diagram
+                required_agents.append("diagram")
         
         return intent, required_agents
     
@@ -751,6 +742,13 @@ class TutorAgent(BaseAgent):
                     flashcard_intro = f"I've created some flashcards to help you memorize key points about {flashcards.get('topic', 'this topic')}:"
                     response_parts.append(flashcard_intro)
                     additional_data["flashcards"] = flashcards
+                    
+                    # Log that we're generating flashcards
+                    self.logger.info(f"Generated {len(flashcards.get('flashcards', []))} flashcards for topic: {flashcards.get('topic', 'unknown')}")
+                    
+                    # Make sure we don't also generate a diagram for flashcard requests
+                    if "diagram" in required_agents and intent == "request_flashcards":
+                        required_agents.remove("diagram")
                 else:
                     response_parts.append(str(flashcards))
                     

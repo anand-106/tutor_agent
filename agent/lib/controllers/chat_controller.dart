@@ -34,6 +34,11 @@ class ChatController extends GetxController {
         if (response.containsKey('flashcards')) {
           // If it's a flashcard response, keep it as JSON
           messageText = json.encode(response);
+        } else if (response.containsKey('questions') &&
+            response.containsKey('topic')) {
+          // If it's a quiz response, keep it as JSON
+          messageText = json.encode(response);
+          print('Handling quiz response: $messageText'); // Debug print
         } else {
           messageText = response['response'] as String;
         }

@@ -89,21 +89,23 @@ class PinnedTab extends StatelessWidget {
                       ],
                     ),
                     SizedBox(height: 8),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: _getImportanceColor(card['importance'])
-                            .withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        card['importance'],
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: _getImportanceColor(card['importance']),
+                    if (card['importance'] != null)
+                      Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: _getImportanceColor(card['importance'])
+                              .withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          card['importance'].toString(),
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: _getImportanceColor(card['importance']),
+                          ),
                         ),
                       ),
-                    ),
                   ],
                 ),
               ),
@@ -147,24 +149,25 @@ class PinnedTab extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: _getImportanceColor(card['importance'])
-                                .withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            card['importance'],
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              color: _getImportanceColor(card['importance']),
+                        if (card['importance'] != null)
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _getImportanceColor(card['importance'])
+                                  .withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              card['importance'].toString(),
+                              style: GoogleFonts.inter(
+                                fontSize: 12,
+                                color: _getImportanceColor(card['importance']),
+                              ),
                             ),
                           ),
-                        ),
                       ],
                     ),
                     IconButton(
@@ -200,30 +203,31 @@ class PinnedTab extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 12),
-                      ...card['front']['points'].map<Widget>(
-                        (point) => Padding(
-                          padding: EdgeInsets.only(bottom: 8),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '• ',
-                                style: GoogleFonts.inter(
-                                  color: Theme.of(context).primaryColor,
-                                ),
-                              ),
-                              Expanded(
-                                child: Text(
-                                  point,
+                      if (card['front']['points'] != null)
+                        ...card['front']['points'].map<Widget>(
+                          (point) => Padding(
+                            padding: EdgeInsets.only(bottom: 8),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '• ',
                                   style: GoogleFonts.inter(
-                                    color: Colors.white.withOpacity(0.9),
+                                    color: Theme.of(context).primaryColor,
                                   ),
                                 ),
-                              ),
-                            ],
+                                Expanded(
+                                  child: Text(
+                                    point.toString(),
+                                    style: GoogleFonts.inter(
+                                      color: Colors.white.withOpacity(0.9),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
                       SizedBox(height: 24),
                       // Back
                       Text(
@@ -234,39 +238,50 @@ class PinnedTab extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 8),
-                      Text(
-                        card['back']['title'],
-                        style: GoogleFonts.inter(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
-                      SizedBox(height: 12),
-                      ...card['back']['points'].map<Widget>(
-                        (point) => Padding(
-                          padding: EdgeInsets.only(bottom: 8),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '• ',
-                                style: GoogleFonts.inter(
-                                  color: Theme.of(context).primaryColor,
-                                ),
-                              ),
-                              Expanded(
-                                child: Text(
-                                  point,
-                                  style: GoogleFonts.inter(
-                                    color: Colors.white.withOpacity(0.9),
-                                  ),
-                                ),
-                              ),
-                            ],
+                      if (card['back']['title'] != null)
+                        Text(
+                          card['back']['title'],
+                          style: GoogleFonts.inter(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
                           ),
                         ),
-                      ),
+                      SizedBox(height: 12),
+                      if (card['back']['explanation'] != null)
+                        Text(
+                          card['back']['explanation'],
+                          style: GoogleFonts.inter(
+                            fontSize: 16,
+                            color: Colors.white.withOpacity(0.9),
+                          ),
+                        ),
+                      SizedBox(height: 12),
+                      if (card['back']['points'] != null)
+                        ...card['back']['points'].map<Widget>(
+                          (point) => Padding(
+                            padding: EdgeInsets.only(bottom: 8),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '• ',
+                                  style: GoogleFonts.inter(
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    point.toString(),
+                                    style: GoogleFonts.inter(
+                                      color: Colors.white.withOpacity(0.9),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -278,8 +293,13 @@ class PinnedTab extends StatelessWidget {
     );
   }
 
-  Color _getImportanceColor(String importance) {
-    switch (importance.toLowerCase()) {
+  Color _getImportanceColor(dynamic importance) {
+    if (importance == null) {
+      return Colors.grey; // Default color
+    }
+
+    final importanceStr = importance.toString().toLowerCase();
+    switch (importanceStr) {
       case 'critical':
         return Colors.red;
       case 'important':

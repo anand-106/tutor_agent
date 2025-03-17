@@ -35,8 +35,9 @@ class _FlashcardWidgetState extends State<FlashcardWidget> {
   @override
   Widget build(BuildContext context) {
     final flashcards = widget.flashcardsData['flashcards'] as List;
-    final topic = widget.flashcardsData['topic'] as String;
-    final description = widget.flashcardsData['description'] as String;
+    final topic = (widget.flashcardsData['topic'] as String?) ?? "Study Topic";
+    final description = (widget.flashcardsData['description'] as String?) ??
+        "Review these flashcards to test your knowledge";
 
     return Container(
       decoration: BoxDecoration(
@@ -186,6 +187,20 @@ class _FlashcardWidgetState extends State<FlashcardWidget> {
   }
 
   Widget _buildFlashcard(Map<String, dynamic> card, int index) {
+    // Ensure we have consistent card structure
+    Map<String, dynamic> front = card['front'] is Map
+        ? card['front']
+        : {"title": "Card Front", "points": []};
+    Map<String, dynamic> back = card['back'] is Map
+        ? card['back']
+        : {"explanation": "Card Back", "points": []};
+    String category = card['category'] is String
+        ? card['category']
+        : card['topic'] is String
+            ? card['topic']
+            : "";
+    String importance = card['importance'] is String ? card['importance'] : "";
+
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -209,18 +224,18 @@ class _FlashcardWidgetState extends State<FlashcardWidget> {
               margin: EdgeInsets.symmetric(horizontal: 16),
               child: angle < math.pi / 2
                   ? _buildCardSide(
-                      card['front'],
-                      card['category'],
-                      card['importance'],
+                      front,
+                      category,
+                      importance,
                       true,
                     )
                   : Transform(
                       transform: Matrix4.identity()..rotateY(math.pi),
                       alignment: Alignment.center,
                       child: _buildCardSide(
-                        card['back'],
-                        card['category'],
-                        card['importance'],
+                        back,
+                        category,
+                        importance,
                         false,
                       ),
                     ),
@@ -231,8 +246,30 @@ class _FlashcardWidgetState extends State<FlashcardWidget> {
     );
   }
 
-  Widget _buildCardSide(Map<String, dynamic> content, String category,
-      String importance, bool isFront) {
+  Widget _buildCardSide(Map<String, dynamic> content, dynamic category,
+      dynamic importance, bool isFront) {
+    // Safely handle missing fields
+    String categoryStr = category != null ? category.toString() : "";
+    String importanceStr = importance != null ? importance.toString() : "";
+
+    // Extract card content correctly based on the card structure
+    String title = "";
+    List<String> points = [];
+    String explanation = "";
+
+    if (content.containsKey('title')) {
+      title = content['title'].toString();
+    }
+
+    if (content.containsKey('points') && content['points'] is List) {
+      points = List<String>.from(content['points'].map((p) => p.toString()));
+    }
+
+    // For back card, also check for explanation
+    if (!isFront && content.containsKey('explanation')) {
+      explanation = content['explanation'].toString();
+    }
+
     return Container(
       padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -248,93 +285,107 @@ class _FlashcardWidgetState extends State<FlashcardWidget> {
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  category,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: _getImportanceColor(importance).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  importance,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: _getImportanceColor(importance),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 16),
-          Text(
-            content['title'],
-            style: GoogleFonts.inter(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Colors.white.withOpacity(0.9),
-            ),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 16),
           Expanded(
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ...(content['points'] as List)
-                      .map((point) => Padding(
-                            padding: EdgeInsets.symmetric(vertical: 4),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '• ',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 16,
-                                    color: Theme.of(context).primaryColor,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    point.toString(),
-                                    style: GoogleFonts.inter(
-                                      fontSize: 16,
-                                      color: Colors.white.withOpacity(0.9),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                  Text(
+                    title,
+                    style: GoogleFonts.inter(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 16),
+                  if (!isFront && explanation.isNotEmpty) ...[
+                    Text(
+                      explanation,
+                      style: GoogleFonts.inter(
+                        fontSize: 16,
+                        color: Colors.white.withOpacity(0.8),
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                  ],
+                  ...points.map((point) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "• ",
+                              style: GoogleFonts.inter(
+                                fontSize: 16,
+                                color: Theme.of(context).primaryColor,
+                              ),
                             ),
-                          ))
-                      .toList(),
+                            Expanded(
+                              child: Text(
+                                point,
+                                style: GoogleFonts.inter(
+                                  fontSize: 16,
+                                  color: Colors.white.withOpacity(0.8),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )),
                 ],
               ),
             ),
           ),
+          SizedBox(height: 16),
+          if (categoryStr.isNotEmpty || importanceStr.isNotEmpty)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                if (categoryStr.isNotEmpty)
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      categoryStr,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ),
+                  ),
+                if (importanceStr.isNotEmpty)
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color:
+                          _getImportanceColor(importanceStr).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      importanceStr,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: _getImportanceColor(importanceStr),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           SizedBox(height: 8),
           Text(
-            'Tap to flip',
+            isFront ? "Tap to reveal answer" : "Tap to show question",
             style: GoogleFonts.inter(
               fontSize: 12,
               color: Colors.white.withOpacity(0.5),
             ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -342,15 +393,19 @@ class _FlashcardWidgetState extends State<FlashcardWidget> {
   }
 
   Color _getImportanceColor(String importance) {
+    if (importance == null || importance.isEmpty) {
+      return Colors.blue; // Default color
+    }
+
     switch (importance.toLowerCase()) {
       case 'critical':
         return Colors.red;
       case 'important':
         return Colors.orange;
       case 'good to know':
-        return Colors.blue;
+        return Colors.green;
       default:
-        return Colors.grey;
+        return Colors.blue;
     }
   }
 }

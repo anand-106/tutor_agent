@@ -217,6 +217,7 @@ class GeminiTutor:
                     return f"```json\n{json.dumps(response, indent=2)}\n```"
                 elif "flashcards" in response:
                     self.logger.info("Response contains flashcard data")
+                    # Ensure the response is properly formatted for the frontend
                     return f"```json\n{json.dumps(response, indent=2)}\n```"
                 elif "has_diagram" in response and response["has_diagram"]:
                     self.logger.info("Response contains diagram data")

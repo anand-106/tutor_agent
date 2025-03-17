@@ -1,167 +1,125 @@
 from typing import Dict, List, Any, Optional
 from .base_agent import BaseAgent
 import json
+import re
 
 class FlashcardAgent(BaseAgent):
     def __init__(self, api_keys: list, shared_state: Optional[Dict[str, Any]] = None):
         super().__init__(api_keys, shared_state)
         
-    def process(self, text: str, num_cards: int = 3) -> Dict:
-        """Generate focused study flashcards with memorizable bullet points"""
-        self.retry_count = 0
+    def process(self, text, num_cards=5):
+        """
+        Process the text and generate flashcards.
         
-        while self.retry_count < self.max_retries:
-            try:
-                if len(text.strip()) < 50:
-                    self.logger.warning("Text too short for meaningful flashcard generation")
-                    return self._create_basic_flashcards("Text too short")
-
-                prompt = f"""Create focused study flashcards that help memorize key points for exam preparation.
-
-                IMPORTANT: Your response must be ONLY valid JSON, with no additional text or explanation.
-                
-                Required JSON structure:
+        Args:
+            text (str): The text to generate flashcards from.
+            num_cards (int, optional): The number of flashcards to generate. Defaults to 5.
+            
+        Returns:
+            dict: A dictionary containing the flashcards and related information.
+        """
+        if len(text) < 100:
+            self.logger.warning("Input text is too short for meaningful flashcard generation")
+            return {"flashcards": [], "topic": "Insufficient Content", "description": "The provided text is too short to generate meaningful flashcards."}
+        
+        self.logger.info(f"Generating {num_cards} flashcards from text of length {len(text)}")
+        
+        # Extract the main topic from the current_topic in shared state if available
+        topic = self.shared_state.get("current_topic", "Study Topic")
+        self.logger.info(f"Using topic: {topic}")
+        
+        # Create a JSON prompt for structured flashcard generation
+        prompt = f"""
+        Create {num_cards} educational flashcards based on the following text. 
+        The flashcards should cover the most important concepts and be structured as follows:
+        
+        ```json
+        {{
+            "topic": "{topic}",
+            "description": "Brief overview of the content covered in these flashcards",
+            "flashcards": [
                 {{
-                    "topic": "Main Topic",
-                    "description": "Core concept to memorize",
-                    "flashcards": [
-                        {{
-                            "id": "unique_number",
-                            "front": {{
-                                "title": "Key concept or definition to memorize",
-                                "points": [
-                                    "Concise bullet point 1",
-                                    "Concise bullet point 2",
-                                    "Concise bullet point 3",
-                                    "... more points as needed"
-                                ]
-                            }},
-                            "back": {{
-                                "title": "Detailed explanation",
-                                "points": [
-                                    "Expanded explanation of point 1",
-                                    "Expanded explanation of point 2",
-                                    "Expanded explanation of point 3",
-                                    "Additional important details"
-                                ]
-                            }},
-                            "category": "Definition/Formula/Key Concept/Important Date/Fact",
-                            "importance": "Critical/Important/Good to Know",
-                            "is_pinned": false
-                        }}
-                    ]
+                    "id": "1",
+                    "topic": "Specific subtopic or concept",
+                    "front": {{
+                        "title": "Clear, concise question or concept",
+                        "points": ["Optional bullet points to clarify the question"]
+                    }},
+                    "back": {{
+                        "explanation": "Comprehensive but concise explanation",
+                        "points": ["Key points", "Important details", "Relevant examples"],
+                        "additional_resources": "Optional references or further reading"
+                    }},
+                    "is_pinned": false
                 }}
-
-                Requirements:
-                1. Generate {num_cards} essential flashcards focusing on content that must be memorized
-                2. Each flashcard must:
-                   - Focus on ONE key concept that needs memorization
-                   - Have front content with ALL important points to memorize
-                   - Keep each point short and concise (3-8 words each)
-                   - Have back content with detailed explanations of each point
-                   - Be categorized by type of memorizable content
-                   - Be rated by importance for exam preparation
-                3. Front points should be:
-                   - Very concise (3-8 words each)
-                   - Easy to recall during exams
-                   - Focus on key facts, formulas, or definitions
-                   - Include ALL important points (no limit on number of points)
-                   - Each point should be a standalone fact or concept
-                4. Back points should:
-                   - Expand on each front point
-                   - Provide context and examples
-                   - Include additional relevant details
-                5. All content must be based on the provided text
-                6. Response must be valid JSON only
-
-                Text to analyze:
-                {text[:10000]}"""
-
-                response = self.model.generate_content(
-                    prompt,
-                    generation_config={
-                        "temperature": 0.2,
-                        "max_output_tokens": 2000,
-                        "top_p": 0.95,
-                        "top_k": 40
-                    }
-                )
-
-                response_text = response.text.strip()
+            ]
+        }}
+        ```
+        
+        Guidelines:
+        1. Focus on key concepts, definitions, and relationships
+        2. Front side should be clear and concise
+        3. Back side should be comprehensive but not verbose
+        4. Ensure accuracy and balance difficulty across cards
+        5. Make sure each flashcard has a unique ID
+        6. Include relevant examples where appropriate
+        7. Cover different aspects of the topic to ensure comprehensive learning
+        
+        Text to process:
+        {text}
+        
+        Return only the JSON. No prose or explanation.
+        """
+        
+        try:
+            # Generate flashcards using the gemini model
+            response = self.model.generate_content(prompt)
+            response_text = response.text
+            
+            # Extract the JSON part
+            try:
+                # First try to find JSON between backticks
+                json_pattern = r"```json\s*([\s\S]*?)\s*```"
+                json_match = re.search(json_pattern, response_text)
                 
-                # Clean up the response text
-                start = response_text.find('{')
-                end = response_text.rindex('}') + 1
-                if start == -1 or end == -1:
-                    raise ValueError("No valid JSON found in response")
+                if json_match:
+                    json_str = json_match.group(1)
+                else:
+                    # If no JSON with backticks, try to find standalone JSON
+                    json_str = response_text.strip()
+                
+                flashcard_data = json.loads(json_str)
+                
+                # Validate the flashcard data
+                if not isinstance(flashcard_data, dict):
+                    raise ValueError("Flashcard data is not a dictionary")
                     
-                response_text = response_text[start:end]
-                
-                try:
-                    flashcards_data = json.loads(response_text)
-                except json.JSONDecodeError as e:
-                    self.logger.error(f"JSON decode error: {str(e)}")
-                    self.logger.debug(f"Problematic JSON: {response_text}")
-                    raise ValueError(f"Invalid JSON format: {str(e)}")
-                
-                # Validate structure
-                if not isinstance(flashcards_data, dict):
-                    raise ValueError("Response is not a dictionary")
-                
-                required_keys = ["topic", "description", "flashcards"]
-                for key in required_keys:
-                    if key not in flashcards_data:
-                        raise ValueError(f"Missing required key: {key}")
-                
-                if not isinstance(flashcards_data["flashcards"], list):
+                if "flashcards" not in flashcard_data:
+                    raise ValueError("No flashcards found in the response")
+                    
+                if not isinstance(flashcard_data["flashcards"], list):
                     raise ValueError("Flashcards is not a list")
                 
-                for card in flashcards_data["flashcards"]:
-                    required_card_keys = ["id", "front", "back", "category", "importance", "is_pinned"]
-                    if not all(k in card for k in required_card_keys):
-                        raise ValueError("Flashcard missing required fields")
-                    
-                    # Validate front and back structure
-                    for side in ["front", "back"]:
-                        if not isinstance(card[side], dict):
-                            raise ValueError(f"Card {side} must be a dictionary")
-                        if not all(k in card[side] for k in ["title", "points"]):
-                            raise ValueError(f"Card {side} missing title or points")
-                        if not isinstance(card[side]["points"], list):
-                            raise ValueError(f"Card {side} points must be a list")
-                        
-                        # Validate point lengths for front side
-                        if side == "front":
-                            for i, point in enumerate(card[side]["points"]):
-                                words = point.split()
-                                if len(words) > 8:
-                                    self.logger.warning(f"Front point too long: {point}")
-                                    # Split into multiple points if too long
-                                    if len(words) <= 16:  # If it can be split into two reasonable points
-                                        mid = len(words) // 2
-                                        card[side]["points"][i] = " ".join(words[:mid])
-                                        card[side]["points"].insert(i + 1, " ".join(words[mid:]))
-                                    else:
-                                        # If too long to split nicely, truncate
-                                        card[side]["points"][i] = " ".join(words[:8]) + "..."
+                # Ensure all flashcards have required fields
+                for i, card in enumerate(flashcard_data["flashcards"]):
+                    if "id" not in card:
+                        card["id"] = str(i+1)
+                    if "is_pinned" not in card:
+                        card["is_pinned"] = False
                 
-                self.logger.info(f"Successfully generated {len(flashcards_data['flashcards'])} memorization flashcards")
-                return flashcards_data
-
-            except Exception as e:
-                if "quota" in str(e).lower():
-                    self.retry_count += 1
-                    try:
-                        self._switch_api_key()
-                        continue
-                    except Exception:
-                        if self.retry_count >= self.max_retries:
-                            self.logger.error("All API keys exhausted")
-                            return self._create_basic_flashcards("API quota exceeded")
-                        continue
-                else:
-                    self.logger.error(f"Error generating flashcards: {str(e)}")
-                    return self._create_basic_flashcards(str(e))
+                self.logger.info(f"Successfully generated {len(flashcard_data['flashcards'])} flashcards")
+                return flashcard_data
+                
+            except json.JSONDecodeError as e:
+                self.logger.error(f"Failed to parse JSON from response: {e}")
+                return {"flashcards": [], "topic": topic, "description": "Failed to generate flashcards due to JSON parsing error."}
+            except ValueError as e:
+                self.logger.error(f"Invalid flashcard data: {e}")
+                return {"flashcards": [], "topic": topic, "description": f"Failed to generate flashcards: {str(e)}"}
+                
+        except Exception as e:
+            self.logger.error(f"Error generating flashcards: {e}")
+            return {"flashcards": [], "topic": topic, "description": "Failed to generate flashcards due to an unexpected error."}
 
     def _create_basic_flashcards(self, reason: str) -> Dict:
         """Create a basic flashcards structure"""

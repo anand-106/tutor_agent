@@ -35,26 +35,72 @@ class ChatMessageWidget extends StatelessWidget {
       try {
         // First try to parse the entire response as JSON
         final Map<String, dynamic> jsonData = json.decode(message.response);
+        Map<String, dynamic> flashcardsData;
+
+        // Check if the flashcards data is nested inside another object
         if (jsonData.containsKey('flashcards') &&
-            jsonData.containsKey('topic')) {
+            jsonData['flashcards'] is Map<String, dynamic>) {
+          // Extract the nested flashcards data
+          flashcardsData = jsonData['flashcards'] as Map<String, dynamic>;
+          debugPrint('Extracted nested flashcards data at beginning of build');
+        } else {
+          // Use the data as is
+          flashcardsData = jsonData;
+        }
+
+        if (flashcardsData.containsKey('flashcards') &&
+            (flashcardsData.containsKey('topic') ||
+                flashcardsData.containsKey('description'))) {
           debugPrint('Creating flashcard widget from direct JSON');
 
           // Ensure each flashcard has required fields
-          final List<Map<String, dynamic>> flashcards =
-              List<Map<String, dynamic>>.from(jsonData['flashcards']);
-          for (var i = 0; i < flashcards.length; i++) {
-            if (!flashcards[i].containsKey('id')) {
-              flashcards[i]['id'] = 'card_${i + 1}';
+          List<Map<String, dynamic>> flashcards = [];
+          if (flashcardsData['flashcards'] is List &&
+              (flashcardsData['flashcards'] as List).isNotEmpty) {
+            flashcards =
+                List<Map<String, dynamic>>.from(flashcardsData['flashcards']);
+            for (var i = 0; i < flashcards.length; i++) {
+              if (!flashcards[i].containsKey('id')) {
+                flashcards[i]['id'] = 'card_${i + 1}';
+              }
+              if (!flashcards[i].containsKey('is_pinned')) {
+                flashcards[i]['is_pinned'] = false;
+              }
             }
-            if (!flashcards[i].containsKey('is_pinned')) {
-              flashcards[i]['is_pinned'] = false;
-            }
+          } else {
+            // Create a default flashcard if the list is empty
+            flashcards = [
+              {
+                "id": "default_card",
+                "front": {
+                  "title": "No flashcards available",
+                  "points": ["Try asking for flashcards on a specific topic"]
+                },
+                "back": {
+                  "explanation":
+                      "The system couldn't generate flashcards based on the current context.",
+                  "points": [
+                    "Try uploading a document with more content",
+                    "Specify a topic more clearly"
+                  ]
+                },
+                "is_pinned": false
+              }
+            ];
           }
-          jsonData['flashcards'] = flashcards;
+
+          flashcardsData['flashcards'] = flashcards;
+          // Ensure topic and description exist (they'll be handled with defaults in the FlashcardWidget)
+          if (!flashcardsData.containsKey('topic')) {
+            flashcardsData['topic'] = null;
+          }
+          if (!flashcardsData.containsKey('description')) {
+            flashcardsData['description'] = null;
+          }
 
           debugPrint('Processed flashcards: ${json.encode(flashcards)}');
           return FlashcardWidget(
-            flashcardsData: jsonData,
+            flashcardsData: flashcardsData,
             onPinCard: (card) {
               debugPrint('Pin card called with: ${json.encode(card)}');
               if (card['is_pinned']) {
@@ -128,6 +174,437 @@ class ChatMessageWidget extends StatelessWidget {
             }
           } catch (e) {
             debugPrint('Code block JSON parse attempt failed: $e');
+          }
+        }
+      }
+    }
+
+    // Check if this message has a diagram
+    if (message.hasDiagram && message.mermaidCode != null) {
+      debugPrint('Rendering diagram directly from message properties');
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.8,
+          ),
+          margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+              child: Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.08),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 10,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    MarkdownBody(data: message.response),
+                    SizedBox(height: 16),
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8.0),
+                      constraints: BoxConstraints(
+                        maxWidth: MediaQuery.of(context).size.width * 0.8,
+                        maxHeight: 400,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black12,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: MermaidDiagram(
+                        diagramCode: message.mermaidCode!,
+                        width: MediaQuery.of(context).size.width * 0.8,
+                        height: 400,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Check if this message contains quiz data
+    if (message.response.contains('"questions"') &&
+        message.response.contains('"topic"')) {
+      debugPrint('Rendering quiz directly from message response');
+      try {
+        // Try to parse the response as JSON
+        final Map<String, dynamic> quizData = json.decode(message.response);
+        if (quizData.containsKey('questions') &&
+            quizData.containsKey('topic')) {
+          return Align(
+            alignment: Alignment.centerLeft,
+            child: Container(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width * 0.8,
+              ),
+              margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                  child: Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.08),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 10,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: QuizWidget(quizData: quizData),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+      } catch (e) {
+        debugPrint('Error parsing quiz data: $e');
+        // If direct parsing fails, try to extract JSON from code blocks
+        if (message.response.contains('```json')) {
+          try {
+            RegExp regExp = RegExp(r'```json\s*([\s\S]*?)\s*```');
+            Match? match = regExp.firstMatch(message.response);
+
+            if (match != null) {
+              String jsonText = match.group(1)?.trim() ?? '';
+              jsonText = jsonText
+                  .replaceAll(RegExp(r',(\s*[}\]])', multiLine: true), r'$1')
+                  .replaceAll(RegExp(r'[\n\r]'), '')
+                  .trim();
+
+              final data = json.decode(jsonText);
+              if (data is Map<String, dynamic> &&
+                  data.containsKey('questions') &&
+                  data.containsKey('topic')) {
+                return Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    constraints: BoxConstraints(
+                      maxWidth: MediaQuery.of(context).size.width * 0.8,
+                    ),
+                    margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                        child: Container(
+                          padding: EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.05),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.08),
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 10,
+                                offset: Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: QuizWidget(quizData: data),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }
+            }
+          } catch (e) {
+            debugPrint('Error parsing quiz data from code block: $e');
+          }
+        }
+      }
+    }
+
+    // Check if this message contains flashcard data
+    if (message.response.contains('"flashcards"') &&
+        (message.response.contains('"topic"') ||
+            message.response.contains('"response"') ||
+            message.response.contains('"description"'))) {
+      debugPrint('Rendering flashcards directly from message response');
+      try {
+        // Try to parse the response as JSON
+        final Map<String, dynamic> jsonData = json.decode(message.response);
+        Map<String, dynamic> flashcardsData;
+
+        // Check if the flashcards data is nested inside another object
+        if (jsonData.containsKey('flashcards') &&
+            jsonData['flashcards'] is Map<String, dynamic>) {
+          // Extract the nested flashcards data
+          flashcardsData = jsonData['flashcards'] as Map<String, dynamic>;
+          debugPrint('Extracted nested flashcards data');
+        } else {
+          // Use the data as is
+          flashcardsData = jsonData;
+        }
+
+        if (flashcardsData.containsKey('flashcards') &&
+            (flashcardsData.containsKey('topic') ||
+                flashcardsData.containsKey('description'))) {
+          // Ensure each flashcard has required fields
+          List<Map<String, dynamic>> flashcards = [];
+          if (flashcardsData['flashcards'] is List &&
+              (flashcardsData['flashcards'] as List).isNotEmpty) {
+            flashcards =
+                List<Map<String, dynamic>>.from(flashcardsData['flashcards']);
+            for (var i = 0; i < flashcards.length; i++) {
+              if (!flashcards[i].containsKey('id')) {
+                flashcards[i]['id'] = 'card_${i + 1}';
+              }
+              if (!flashcards[i].containsKey('is_pinned')) {
+                flashcards[i]['is_pinned'] = false;
+              }
+            }
+          } else {
+            // Create a default flashcard if the list is empty
+            flashcards = [
+              {
+                "id": "default_card",
+                "front": {
+                  "title": "No flashcards available",
+                  "points": ["Try asking for flashcards on a specific topic"]
+                },
+                "back": {
+                  "explanation":
+                      "The system couldn't generate flashcards based on the current context.",
+                  "points": [
+                    "Try uploading a document with more content",
+                    "Specify a topic more clearly"
+                  ]
+                },
+                "is_pinned": false
+              }
+            ];
+          }
+          flashcardsData['flashcards'] = flashcards;
+
+          // Ensure topic and description exist
+          if (!flashcardsData.containsKey('topic')) {
+            flashcardsData['topic'] = null;
+          }
+          if (!flashcardsData.containsKey('description')) {
+            flashcardsData['description'] = null;
+          }
+
+          debugPrint('Processed flashcards: ${json.encode(flashcards)}');
+
+          return Align(
+            alignment: Alignment.centerLeft,
+            child: Container(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width * 0.8,
+              ),
+              margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                  child: Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.08),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 10,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: FlashcardWidget(
+                      flashcardsData: flashcardsData,
+                      onPinCard: (card) {
+                        debugPrint(
+                            'Pin card called with: ${json.encode(card)}');
+                        if (card['is_pinned']) {
+                          chatController.pinCard(card);
+                        } else {
+                          chatController.unpinCard(card);
+                        }
+                      },
+                      onPinAll: (cards) {
+                        debugPrint(
+                            'Pin all cards called with ${cards.length} cards');
+                        chatController.pinAllCards(cards
+                            .map((c) => Map<String, dynamic>.from(c))
+                            .toList());
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+      } catch (e) {
+        debugPrint('Error parsing flashcard data: $e');
+        // If direct parsing fails, try to extract JSON from code blocks
+        if (message.response.contains('```json')) {
+          try {
+            RegExp regExp = RegExp(r'```json\s*([\s\S]*?)\s*```');
+            Match? match = regExp.firstMatch(message.response);
+
+            if (match != null) {
+              String jsonText = match.group(1)?.trim() ?? '';
+              jsonText = jsonText
+                  .replaceAll(RegExp(r',(\s*[}\]])', multiLine: true), r'$1')
+                  .replaceAll(RegExp(r'[\n\r]'), '')
+                  .trim();
+
+              final data = json.decode(jsonText);
+              Map<String, dynamic> flashcardsData;
+
+              // Check if the flashcards data is nested inside another object
+              if (data is Map<String, dynamic> &&
+                  data.containsKey('flashcards') &&
+                  data['flashcards'] is Map<String, dynamic>) {
+                // Extract the nested flashcards data
+                flashcardsData = data['flashcards'] as Map<String, dynamic>;
+                debugPrint('Extracted nested flashcards data from code block');
+              } else {
+                // Use the data as is
+                flashcardsData = data;
+              }
+
+              if (flashcardsData is Map<String, dynamic> &&
+                  flashcardsData.containsKey('flashcards') &&
+                  (flashcardsData.containsKey('topic') ||
+                      flashcardsData.containsKey('description'))) {
+                // Ensure each flashcard has required fields
+                List<Map<String, dynamic>> flashcards = [];
+                if (flashcardsData['flashcards'] is List &&
+                    (flashcardsData['flashcards'] as List).isNotEmpty) {
+                  flashcards = List<Map<String, dynamic>>.from(
+                      flashcardsData['flashcards']);
+                  for (var i = 0; i < flashcards.length; i++) {
+                    if (!flashcards[i].containsKey('id')) {
+                      flashcards[i]['id'] = 'card_${i + 1}';
+                    }
+                    if (!flashcards[i].containsKey('is_pinned')) {
+                      flashcards[i]['is_pinned'] = false;
+                    }
+                  }
+                } else {
+                  // Create a default flashcard if the list is empty
+                  flashcards = [
+                    {
+                      "id": "default_card",
+                      "front": {
+                        "title": "No flashcards available",
+                        "points": [
+                          "Try asking for flashcards on a specific topic"
+                        ]
+                      },
+                      "back": {
+                        "explanation":
+                            "The system couldn't generate flashcards based on the current context.",
+                        "points": [
+                          "Try uploading a document with more content",
+                          "Specify a topic more clearly"
+                        ]
+                      },
+                      "is_pinned": false
+                    }
+                  ];
+                }
+                flashcardsData['flashcards'] = flashcards;
+
+                // Ensure topic and description exist
+                if (!flashcardsData.containsKey('topic')) {
+                  flashcardsData['topic'] = null;
+                }
+                if (!flashcardsData.containsKey('description')) {
+                  flashcardsData['description'] = null;
+                }
+
+                debugPrint('Processed flashcards: ${json.encode(flashcards)}');
+
+                return Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    constraints: BoxConstraints(
+                      maxWidth: MediaQuery.of(context).size.width * 0.8,
+                    ),
+                    margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                        child: Container(
+                          padding: EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.05),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.08),
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 10,
+                                offset: Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: FlashcardWidget(
+                            flashcardsData: flashcardsData,
+                            onPinCard: (card) {
+                              debugPrint(
+                                  'Pin card called with: ${json.encode(card)}');
+                              if (card['is_pinned']) {
+                                chatController.pinCard(card);
+                              } else {
+                                chatController.unpinCard(card);
+                              }
+                            },
+                            onPinAll: (cards) {
+                              debugPrint(
+                                  'Pin all cards called with ${cards.length} cards');
+                              chatController.pinAllCards(cards
+                                  .map((c) => Map<String, dynamic>.from(c))
+                                  .toList());
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }
+            }
+          } catch (e) {
+            debugPrint('Error parsing flashcard data from code block: $e');
           }
         }
       }

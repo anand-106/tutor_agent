@@ -73,6 +73,52 @@ class ApiService extends GetxService {
               'diagram_type': diagramType
             };
           }
+
+          // Check if this is a quiz response
+          if (data.containsKey('quiz') &&
+              data['quiz'] is Map<String, dynamic>) {
+            print('Received quiz response from API'); // Debug log
+
+            final quizData = data['quiz'] as Map<String, dynamic>;
+
+            // Extract the quiz data and return it directly
+            if (quizData.containsKey('questions') &&
+                quizData.containsKey('topic')) {
+              print(
+                  'Quiz contains ${quizData['questions'].length} questions on topic: ${quizData['topic']}'); // Debug log
+
+              // Return the quiz data with the response text
+              return {
+                'response': data['response'],
+                'questions': quizData['questions'],
+                'topic': quizData['topic']
+              };
+            }
+          }
+
+          // Check if this is a flashcard response
+          if (data.containsKey('flashcards') && data['flashcards'] is List) {
+            print('Received flashcard response from API'); // Debug log
+
+            final flashcards = data['flashcards'] as List;
+            final topic = data['topic'] as String? ?? 'Study Topic';
+
+            // Extract the flashcard data and return it directly
+            if (flashcards.isNotEmpty) {
+              print(
+                  'Flashcards contains ${flashcards.length} cards on topic: $topic'); // Debug log
+
+              // Return the flashcard data with the response text
+              return {
+                'response': data['response'],
+                'flashcards': flashcards,
+                'topic': topic,
+                'description': data['description'] ??
+                    'Study these flashcards to improve your understanding'
+              };
+            }
+          }
+
           return data;
         }
         return {'response': response.data['response'], 'has_diagram': false};
