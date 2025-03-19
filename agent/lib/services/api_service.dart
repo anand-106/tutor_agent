@@ -33,6 +33,13 @@ class ApiService extends GetxService {
           final data = response.data as Map<String, dynamic>;
           print('Raw API Response: $data'); // Debug log
 
+          // Check if this is a question response
+          if (data.containsKey('question') &&
+              data.containsKey('has_question')) {
+            print('Received question response from API');
+            return data; // Return the full question data structure
+          }
+
           // Check if this is a diagram response
           if (data['has_diagram'] == true && data['mermaid_code'] != null) {
             print('Received diagram response from API'); // Debug log
@@ -65,7 +72,7 @@ class ApiService extends GetxService {
 
             print('Final formatted Mermaid code: $mermaidCode'); // Debug log
 
-            // Return the formatted response
+            // Return the diagram data with the response text
             return {
               'response': data['response'],
               'has_diagram': true,
@@ -74,30 +81,8 @@ class ApiService extends GetxService {
             };
           }
 
-          // Check if this is a quiz response
-          if (data.containsKey('quiz') &&
-              data['quiz'] is Map<String, dynamic>) {
-            print('Received quiz response from API'); // Debug log
-
-            final quizData = data['quiz'] as Map<String, dynamic>;
-
-            // Extract the quiz data and return it directly
-            if (quizData.containsKey('questions') &&
-                quizData.containsKey('topic')) {
-              print(
-                  'Quiz contains ${quizData['questions'].length} questions on topic: ${quizData['topic']}'); // Debug log
-
-              // Return the quiz data with the response text
-              return {
-                'response': data['response'],
-                'questions': quizData['questions'],
-                'topic': quizData['topic']
-              };
-            }
-          }
-
           // Check if this is a flashcard response
-          if (data.containsKey('flashcards') && data['flashcards'] is List) {
+          if (data.containsKey('flashcards') && data.containsKey('topic')) {
             print('Received flashcard response from API'); // Debug log
 
             final flashcards = data['flashcards'] as List;

@@ -1,0 +1,56 @@
+{
+  "response": "# Lesson Plan: Machine Learning\n\nBasic intermediate level introduction to Machine Learning\n\nThis lesson is designed for your current knowledge level (intermediate) and will take approximately 60 minutes.\n\n## Learning Objectives\nBy the end of this lesson, you will be able to:\n\u2022 Understand the key concepts of Machine Learning\n\u2022 Apply basic knowledge of Machine Learning in simple scenarios\n\nLet's begin with the first activity. Say 'next' when you're ready to proceed, or ask questions at any time.",
+  "lesson_plan": {
+    "title": "Lesson Plan: Machine Learning",
+    "description": "Basic intermediate level introduction to Machine Learning",
+    "knowledge_level": "intermediate",
+    "duration_minutes": 60,
+    "learning_objectives": [
+      "Understand the key concepts of Machine Learning",
+      "Apply basic knowledge of Machine Learning in simple scenarios"
+    ],
+    "activities": [
+      {
+        "title": "Introduction to Machine Learning",
+        "type": "reading",
+        "duration_minutes": 20,
+        "description": "Read an introductory text about Machine Learning",
+        "resources": [
+          {
+            "title": "Machine Learning fundamentals",
+            "type": "article",
+            "description": "Basic overview of the subject"
+          }
+        ]
+      },
+      {
+        "title": "Practice exercises",
+        "type": "exercise",
+        "duration_minutes": 20,
+        "description": "Complete basic exercises to reinforce understanding",
+        "resources": [
+          {
+            "title": "Practice worksheet",
+            "type": "worksheet",
+            "description": "Basic practice problems"
+          }
+        ]
+      }
+    ],
+    "assessment": {
+      "type": "quiz",
+      "description": "Short quiz to test understanding of basic concepts",
+      "criteria": [
+        "Correct identification of key concepts",
+        "Basic application of knowledge"
+      ]
+    },
+    "next_steps": [
+      "Explore more advanced aspects of Machine Learning",
+      "Practice with more complex examples"
+    ],
+    "generated_at": "2025-03-19T23:22:17.884590",
+    "topic": "Machine Learning"
+  },
+  "teaching_mode": "lesson_plan_introduction"
+}

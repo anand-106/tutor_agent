@@ -1,0 +1,24 @@
+{
+  "type": "topic_selection",
+  "title": "Document Topics",
+  "message": "Which topic would you like to learn about? Please select from the options below:",
+  "options": [
+    {
+      "id": "1",
+      "text": "Education and Skills",
+      "description": "Anand's educational background and technical skills demonstrate a strong foundation in computer science."
+    },
+    {
+      "id": "2",
+      "text": "Project Portfolio",
+      "description": "Anand has developed a diverse range of projects demonstrating practical application of technical skills."
+    },
+    {
+      "id": "3",
+      "text": "Additional Information",
+      "description": "Further details about Anand's profile, including languages spoken and online presence."
+    }
+  ],
+  "has_options": true,
+  "require_response": true
+}

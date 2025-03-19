@@ -387,54 +387,28 @@ async def upload_file(file: UploadFile = File(...)):
             
             # Extract topics from the document
             topics_data = None
-            lesson_plan = None
             try:
                 # Get topics from the pipeline's cache
                 topics_data = pipeline.get_topics(consistent_key)
                 logger.info(f"Extracted topics: {topics_data}")
                 
-                # Generate a lesson plan for the main topic if topics were extracted
+                # Set the topics in the tutor agent (without generating a lesson plan)
                 if topics_data and 'topics' in topics_data and topics_data['topics']:
-                    main_topic = topics_data['topics'][0]
-                    topic_title = main_topic.get('title', 'Document Topic')
+                    # Set the topics in the tutor agent
+                    tutor.set_topics(topics_data['topics'])
+                    logger.info(f"Set {len(topics_data['topics'])} topics in tutor agent")
                     
-                    # Extract subtopics
-                    subtopics = []
-                    if 'subtopics' in main_topic and main_topic['subtopics']:
-                        for subtopic in main_topic['subtopics']:
-                            subtopics.append({
-                                'title': subtopic.get('title', ''),
-                                'content': subtopic.get('content', '')
-                            })
-                    
-                    # Initialize the lesson plan agent
-                    lesson_plan_agent = LessonPlanAgent(GEMINI_API_KEYS)
-                    
-                    # Generate a lesson plan with default knowledge level (30 - intermediate beginner)
-                    lesson_plan = lesson_plan_agent.process(
-                        user_id="default_user",
-                        topic=topic_title,
-                        knowledge_level=30.0,  # Default to beginner-intermediate level
-                        subtopics=subtopics,
-                        time_available=60  # Default to 60 minutes
-                    )
-                    
-                    # Set the lesson plan in the tutor agent
-                    tutor.set_lesson_plan(lesson_plan)
-                    logger.info(f"Set lesson plan for topic: {topic_title}")
-                    
-                    # Add the lesson plan to the response
+                    # Return the topics data in the response
                     return JSONResponse(
                         content={
                             "message": "File processed successfully",
-                            "topics": topics_data,
-                            "lesson_plan": lesson_plan
+                            "topics": topics_data
                         },
                         status_code=200
                     )
             except Exception as e:
-                logger.error(f"Error extracting topics or generating lesson plan: {str(e)}")
-                # Continue with normal response if topic extraction or lesson plan generation fails
+                logger.error(f"Error extracting topics: {str(e)}")
+                # Continue with normal response if topic extraction fails
             
         finally:
             if file_path.exists():
@@ -514,8 +488,13 @@ async def chat(request: Request):
         # Generate response using the tutor agent
         response = tutor.chat(message, context=context, user_id=user_id)
         
+        # Check if the response contains a question
+        if isinstance(response, dict) and "question" in response:
+            logger.info("Response contains an interactive question")
+            return JSONResponse(content=response)
+        
         # Check if the response is already in JSON format
-        if response.startswith('```json') and response.endswith('```'):
+        if isinstance(response, str) and response.startswith('```json') and response.endswith('```'):
             # Extract the JSON content
             json_str = response[7:-3].strip()
             try:
@@ -526,7 +505,7 @@ async def chat(request: Request):
                 # Fall back to returning the raw response
         
         # Check if this is a diagram response
-        if "```mermaid" in response:
+        if isinstance(response, str) and "```mermaid" in response:
             try:
                 # Extract the explanation and diagram code
                 parts = response.split("```mermaid")
@@ -555,13 +534,21 @@ async def chat(request: Request):
                 # Fall back to regular response if diagram processing fails
                 pass
         
+        # If the response is a dictionary with a 'response' key, return it directly
+        if isinstance(response, dict) and "response" in response:
+            return JSONResponse(content=response)
+            
+        # Otherwise, wrap the response in a dictionary
+        if isinstance(response, str):
+            response = {"response": response, "has_diagram": False}
+        
         # Return response with appropriate status
-        if "rate limit" in response.lower() or "quota" in response.lower():
+        if "rate limit" in str(response).lower() or "quota" in str(response).lower():
             return JSONResponse(
-                content={"response": response},
+                content=response,
                 status_code=429  # Too Many Requests
             )
-        return JSONResponse(content={"response": response, "has_diagram": False})
+        return JSONResponse(content=response)
         
     except Exception as e:
         logger.error(f"Error in chat: {str(e)}")

@@ -1,0 +1,49 @@
+{
+  "response": "I've analyzed the document and identified several topics. Which one would you like to learn about?",
+  "has_question": true,
+  "question": {
+    "type": "topic_selection",
+    "title": "Document Topics",
+    "message": "Which topic would you like to learn about? Please select from the options below:",
+    "options": [
+      {
+        "id": "1",
+        "text": "Introduction to Artificial Intelligence",
+        "description": "AI is a branch of computer science that aims to create systems capable of performing tasks that w..."
+      },
+      {
+        "id": "2",
+        "text": "Machine Learning",
+        "description": "Machine Learning is a subset of AI that provides systems the ability to automatically learn and i..."
+      },
+      {
+        "id": "3",
+        "text": "Neural Networks",
+        "description": "Computing systems inspired by biological neural networks that constitute animal brains."
+      },
+      {
+        "id": "4",
+        "text": "Natural Language Processing",
+        "description": "Field of AI focusing on interaction between computers and humans through natural language."
+      },
+      {
+        "id": "5",
+        "text": "Computer Vision",
+        "description": "Field enabling computers to derive meaningful information from visual inputs."
+      },
+      {
+        "id": "6",
+        "text": "Ethics in AI",
+        "description": "Addressing ethical concerns in AI development and deployment."
+      },
+      {
+        "id": "7",
+        "text": "Future of AI",
+        "description": "Emerging trends and potential developments in the field of AI."
+      }
+    ],
+    "has_options": true,
+    "require_response": true
+  },
+  "teaching_mode": "topic_selection"
+}

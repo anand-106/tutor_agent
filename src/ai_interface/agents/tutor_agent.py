@@ -7,8 +7,10 @@ from .explainer_agent import ExplainerAgent
 from .flashcard_agent import FlashcardAgent
 from .knowledge_tracking_agent import KnowledgeTrackingAgent
 from .lesson_plan_agent import LessonPlanAgent
+from .question_agent import QuestionAgent
 import json
 import re
+import logging
 
 class TutorAgent(BaseAgent):
     """
@@ -28,6 +30,7 @@ class TutorAgent(BaseAgent):
             "progress": {},  # Dictionary where each key is a topic, and the value is another dictionary containing the user's score and mastery level
             "user_input": None,  # The most recent input from the user (e.g., answers to quiz questions or responses to flashcards)
             "rag_content": None,  # The text content of the PDF or document being used for teaching
+            "current_question": None,  # The current question being asked to the user
         }
         self.logger.info("Initialized shared state dictionary")
         
@@ -40,6 +43,7 @@ class TutorAgent(BaseAgent):
         self.flashcard_agent = FlashcardAgent(api_keys, self.shared_state)
         self.knowledge_tracking_agent = KnowledgeTrackingAgent(api_keys, self.shared_state)
         self.lesson_plan_agent = LessonPlanAgent(api_keys, self.shared_state)
+        self.question_agent = QuestionAgent(api_keys, self.shared_state)
         self.logger.info("All specialized agents initialized with shared state")
         
         # Conversation state
@@ -52,6 +56,14 @@ class TutorAgent(BaseAgent):
         self.current_lesson_plan = None
         self.current_activity_index = 0
         self.is_teaching_lesson_plan = False
+        
+        # Topic selection state
+        self.waiting_for_topic_selection = False
+        self.presented_topics = []
+        
+        # Question state
+        self.waiting_for_question_response = False
+        self.current_question = None
         
         self.logger.info("Initialized Tutor Agent with all specialized agents and shared state")
     
@@ -72,109 +84,592 @@ class TutorAgent(BaseAgent):
         self.retry_count = 0
         self.logger.info(f"Processing query for user {user_id}: {query[:50]}...")
         
-        # Log the current state of the shared state
-        self.logger.info(f"Current shared state summary:")
-        self.logger.info(f"  - topics: {len(self.shared_state['topics'])} topics")
-        self.logger.info(f"  - current_topic: {self.shared_state['current_topic']}")
-        self.logger.info(f"  - progress: {len(self.shared_state['progress'])} topics tracked")
-        self.logger.info(f"  - lesson_plan: {'Present' if self.shared_state['lesson_plan'] else 'None'}")
-        
-        # Update shared state with context and user input
-        self.update_shared_state("rag_content", context)
-        self.update_shared_state("user_input", query)
-        
-        if conversation_history:
-            self.conversation_history = conversation_history
-            self.logger.info(f"Using provided conversation history with {len(conversation_history)} turns")
-        else:
-            self.logger.info(f"Using existing conversation history with {len(self.conversation_history)} turns")
-        
-        # Add the current query to conversation history
-        self.conversation_history.append({"role": "student", "content": query})
-        
-        while self.retry_count < self.max_retries:
-            try:
-                # Check if we're in lesson plan teaching mode
-                if self.is_teaching_lesson_plan and self.current_lesson_plan:
-                    self.logger.info("Processing query in lesson plan teaching mode")
-                    # Process the query in the context of the current lesson plan
-                    response = self._process_lesson_plan_interaction(query, context, user_id)
+        try:
+            # Check for special commands
+            if query.strip() == "!select_topics":
+                self.logger.info("Received special command to trigger topic selection flow")
+                # If we have topics, present them for selection
+                if len(self.shared_state["topics"]) > 0:
+                    self.logger.info("Presenting topics for selection")
+                    return self._present_topics_as_question()
                 else:
-                    # Check for lesson plan commands
-                    if "start lesson" in query.lower() or "teach me" in query.lower() or "begin lesson" in query.lower():
-                        self.logger.info("Detected lesson plan command in query")
-                        # If we have a lesson plan, start teaching it
-                        if self.current_lesson_plan:
-                            self.logger.info("Starting existing lesson plan")
-                            self.is_teaching_lesson_plan = True
-                            response = self._start_lesson_plan_teaching(user_id)
+                    # No topics available
+                    return self._create_fallback_response(
+                        "No topics are available. Please upload a document first."
+                    )
+        
+            # Initialize conversation history if not provided
+            if conversation_history:
+                self.conversation_history = conversation_history
+            
+            # Add the user query to conversation history
+            self.conversation_history.append({"role": "user", "content": query})
+            self.logger.info(f"Added query to conversation history, now {len(self.conversation_history)} turns")
+            
+            # Check if we're waiting for a question response (like topic selection)
+            if self.waiting_for_question_response and self.current_question:
+                self.logger.info("Processing a response to a question")
+                response = self._process_question_response(query, context, user_id)
+                if response:
+                    # Add the response to conversation history
+                    self.conversation_history.append({"role": "tutor", "content": response["response"]})
+                    self.logger.info(f"Added response to conversation history, now {len(self.conversation_history)} turns")
+                    
+                    # Track this interaction for knowledge modeling
+                    self.logger.info("Tracking interaction for knowledge modeling")
+                    self._track_interaction(user_id, "question_response", query, response)
+                    
+                    return response
+            
+            # Rest of the existing process method continues as before...
+            self.retry_count = 0
+            self.logger.info(f"Processing query for user {user_id}: {query[:50]}...")
+            
+            # Log the current state of the shared state
+            self.logger.info(f"Current shared state summary:")
+            self.logger.info(f"  - topics: {len(self.shared_state['topics'])} topics")
+            self.logger.info(f"  - current_topic: {self.shared_state['current_topic']}")
+            self.logger.info(f"  - progress: {len(self.shared_state['progress'])} topics tracked")
+            self.logger.info(f"  - lesson_plan: {'Present' if self.shared_state['lesson_plan'] else 'None'}")
+            self.logger.info(f"  - waiting_for_topic_selection: {self.waiting_for_topic_selection}")
+            self.logger.info(f"  - waiting_for_question_response: {self.waiting_for_question_response}")
+            
+            # Update shared state with context and user input
+            self.update_shared_state("rag_content", context)
+            self.update_shared_state("user_input", query)
+            
+            if conversation_history:
+                self.conversation_history = conversation_history
+                self.logger.info(f"Using provided conversation history with {len(conversation_history)} turns")
+            else:
+                self.logger.info(f"Using existing conversation history with {len(self.conversation_history)} turns")
+            
+            # Add the current query to conversation history
+            self.conversation_history.append({"role": "student", "content": query})
+            
+            while self.retry_count < self.max_retries:
+                try:
+                    # Check if we're waiting for a response to a question
+                    if self.waiting_for_question_response and self.current_question:
+                        self.logger.info("Processing response to question")
+                        response = self._process_question_response(query, context, user_id)
+                        if response:
+                            # Add the response to conversation history
+                            self.conversation_history.append({"role": "tutor", "content": response["response"]})
+                            self.logger.info(f"Added response to conversation history, now {len(self.conversation_history)} turns")
+                            
+                            # Track this interaction for knowledge modeling
+                            self.logger.info("Tracking interaction for knowledge modeling")
+                            self._track_interaction(user_id, "question_response", query, response)
+                            
+                            return response
+                    
+                    # Check if we're waiting for a topic selection
+                    if self.waiting_for_topic_selection and self.presented_topics:
+                        self.logger.info("Processing query as topic selection")
+                        response = self._process_topic_selection(query, context, user_id)
+                        if response:
+                            # Add the response to conversation history
+                            self.conversation_history.append({"role": "tutor", "content": response["response"]})
+                            self.logger.info(f"Added response to conversation history, now {len(self.conversation_history)} turns")
+                            
+                            # Track this interaction for knowledge modeling
+                            self.logger.info("Tracking interaction for knowledge modeling")
+                            self._track_interaction(user_id, "topic_selection", query, response)
+                            
+                            return response
+                                    
+                    # If not waiting for topic selection, proceed with normal flow
+                    # Check if we're in lesson plan teaching mode
+                    if self.is_teaching_lesson_plan and self.current_lesson_plan:
+                        self.logger.info("Processing query in lesson plan teaching mode")
+                        # Process the query in the context of the current lesson plan
+                        response = self._process_lesson_plan_interaction(query, context, user_id)
+                    else:
+                        # Check for lesson plan commands
+                        if "start lesson" in query.lower() or "teach me" in query.lower() or "begin lesson" in query.lower():
+                            self.logger.info("Detected lesson plan command in query")
+                            # If we have a lesson plan, start teaching it
+                            if self.current_lesson_plan:
+                                self.logger.info("Starting existing lesson plan")
+                                self.is_teaching_lesson_plan = True
+                                response = self._start_lesson_plan_teaching(user_id)
+                            else:
+                                self.logger.info("No existing lesson plan, checking if we have topics to present")
+                                # If we have topics but no lesson plan, present topics for selection
+                                if len(self.shared_state["topics"]) > 0:
+                                    self.logger.info("Presenting topics for selection as interactive question")
+                                    response = self._present_topics_as_question()
+                                else:
+                                    # No topics available, try to extract them from the context
+                                    self.logger.info("Extracting topics from context")
+                                    if len(context.strip()) > 100:
+                                        topics = self.topic_agent.process(context)
+                                        if isinstance(topics, dict) and "topics" in topics and len(topics["topics"]) > 0:
+                                            self.update_shared_state("topics", topics["topics"])
+                                            self.logger.info(f"Extracted {len(topics['topics'])} topics from context")
+                                            # Present the extracted topics as a question
+                                            response = self._present_topics_as_question()
+                                        else:
+                                            # No topics could be extracted, ask user for a topic
+                                            self.logger.info("No topics could be extracted")
+                                            response = self._create_fallback_response(
+                                                "I couldn't identify specific topics in this document. What subject would you like to learn about?"
+                                            )
+                                    else:
+                                        # Not enough context to extract topics, ask user for a topic
+                                        response = self._create_fallback_response(
+                                            "What topic would you like to learn about today?"
+                                        )
                         else:
-                            self.logger.info("No existing lesson plan, analyzing query")
+                            self.logger.info("Processing regular query")
                             # Analyze the query to determine intent and required agents
                             intent, required_agents = self._analyze_query(query, context)
                             self.logger.info(f"Query intent: {intent}, required agents: {required_agents}")
                             
-                            # If the intent is to request a lesson plan, generate one
-                            if "lesson_plan" in required_agents:
-                                self.logger.info("Generating lesson plan")
-                                response = self._generate_response(intent, required_agents, context, query, user_id)
-                                
-                                # If a lesson plan was generated, start teaching it
-                                if "lesson_plan" in response:
-                                    self.logger.info("Lesson plan generated, starting teaching")
-                                    self.current_lesson_plan = response["lesson_plan"]
-                                    self.update_shared_state("lesson_plan", response["lesson_plan"])
-                                    self.is_teaching_lesson_plan = True
-                                    self.current_activity_index = 0
-                                    response = self._start_lesson_plan_teaching(user_id)
-                            else:
-                                # Generate a standard response
-                                self.logger.info("Generating standard response")
-                                response = self._generate_response(intent, required_agents, context, query, user_id)
+                            # Update teaching mode based on intent
+                            self._update_teaching_mode(intent)
+                            self.logger.info(f"Teaching mode updated to: {self.teaching_mode}")
+                            
+                            # Generate response based on intent and required agents
+                            response = self._generate_response(intent, required_agents, context, query, user_id)
+                    
+                    # Add the response to conversation history
+                    self.conversation_history.append({"role": "tutor", "content": response["response"]})
+                    self.logger.info(f"Added response to conversation history, now {len(self.conversation_history)} turns")
+                    
+                    # Track this interaction for knowledge modeling
+                    self.logger.info("Tracking interaction for knowledge modeling")
+                    self._track_interaction(user_id, "general", query, response)
+                    
+                    # Log the updated state of the shared state
+                    self.logger.info(f"Updated shared state summary after processing:")
+                    self.logger.info(f"  - topics: {len(self.shared_state['topics'])} topics")
+                    self.logger.info(f"  - current_topic: {self.shared_state['current_topic']}")
+                    self.logger.info(f"  - progress: {len(self.shared_state['progress'])} topics tracked")
+                    self.logger.info(f"  - lesson_plan: {'Present' if self.shared_state['lesson_plan'] else 'None'}")
+                    
+                    return response
+                    
+                except Exception as e:
+                    if "quota" in str(e).lower():
+                        self.retry_count += 1
+                        try:
+                            self._switch_api_key()
+                            continue
+                        except Exception:
+                            if self.retry_count >= self.max_retries:
+                                self.logger.error("All API keys exhausted")
+                                return self._create_fallback_response("I'm currently experiencing some technical difficulties. Let's continue our lesson in a moment.")
+                            continue
                     else:
-                        self.logger.info("Processing regular query")
-                        # Analyze the query to determine intent and required agents
-                        intent, required_agents = self._analyze_query(query, context)
-                        self.logger.info(f"Query intent: {intent}, required agents: {required_agents}")
+                        self.logger.error(f"Error in tutor agent: {str(e)}")
+                        return self._create_fallback_response("I didn't quite understand that. Could you rephrase your question?")
+        except Exception as e:
+            self.logger.error(f"Error in process method: {str(e)}")
+            return self._create_fallback_response("I'm currently experiencing some technical difficulties. Let's continue our lesson in a moment.")
+    
+    def _present_topics_as_question(self) -> Dict[str, Any]:
+        """
+        Present the available topics as an interactive question for selection.
+        
+        Returns:
+            Dict containing the question object with topic options
+        """
+        self.waiting_for_question_response = True
+        self.waiting_for_topic_selection = True
+        self.presented_topics = []
+        
+        # Get topics from shared state
+        topics = self.shared_state["topics"]
+        self.logger.info(f"Raw topics from shared state: {topics}")
+        
+        # If topics is a dictionary with a 'topics' key, extract the inner list
+        if isinstance(topics, dict) and "topics" in topics:
+            topics = topics["topics"]
+            self.logger.info(f"Extracted topics from dictionary: {len(topics)} topics")
+        
+        # Ensure we have topics to present
+        if not topics or len(topics) == 0:
+            self.waiting_for_question_response = False
+            self.waiting_for_topic_selection = False
+            self.logger.warning("No topics found in shared state")
+            return self._create_fallback_response(
+                "I don't have any topics to present. What would you like to learn about?"
+            )
+            
+        # Format topics for the question agent
+        formatted_topics = []
+        for i, topic in enumerate(topics, 1):
+            # Handle different possible topic structures
+            if isinstance(topic, dict):
+                topic_title = topic.get("title", f"Topic {i}")
+                topic_content = topic.get("content", "")
+                subtopics = topic.get("subtopics", [])
+                self.logger.info(f"Topic {i}: {topic_title} with {len(subtopics)} subtopics")
+            else:
+                # If topic is just a string
+                topic_title = str(topic)
+                topic_content = ""
+                subtopics = []
+                self.logger.info(f"Topic {i}: {topic_title} (string format)")
+            
+            # Store the topic in presented_topics for later reference
+            self.presented_topics.append({
+                "index": i,
+                "title": topic_title,
+                "content": topic_content,
+                "subtopics": subtopics
+            })
+            
+            # Create a concise description for the compact UI
+            description = topic_content
+            if len(description) > 100:
+                # Truncate to 100 chars and add ellipsis
+                description = description[:97] + "..."
+            
+            # Get first subtopic if available, for additional context
+            subtopic_hint = ""
+            if subtopics and len(subtopics) > 0:
+                first_subtopic = subtopics[0]
+                if isinstance(first_subtopic, dict) and "title" in first_subtopic:
+                    subtopic_hint = f"Includes: {first_subtopic['title']}"
+                elif isinstance(first_subtopic, str):
+                    subtopic_hint = f"Includes: {first_subtopic}"
+            
+            # If no content but we have subtopics, use the subtopic hint
+            if not description and subtopic_hint:
+                description = subtopic_hint
+            
+            # Add the formatted topic to the options list
+            formatted_topics.append({
+                "id": str(i),
+                "text": topic_title,
+                "description": description
+            })
+        
+        # Generate a topic selection question using the question agent
+        self.logger.info(f"Generating question with {len(formatted_topics)} formatted topics")
+        
+        # Log the first few formatted topics for debugging
+        for i, topic in enumerate(formatted_topics[:3]):
+            self.logger.info(f"Formatted topic {i+1}: id={topic['id']}, text={topic['text']}, desc={topic['description'][:30]}...")
+        
+        question = self.question_agent.process(
+            content=f"I have extracted {len(formatted_topics)} topics from your document. Please select one to explore.",
+            question_type="topic_selection",
+            options=formatted_topics,
+            title="Document Topics"
+        )
+        
+        # Save the current question
+        self.current_question = question
+        self.update_shared_state("current_question", question)
+        
+        # Log the presented topics
+        self.logger.info(f"Presented {len(self.presented_topics)} topics as interactive question")
+        
+        # Log the question being generated
+        self.logger.info(f"Generated topic selection question with type={question.get('type')}")
+        
+        # Return the response with the question
+        intro_text = "I've analyzed the document and identified several topics. Which one would you like to learn about?"
+        
+        return {
+            "response": intro_text,
+            "question": question,
+            "has_question": True,
+            "teaching_mode": "topic_selection"
+        }
+    
+    def _process_question_response(self, query: str, context: str, user_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Process a response to a previously asked question.
+        
+        Args:
+            query: The user's response
+            context: Document context
+            user_id: The user's ID
+            
+        Returns:
+            Dict containing the processed response, or None if processing should continue
+        """
+        if not self.current_question:
+            self.waiting_for_question_response = False
+            self.waiting_for_topic_selection = False
+            return None
+            
+        # Process the response using the question agent
+        processed_response = self.question_agent.process_response(self.current_question, query)
+        self.logger.info(f"Processed question response: {processed_response}")
+        
+        # Get the question type
+        question_type = self.current_question.get("type", "general")
+        self.logger.info(f"Question type was: {question_type}")
+        
+        # Reset the question state
+        self.waiting_for_question_response = False
+        
+        if question_type == "topic_selection":
+            # For topic selection questions, keep the topic selection state active
+            # until we find a valid topic
+            
+            # First try to get the selected option directly from the process_response result
+            selected_option = processed_response.get("selected_option") 
+            
+            if selected_option:
+                self.logger.info(f"Selected option: {selected_option}")
+                selected_topic_text = selected_option.get("text", "")
+                
+                # Find the corresponding topic in presented_topics
+                selected_topic = None
+                for topic in self.presented_topics:
+                    if topic["title"] == selected_topic_text:
+                        selected_topic = topic
+                        break
+                    
+                if selected_topic:
+                    # Update the current topic
+                    self.current_topic = selected_topic["title"]
+                    self.update_shared_state("current_topic", selected_topic["title"])
+                    
+                    # Reset topic selection state
+                    self.waiting_for_topic_selection = False
+                    self.current_question = None
+                    self.update_shared_state("current_question", None)
+                    
+                    # Generate a lesson plan for the selected topic
+                    return self._generate_lesson_plan_for_topic(selected_topic, user_id)
+            
+            # If we couldn't find the topic by option text, try by ID/index
+            try:
+                topic_id = query.strip()
+                # Check if the ID is a number
+                if topic_id.isdigit():
+                    topic_index = int(topic_id) - 1
+                    if 0 <= topic_index < len(self.presented_topics):
+                        selected_topic = self.presented_topics[topic_index]
                         
-                        # Update teaching mode based on intent
-                        self._update_teaching_mode(intent)
-                        self.logger.info(f"Teaching mode updated to: {self.teaching_mode}")
+                        # Update the current topic
+                        self.current_topic = selected_topic["title"]
+                        self.update_shared_state("current_topic", selected_topic["title"])
                         
-                        # Generate response based on intent and required agents
-                        response = self._generate_response(intent, required_agents, context, query, user_id)
-                
-                # Add the response to conversation history
-                self.conversation_history.append({"role": "tutor", "content": response["response"]})
-                self.logger.info(f"Added response to conversation history, now {len(self.conversation_history)} turns")
-                
-                # Track this interaction for knowledge modeling
-                self.logger.info("Tracking interaction for knowledge modeling")
-                self._track_interaction(user_id, "general", query, response)
-                
-                # Log the updated state of the shared state
-                self.logger.info(f"Updated shared state summary after processing:")
-                self.logger.info(f"  - topics: {len(self.shared_state['topics'])} topics")
-                self.logger.info(f"  - current_topic: {self.shared_state['current_topic']}")
-                self.logger.info(f"  - progress: {len(self.shared_state['progress'])} topics tracked")
-                self.logger.info(f"  - lesson_plan: {'Present' if self.shared_state['lesson_plan'] else 'None'}")
-                
-                return response
-                
+                        # Reset topic selection state
+                        self.waiting_for_topic_selection = False
+                        self.current_question = None
+                        self.update_shared_state("current_question", None)
+                        
+                        # Generate a lesson plan for the selected topic
+                        return self._generate_lesson_plan_for_topic(selected_topic, user_id)
             except Exception as e:
-                if "quota" in str(e).lower():
-                    self.retry_count += 1
-                    try:
-                        self._switch_api_key()
-                        continue
-                    except Exception:
-                        if self.retry_count >= self.max_retries:
-                            self.logger.error("All API keys exhausted")
-                            return self._create_fallback_response("I'm currently experiencing some technical difficulties. Let's continue our lesson in a moment.")
-                        continue
-                else:
-                    self.logger.error(f"Error in tutor agent: {str(e)}")
-                    return self._create_fallback_response("I didn't quite understand that. Could you rephrase your question?")
+                self.logger.error(f"Error processing topic ID: {str(e)}")
+            
+            # If we still couldn't determine a selection, ask for clarification
+            # But keep the question state active
+            self.waiting_for_question_response = True
+            return {
+                "response": "I'm not sure which topic you selected. Please specify the topic number or name.",
+                "teaching_mode": "topic_selection"
+            }
+            
+        # For other question types, reset the question state completely
+        self.current_question = None
+        self.update_shared_state("current_question", None)
+        
+        # Continue with regular query processing if we couldn't determine how to handle the response
+        return None
+    
+    def _generate_lesson_plan_for_topic(self, topic: Dict[str, Any], user_id: str) -> Dict[str, Any]:
+        """
+        Generate a lesson plan for the selected topic and start teaching it.
+        
+        Args:
+            topic: The selected topic dictionary
+            user_id: The user's ID
+            
+        Returns:
+            Dict containing the response with the lesson plan
+        """
+        topic_title = topic["title"]
+        self.logger.info(f"Generating lesson plan for topic: {topic_title}")
+        
+        try:
+            # Get user knowledge level
+            try:
+                user_knowledge = self.knowledge_tracking_agent.get_user_knowledge_summary(user_id)
+                knowledge_level = user_knowledge.get("average_level", 50)
+            except Exception as e:
+                self.logger.error(f"Error getting user knowledge: {str(e)}")
+                knowledge_level = 50  # Default to intermediate if there's an error
+            
+            # Extract subtopics from the selected topic
+            subtopics = topic.get("subtopics", [])
+            
+            # Generate a lesson plan for the selected topic
+            lesson_plan = self.lesson_plan_agent.process(
+                user_id=user_id,
+                topic=topic_title,
+                knowledge_level=knowledge_level,
+                subtopics=subtopics,
+                time_available=60
+            )
+            
+            # Set the generated lesson plan
+            self.current_lesson_plan = lesson_plan
+            self.update_shared_state("lesson_plan", lesson_plan)
+            self.is_teaching_lesson_plan = True
+            self.current_activity_index = 0
+            
+            # Start teaching the lesson plan
+            return self._start_lesson_plan_teaching(user_id)
+            
+        except Exception as e:
+            self.logger.error(f"Error generating lesson plan: {str(e)}")
+            return self._create_fallback_response(
+                f"I'm having trouble creating a lesson plan for {topic_title}. Would you like to try another topic or approach?"
+            )
+    
+    def _process_topic_selection(self, query: str, context: str, user_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Process the user's topic selection and generate a lesson plan.
+        
+        Args:
+            query: The user's topic selection
+            context: Document context
+            user_id: The user's ID
+            
+        Returns:
+            Dict containing the response with the lesson plan, or None if selection was invalid
+        """
+        # Try to extract a topic selection (number or name)
+        selected_topic = None
+        selected_index = None
+        
+        # Check if the query is a number matching one of our topics
+        try:
+            selected_index = int(query.strip())
+            if 1 <= selected_index <= len(self.presented_topics):
+                selected_topic = self.presented_topics[selected_index - 1]
+                self.logger.info(f"Selected topic by number: {selected_index} - {selected_topic['title']}")
+            else:
+                self.logger.info(f"Invalid topic number: {selected_index}")
+                return {
+                    "response": f"I don't have a topic number {selected_index}. Please select a number between 1 and {len(self.presented_topics)}.",
+                    "teaching_mode": "topic_selection"
+                }
+        except ValueError:
+            # If not a number, try to match the topic name
+            query_lower = query.lower()
+            
+            # Check for keywords that indicate the user wants to select a topic
+            selection_keywords = ["topic", "number", "select", "choose", "pick", "go with", "learn about", "study", "interested in"]
+            
+            # Try to extract a number mentioned in the text
+            number_match = re.search(r"(?:topic|number|#)?\s*(\d+)", query_lower)
+            if number_match:
+                try:
+                    selected_index = int(number_match.group(1))
+                    if 1 <= selected_index <= len(self.presented_topics):
+                        selected_topic = self.presented_topics[selected_index - 1]
+                        self.logger.info(f"Selected topic by mentioned number: {selected_index} - {selected_topic['title']}")
+                    else:
+                        self.logger.info(f"Invalid topic number mentioned: {selected_index}")
+                        return {
+                            "response": f"I don't have a topic number {selected_index}. Please select a number between 1 and {len(self.presented_topics)}.",
+                            "teaching_mode": "topic_selection"
+                        }
+                except ValueError:
+                    pass
+            
+            # If no number was successfully extracted, try matching by name
+            if not selected_topic:
+                # Check if any topic titles closely match the query
+                for topic in self.presented_topics:
+                    title_lower = topic["title"].lower()
+                    if title_lower in query_lower or query_lower in title_lower:
+                        selected_topic = topic
+                        selected_index = topic["index"]
+                        self.logger.info(f"Selected topic by name match: {topic['title']}")
+                        break
+                
+                # If still no match, check if there are any selection keywords and clear context matches
+                if not selected_topic:
+                    has_selection_keyword = any(keyword in query_lower for keyword in selection_keywords)
+                    
+                    if has_selection_keyword:
+                        # Get the longest matching words between query and each topic title
+                        best_match = None
+                        best_match_score = 0
+                        
+                        for topic in self.presented_topics:
+                            title_words = set(topic["title"].lower().split())
+                            query_words = set(query_lower.split())
+                            common_words = title_words.intersection(query_words)
+                            
+                            # If there are common words and it's better than our previous match
+                            if common_words and len(common_words) > best_match_score:
+                                best_match = topic
+                                best_match_score = len(common_words)
+                        
+                        if best_match:
+                            selected_topic = best_match
+                            selected_index = best_match["index"]
+                            self.logger.info(f"Selected topic by word matching: {best_match['title']}")
+        
+        # If we weren't able to determine a topic selection, ask for clarification
+        if not selected_topic:
+            self.logger.info("Unable to determine topic selection from query")
+            return {
+                "response": f"I'm not sure which topic you're selecting. Please specify by number (1-{len(self.presented_topics)}) or by the exact topic name.",
+                "teaching_mode": "topic_selection"
+            }
+                
+        # We now have a selected topic, generate a lesson plan for it
+        topic_title = selected_topic["title"]
+        
+        # Update the current topic
+        self.current_topic = topic_title
+        self.update_shared_state("current_topic", topic_title)
+        
+        # Reset the topic selection state
+        self.waiting_for_topic_selection = False
+        
+        # Get user knowledge level
+        try:
+            user_knowledge = self.knowledge_tracking_agent.get_user_knowledge_summary(user_id)
+            knowledge_level = user_knowledge.get("average_level", 50)
+        except Exception as e:
+            self.logger.error(f"Error getting user knowledge: {str(e)}")
+            knowledge_level = 50  # Default to intermediate if there's an error
+        
+        # Extract subtopics from the selected topic
+        subtopics = selected_topic.get("subtopics", [])
+        
+        # Generate a lesson plan for the selected topic
+        try:
+            self.logger.info(f"Generating lesson plan for topic: {topic_title}")
+            lesson_plan = self.lesson_plan_agent.process(
+                user_id=user_id,
+                topic=topic_title,
+                knowledge_level=knowledge_level,
+                subtopics=subtopics,
+                time_available=60
+            )
+            
+            # Set the generated lesson plan
+            self.current_lesson_plan = lesson_plan
+            self.update_shared_state("lesson_plan", lesson_plan)
+            self.is_teaching_lesson_plan = True
+            self.current_activity_index = 0
+            
+            # Start teaching the lesson plan
+            return self._start_lesson_plan_teaching(user_id)
+            
+        except Exception as e:
+            self.logger.error(f"Error generating lesson plan: {str(e)}")
+            return self._create_fallback_response(
+                f"I'm having trouble creating a lesson plan for {topic_title}. Would you like to try another topic or approach?"
+            )
     
     def set_lesson_plan(self, lesson_plan: Dict[str, Any]) -> None:
         """
@@ -187,6 +682,22 @@ class TutorAgent(BaseAgent):
         self.update_shared_state("lesson_plan", lesson_plan)
         self.current_activity_index = 0
         self.logger.info(f"Set lesson plan: {lesson_plan.get('title', 'Untitled')}")
+    
+    def set_topics(self, topics: List[Dict]) -> None:
+        """
+        Set the available topics.
+        
+        Args:
+            topics: List of topic dictionaries
+        """
+        self.update_shared_state("topics", topics)
+        self.logger.info(f"Set {len(topics)} topics in shared state")
+        
+        # Reset any existing lesson plan
+        self.current_lesson_plan = None
+        self.is_teaching_lesson_plan = False
+        self.waiting_for_topic_selection = False
+        self.presented_topics = []
     
     def _start_lesson_plan_teaching(self, user_id: str) -> Dict[str, Any]:
         """

@@ -1,0 +1,48 @@
+{
+  "response": "I've analyzed your document and extracted the following main topics. Which one would you like me to explain in more detail?",
+  "has_question": true,
+  "question": {
+    "type": "topic_selection",
+    "title": "Document Topics",
+    "message": "Which topic would you like to learn about? Please select from the options below:",
+    "options": [
+      {
+        "id": "1",
+        "text": "Topic 1",
+        "description": ""
+      },
+      {
+        "id": "2",
+        "text": "Topic 2",
+        "description": ""
+      },
+      {
+        "id": "3",
+        "text": "Topic 3",
+        "description": ""
+      },
+      {
+        "id": "4",
+        "text": "Topic 4",
+        "description": ""
+      },
+      {
+        "id": "5",
+        "text": "Topic 5",
+        "description": ""
+      },
+      {
+        "id": "6",
+        "text": "Topic 6",
+        "description": ""
+      },
+      {
+        "id": "7",
+        "text": "Topic 7",
+        "description": ""
+      }
+    ],
+    "has_options": true,
+    "require_response": true
+  }
+}

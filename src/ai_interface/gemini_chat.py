@@ -8,6 +8,7 @@ from .agents.explainer_agent import ExplainerAgent
 from .agents.flashcard_agent import FlashcardAgent
 from .agents.knowledge_tracking_agent import KnowledgeTrackingAgent
 from .agents.tutor_agent import TutorAgent
+from .agents.question_agent import QuestionAgent
 import json
 
 class GeminiTutor:
@@ -31,6 +32,7 @@ class GeminiTutor:
         self.explainer_agent = self.tutor_agent.explainer_agent
         self.flashcard_agent = self.tutor_agent.flashcard_agent
         self.knowledge_tracking_agent = self.tutor_agent.knowledge_tracking_agent
+        self.question_agent = self.tutor_agent.question_agent
         
         self.logger.info("Initialized Gemini Tutor with main tutor agent")
 
@@ -38,6 +40,11 @@ class GeminiTutor:
         """Set the current file being worked with"""
         self.current_file = file_path
         self.logger.info(f"Set current file to: {file_path}")
+
+    def set_topics(self, topics: List[Dict]):
+        """Set the topics in the tutor agent"""
+        self.tutor_agent.set_topics(topics)
+        self.logger.info(f"Set {len(topics)} topics in the tutor agent")
 
     def get_context(self, query: str, max_chunks: int = 5) -> str:
         """Retrieve relevant context from vector store"""
@@ -67,61 +74,42 @@ class GeminiTutor:
             self.logger.error(f"Error retrieving context: {str(e)}")
             raise
 
-    def set_lesson_plan(self, lesson_plan: Dict) -> None:
-        """
-        Set the current lesson plan for the tutor agent to teach.
-        
-        Args:
-            lesson_plan: The lesson plan to teach
-        """
+    def set_lesson_plan(self, lesson_plan: Dict):
+        """Set the lesson plan in the tutor agent"""
         self.tutor_agent.set_lesson_plan(lesson_plan)
-        self.logger.info(f"Set lesson plan: {lesson_plan.get('title', 'Untitled')}")
+        self.logger.info(f"Set lesson plan in the tutor agent: {lesson_plan.get('title', 'Untitled')}")
 
     def track_user_interaction(self, user_id: str, interaction_data: Dict) -> Dict:
-        """
-        Track user interaction and update knowledge model
-        
-        Args:
-            user_id: Unique identifier for the user
-            interaction_data: Data about the interaction (quiz results, study session, etc.)
-            
-        Returns:
-            Dict containing updated knowledge metrics
-        """
+        """Track user interaction for knowledge modeling"""
         try:
-            self.logger.info(f"Tracking interaction for user {user_id}: {interaction_data.get('type', 'unknown')}")
-            result = self.knowledge_tracking_agent.process(user_id, interaction_data)
-            return result
+            return self.knowledge_tracking_agent.process(user_id, interaction_data)
         except Exception as e:
             self.logger.error(f"Error tracking user interaction: {str(e)}")
-            return {"status": "error", "message": str(e)}
+            return {"error": str(e)}
     
     def get_user_knowledge_summary(self, user_id: str) -> Dict:
         """Get a summary of the user's knowledge across all topics"""
         try:
-            self.logger.info(f"Getting knowledge summary for user {user_id}")
             return self.knowledge_tracking_agent.get_user_knowledge_summary(user_id)
         except Exception as e:
             self.logger.error(f"Error getting user knowledge summary: {str(e)}")
-            return {"status": "error", "message": str(e)}
+            return {"error": str(e)}
     
     def get_topic_progress(self, user_id: str, topic: str) -> Dict:
         """Get detailed progress for a specific topic"""
         try:
-            self.logger.info(f"Getting topic progress for user {user_id}, topic {topic}")
             return self.knowledge_tracking_agent.get_topic_progress(user_id, topic)
         except Exception as e:
             self.logger.error(f"Error getting topic progress: {str(e)}")
-            return {"status": "error", "message": str(e)}
+            return {"error": str(e)}
     
     def analyze_learning_patterns(self, user_id: str) -> Dict:
         """Analyze learning patterns and provide insights"""
         try:
-            self.logger.info(f"Analyzing learning patterns for user {user_id}")
             return self.knowledge_tracking_agent.analyze_learning_patterns(user_id)
         except Exception as e:
             self.logger.error(f"Error analyzing learning patterns: {str(e)}")
-            return {"status": "error", "message": str(e)}
+            return {"error": str(e)}
 
     def get_shared_state(self) -> Dict:
         """
@@ -209,29 +197,15 @@ class GeminiTutor:
             self.logger.info(f"  - progress: {len(shared_state['progress'])} topics tracked")
             self.logger.info(f"  - lesson_plan: {'Present' if shared_state['lesson_plan'] else 'None'}")
             
-            # If the response is a dictionary, format it appropriately
-            if isinstance(response, dict):
-                # Check if there are special components that need to be formatted
-                if "quiz" in response:
-                    self.logger.info("Response contains quiz data")
-                    return f"```json\n{json.dumps(response, indent=2)}\n```"
-                elif "flashcards" in response:
-                    self.logger.info("Response contains flashcard data")
-                    # Ensure the response is properly formatted for the frontend
-                    return f"```json\n{json.dumps(response, indent=2)}\n```"
-                elif "has_diagram" in response and response["has_diagram"]:
-                    self.logger.info("Response contains diagram data")
-                    # Return the response as is, the frontend will handle the diagram
-                    return f"```json\n{json.dumps(response, indent=2)}\n```"
-                else:
-                    # Just return the text response
-                    self.logger.info("Returning text response")
-                    return response["response"]
-            
-            # If it's not a dictionary, return as string
-            self.logger.info("Returning non-dictionary response as string")
-            return str(response)
-                
+            return response
         except Exception as e:
             self.logger.error(f"Error in chat: {str(e)}")
-            return "I encountered an error while processing your request. Please try again in a moment." 
+            return {"response": f"Error: {str(e)}"}
+
+    def get_topics(self) -> List[Dict]:
+        """Get the current topics from the tutor agent"""
+        return self.tutor_agent.shared_state.get("topics", [])
+    
+    def get_lesson_plan(self) -> Dict:
+        """Get the current lesson plan from the tutor agent"""
+        return self.tutor_agent.shared_state.get("lesson_plan", {}) 

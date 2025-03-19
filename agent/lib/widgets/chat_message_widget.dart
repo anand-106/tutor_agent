@@ -12,6 +12,7 @@ import 'package:agent/widgets/mermaid_diagram.dart';
 import 'dart:ui';
 import 'package:agent/controllers/document_controller.dart';
 import 'package:agent/widgets/flashcard_widget.dart';
+import 'package:agent/widgets/question_widget.dart';
 
 class ChatMessageWidget extends StatelessWidget {
   final ChatMessage message;
@@ -30,6 +31,26 @@ class ChatMessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Check if the message contains an interactive question
+    if (message.hasQuestion && message.question != null) {
+      debugPrint(
+          'Rendering interactive question: ${json.encode(message.question)}');
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: Container(
+          constraints: BoxConstraints(
+            // Increase max width for better display of grid items
+            maxWidth: MediaQuery.of(context).size.width * 0.95,
+            // Add a minimum width to ensure small screens still have enough space
+            minWidth: MediaQuery.of(context).size.width * 0.85,
+          ),
+          margin: EdgeInsets.symmetric(
+              vertical: 8, horizontal: 8), // Reduced horizontal margin
+          child: QuestionWidget(question: message.question!),
+        ),
+      );
+    }
+
     // Check if the response is a flashcard message
     if (message.response is String) {
       try {

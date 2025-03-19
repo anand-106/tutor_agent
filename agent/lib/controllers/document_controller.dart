@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:agent/controllers/lesson_plan_controller.dart';
 import 'package:agent/controllers/user_progress_controller.dart';
 import 'package:agent/models/lesson_plan.dart';
+import 'package:agent/controllers/chat_controller.dart';
 
 class DocumentController extends GetxController {
   final ApiService _apiService = Get.find<ApiService>();
@@ -17,10 +18,16 @@ class DocumentController extends GetxController {
   final Rx<Map<String, dynamic>> topics =
       Rx<Map<String, dynamic>>({'status': 'empty', 'topics': []});
 
+  // Get the chat controller
+  late final ChatController _chatController;
+
   @override
   void onInit() {
     super.onInit();
     topics.value = {'status': 'empty', 'topics': []};
+
+    // Initialize the chat controller
+    _chatController = Get.find<ChatController>();
   }
 
   Future<void> uploadDocument() async {
@@ -54,27 +61,30 @@ class DocumentController extends GetxController {
               'status': 'success',
               'topics': response['topics']['topics']
             };
+
+            // Clear any existing chat
+            _chatController.clearChat();
+
+            // Navigate to the chat tab after successful upload
+            Get.toNamed('/chat');
+
+            // Add a system message about successful document upload
+            _chatController.addSystemMessage(
+                'Document "${file.name}" has been successfully uploaded and processed. Initiating topic selection...');
+
+            // Trigger the topic selection flow by sending a special command to the chat API
+            _chatController.sendMessage("!select_topics");
           } else {
             // Fetch topics after successful upload if not included in response
             await refreshTopics();
-          }
 
-          // Check if the response contains a lesson plan
-          if (response.containsKey('lesson_plan')) {
-            // Use the lesson plan from the response
-            _lessonPlanController.currentLessonPlan.value =
-                await _createLessonPlanFromResponse(response['lesson_plan']);
-
-            // Navigate to the lesson plan view
-            Get.toNamed('/lesson-plan');
-          } else {
-            // Generate lesson plans for the main topics if not included in response
-            await _generateLessonPlansFromTopics();
+            // Navigate to the topics tab after successful upload
+            Get.toNamed('/topics');
           }
 
           Get.snackbar(
             'Success',
-            'Document uploaded successfully',
+            'Document uploaded successfully. Please select a topic to study.',
             backgroundColor: Colors.green.withOpacity(0.1),
             colorText: Colors.white,
             duration: Duration(seconds: 3),

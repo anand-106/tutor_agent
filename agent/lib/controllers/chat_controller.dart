@@ -30,6 +30,21 @@ class ChatController extends GetxController {
       print('Received response: $response'); // Debug print
 
       if (response is Map<String, dynamic>) {
+        // Check if the response contains a question
+        if (response.containsKey('question')) {
+          print('Handling question response: ${json.encode(response)}');
+
+          messages.add(ChatMessage(
+            response:
+                response['response'] as String? ?? "Here's a question for you:",
+            isUser: false,
+            hasQuestion: true,
+            question: response['question'] as Map<String, dynamic>,
+          ));
+
+          return;
+        }
+
         String messageText;
         if (response.containsKey('flashcards')) {
           // If it's a flashcard response, keep it as JSON
