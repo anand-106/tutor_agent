@@ -5,6 +5,7 @@ import 'package:agent/controllers/user_progress_controller.dart';
 import 'package:agent/controllers/lesson_plan_controller.dart';
 import 'package:agent/models/lesson_plan.dart';
 import 'dart:convert';
+import 'package:agent/controllers/document_controller.dart';
 
 class ChatController extends GetxController {
   final ApiService _apiService = Get.find<ApiService>();
@@ -43,6 +44,50 @@ class ChatController extends GetxController {
                 'There was an error communicating with the server. Please check your connection.';
           }
           messages.add(ChatMessage(response: errorMsg, isUser: false));
+          return;
+        }
+
+        // Check if this is a topic selection question - if so, automatically start the dynamic flow
+        if (response.containsKey('teaching_mode') &&
+            response['teaching_mode'] == 'topic_selection' &&
+            response.containsKey('has_question') &&
+            response['has_question'] == true) {
+          print(
+              'Topic selection detected, automatically starting dynamic flow');
+
+          // Get the document controller to start the flow
+          final documentController = Get.find<DocumentController>();
+          documentController.startStudyingFlow();
+          return;
+        }
+
+        // Check if this is a dynamic flow teaching mode response
+        if (response.containsKey('teaching_mode') &&
+            response['teaching_mode'] == 'dynamic_flow') {
+          print('Handling dynamic flow teaching response');
+
+          // Get the flow content
+          final String flowContent = response['response'] as String? ??
+              "Let's continue with our lesson flow.";
+
+          // Add the flow content as a message
+          messages.add(ChatMessage(
+            response: flowContent,
+            isUser: false,
+            teachingMode: 'dynamic_flow',
+          ));
+
+          // Check if there are navigation hints
+          if (response.containsKey('navigation_hints')) {
+            // The UI can show these as buttons or chips to help user navigate
+            print('Flow has navigation hints: ${response['navigation_hints']}');
+          }
+
+          // Check if there's a current topic being taught
+          if (response.containsKey('current_topic')) {
+            print('Current flow topic: ${response['current_topic']}');
+          }
+
           return;
         }
 

@@ -75,80 +75,101 @@ class TopicsTab extends StatelessWidget {
           );
         }
 
-        return ListView.builder(
-          itemCount: topics.length,
-          itemBuilder: (context, index) {
-            final topic = topics[index];
-            return Container(
-              margin: EdgeInsets.only(bottom: 12),
-              padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Theme.of(context).primaryColor.withOpacity(0.2),
-                ),
+        // If we have topics, show the Start Studying button and topic list
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Start Studying button
+            Container(
+              margin: EdgeInsets.only(bottom: 24),
+              child: _buildStartStudyingButton(context),
+            ),
+
+            // Topics header
+            Text(
+              'Document Topics',
+              style: GoogleFonts.inter(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.white.withOpacity(0.9),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          topic['title'] ?? 'Untitled Topic',
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                      ElevatedButton.icon(
-                        icon: Icon(Icons.school, size: 16),
-                        label: Text('Study'),
-                        onPressed: () {
-                          _studyTopic(topic['title'], topic['content'],
-                              subtopics: topic['subtopics']);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                          textStyle: GoogleFonts.inter(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (topic['content'] != null) ...[
-                    SizedBox(height: 8),
-                    Text(
-                      topic['content'],
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: Colors.white.withOpacity(0.7),
-                      ),
-                    ),
-                  ],
-                  if (topic['subtopics'] != null) ...[
-                    SizedBox(height: 12),
-                    ...List<Widget>.from(
-                      (topic['subtopics'] as List).map(
-                        (subtopic) => _buildSubtopic(context, subtopic),
-                      ),
-                    ),
-                  ],
-                ],
+            ),
+            SizedBox(height: 16),
+
+            // Topics list (collapsed/minimized view)
+            Expanded(
+              child: ListView.builder(
+                itemCount: topics.length,
+                itemBuilder: (context, index) {
+                  final topic = topics[index];
+                  return _buildTopicCard(context, topic);
+                },
               ),
-            );
-          },
+            ),
+          ],
         );
       }),
+    );
+  }
+
+  Widget _buildStartStudyingButton(BuildContext context) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15.0),
+        side: BorderSide(
+          color: Theme.of(context).primaryColor.withOpacity(0.3),
+          width: 2,
+        ),
+      ),
+      color: Color(0xFF242424),
+      child: Padding(
+        padding: EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Ready to Learn?',
+              style: GoogleFonts.inter(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            SizedBox(height: 12),
+            Text(
+              'Start an interactive learning flow that guides you through all topics in your document.',
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: Colors.white.withOpacity(0.7),
+              ),
+            ),
+            SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton.icon(
+                onPressed: () => documentController.startStudyingFlow(),
+                icon: Icon(Icons.play_circle_filled, color: Colors.white),
+                label: Text(
+                  'Start Studying',
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -331,6 +352,148 @@ class TopicsTab extends StatelessWidget {
 
     // Navigate to the lesson plan view
     Get.to(() => LessonPlanView());
+  }
+
+  Widget _buildTopicCard(BuildContext context, dynamic topic) {
+    if (topic is Map) {
+      return Container(
+        margin: EdgeInsets.only(bottom: 12),
+        padding: EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Theme.of(context).primaryColor.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Theme.of(context).primaryColor.withOpacity(0.2),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    topic['title'] ?? 'Untitled Topic',
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                ElevatedButton.icon(
+                  icon: Icon(Icons.school, size: 16),
+                  label: Text('Study'),
+                  onPressed: () {
+                    _studyTopic(topic['title'], topic['content'],
+                        subtopics: topic['subtopics']);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    textStyle: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            if (topic['content'] != null) ...[
+              SizedBox(height: 8),
+              Text(
+                topic['content'],
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  color: Colors.white.withOpacity(0.7),
+                ),
+              ),
+            ],
+            if (topic['subtopics'] != null) ...[
+              SizedBox(height: 12),
+              ...List<Widget>.from(
+                (topic['subtopics'] as List).map(
+                  (subtopic) => _buildSubtopic(context, subtopic),
+                ),
+              ),
+            ],
+          ],
+        ),
+      );
+    } else {
+      return Container(
+        margin: EdgeInsets.only(bottom: 12),
+        padding: EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Theme.of(context).primaryColor.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Theme.of(context).primaryColor.withOpacity(0.2),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    topic.toString(),
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                ElevatedButton.icon(
+                  icon: Icon(Icons.school, size: 16),
+                  label: Text('Study'),
+                  onPressed: () {
+                    _studyTopic(
+                      topic.toString(),
+                      null,
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    textStyle: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            if (topic['content'] != null) ...[
+              SizedBox(height: 8),
+              Text(
+                topic['content'],
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  color: Colors.white.withOpacity(0.7),
+                ),
+              ),
+            ],
+            if (topic['subtopics'] != null) ...[
+              SizedBox(height: 12),
+              ...List<Widget>.from(
+                (topic['subtopics'] as List).map(
+                  (subtopic) => _buildSubtopic(context, subtopic),
+                ),
+              ),
+            ],
+          ],
+        ),
+      );
+    }
   }
 
   Widget _buildSubtopic(BuildContext context, dynamic subtopic) {

@@ -6,6 +6,7 @@ class ChatMessage {
   final String? diagramType;
   final bool hasQuestion;
   final Map<String, dynamic>? question;
+  final String? teachingMode;
 
   ChatMessage({
     required this.response,
@@ -15,6 +16,7 @@ class ChatMessage {
     this.diagramType,
     this.hasQuestion = false,
     this.question,
+    this.teachingMode,
   });
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) {
@@ -28,6 +30,7 @@ class ChatMessage {
       question: json['question'] != null
           ? Map<String, dynamic>.from(json['question'] as Map)
           : null,
+      teachingMode: json['teaching_mode'] as String?,
     );
   }
 
@@ -40,6 +43,7 @@ class ChatMessage {
       'diagram_type': diagramType,
       'has_question': hasQuestion,
       'question': question,
+      'teaching_mode': teachingMode,
     };
   }
 }

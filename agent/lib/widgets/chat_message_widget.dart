@@ -31,6 +31,142 @@ class ChatMessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Check if the message is from a dynamic flow teaching mode
+    if (message.teachingMode == 'dynamic_flow') {
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.95,
+            minWidth: MediaQuery.of(context).size.width * 0.85,
+          ),
+          margin: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+              child: Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.08),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 10,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Visual indicator this is a learning flow
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.school,
+                          color: Theme.of(context).primaryColor,
+                          size: 18,
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          'Interactive Learning Flow',
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Divider(
+                      color: Colors.white.withOpacity(0.1),
+                      height: 16,
+                    ),
+
+                    // Flow content as markdown
+                    MarkdownBody(
+                      data: message.response,
+                      selectable: true,
+                      softLineBreak: true,
+                      styleSheet: MarkdownStyleSheet(
+                        h1: GoogleFonts.inter(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                        h2: GoogleFonts.inter(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white.withOpacity(0.9),
+                        ),
+                        p: GoogleFonts.inter(
+                          fontSize: 16,
+                          color: Colors.white.withOpacity(0.9),
+                        ),
+                        listBullet: GoogleFonts.inter(
+                          fontSize: 16,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                    ),
+
+                    // Navigation buttons
+                    SizedBox(height: 20),
+                    Container(
+                      padding: EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.05),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Navigation',
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white.withOpacity(0.7),
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              _buildFlowButton(
+                                  context, 'Previous', Icons.arrow_back, () {
+                                chatController.sendMessage('previous');
+                              }),
+                              _buildFlowButton(
+                                  context, 'Next', Icons.arrow_forward, () {
+                                chatController.sendMessage('next');
+                              }),
+                              _buildFlowButton(
+                                  context, 'List Topics', Icons.list, () {
+                                chatController.sendMessage('list topics');
+                              }),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     // Check if the message contains an interactive question
     if (message.hasQuestion && message.question != null) {
       debugPrint(
@@ -1175,8 +1311,52 @@ class ChatMessageWidget extends StatelessWidget {
             }
             return SizedBox.shrink();
           }).toList(),
+          SizedBox(height: 20),
+          Center(
+            child: ElevatedButton.icon(
+              icon: Icon(Icons.play_arrow),
+              label: Text(
+                'Start Studying All Topics',
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).primaryColor,
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 3,
+              ),
+              onPressed: () {
+                // Get the document controller and start the study flow
+                final documentController = Get.find<DocumentController>();
+                documentController.startStudyingFlow();
+              },
+            ),
+          ),
         ],
       ),
+    );
+  }
+
+  // Method to build a flow navigation button
+  Widget _buildFlowButton(BuildContext context, String label, IconData icon,
+      VoidCallback onPressed) {
+    return ElevatedButton.icon(
+      icon: Icon(icon, size: 16),
+      label: Text(label),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Theme.of(context).primaryColor.withOpacity(0.2),
+        foregroundColor: Colors.white,
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+      onPressed: onPressed,
     );
   }
 }

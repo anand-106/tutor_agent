@@ -52,7 +52,7 @@ class DocumentController extends GetxController {
             uploadTime: DateTime.now(),
           ));
 
-          // Reset topics and fetch new ones
+          // Reset topics and fetch new ones in the background
           topics.value = {'status': 'loading', 'topics': []};
 
           // Check if the response contains topics
@@ -61,30 +61,20 @@ class DocumentController extends GetxController {
               'status': 'success',
               'topics': response['topics']['topics']
             };
-
-            // Clear any existing chat
-            _chatController.clearChat();
-
-            // Navigate to the chat tab after successful upload
-            Get.toNamed('/chat');
-
-            // Add a system message about successful document upload
-            _chatController.addSystemMessage(
-                'Document "${file.name}" has been successfully uploaded and processed. Initiating topic selection...');
-
-            // Trigger the topic selection flow by sending a special command to the chat API
-            _chatController.sendMessage("!select_topics");
           } else {
             // Fetch topics after successful upload if not included in response
             await refreshTopics();
-
-            // Navigate to the topics tab after successful upload
-            Get.toNamed('/topics');
           }
+
+          // Clear any existing chat
+          _chatController.clearChat();
+
+          // Navigate to the topics tab after successful upload
+          Get.toNamed('/topics');
 
           Get.snackbar(
             'Success',
-            'Document uploaded successfully. Please select a topic to study.',
+            'Document uploaded successfully. Press "Start Studying" to begin learning.',
             backgroundColor: Colors.green.withOpacity(0.1),
             colorText: Colors.white,
             duration: Duration(seconds: 3),
@@ -269,6 +259,35 @@ class DocumentController extends GetxController {
       Get.snackbar(
         'Error',
         'Failed to start topic study: $e',
+        backgroundColor: Colors.red.withOpacity(0.1),
+        colorText: Colors.white,
+        duration: Duration(seconds: 3),
+      );
+    }
+  }
+
+  Future<void> startStudyingFlow() async {
+    try {
+      // Get the chat controller
+      final chatController = Get.find<ChatController>();
+
+      // Clear any existing chat
+      chatController.clearChat();
+
+      // Navigate to the chat tab
+      Get.toNamed('/chat');
+
+      // Add a system message about starting the full learning flow
+      chatController.addSystemMessage(
+          'Starting an interactive learning flow covering all topics. You can use "next", "previous", or "list topics" commands to navigate.');
+
+      // Send a special command to initiate the teaching flow
+      chatController.sendMessage("start flow");
+    } catch (e) {
+      print('Error starting study flow: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to start study flow: $e',
         backgroundColor: Colors.red.withOpacity(0.1),
         colorText: Colors.white,
         duration: Duration(seconds: 3),

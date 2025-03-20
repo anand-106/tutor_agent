@@ -26,7 +26,26 @@ class ApiService extends GetxService {
     try {
       // Check if the message is a special command (starts with !)
       // We'll still send it to the API but avoid trying to parse these as JSON
-      bool isSpecialCommand = text.trim().startsWith('!');
+      bool isSpecialCommand = text.trim().startsWith('!') ||
+          text.trim().toLowerCase() == 'start flow' ||
+          text.trim().toLowerCase() == 'next' ||
+          text.trim().toLowerCase() == 'previous' ||
+          text.trim().toLowerCase() == 'list topics';
+
+      // If it's the topic selection command, replace it with start flow command
+      if (text.trim() == '!select_topics') {
+        text = 'start flow';
+      }
+
+      // Add special flag for flow commands
+      Map<String, dynamic> data = {'text': text, 'user_id': userId};
+
+      // Add a special flag to clearly identify the start flow command
+      if (text.trim().toLowerCase() == 'start flow') {
+        data['command_type'] = 'start_flow';
+        print('Sending start_flow command with special flag');
+      }
+
       if (isSpecialCommand) {
         print(
             'Sending special command to API: ${text.substring(0, math.min(20, text.length))}...');
@@ -34,13 +53,20 @@ class ApiService extends GetxService {
 
       final response = await _dio.post(
         '/chat',
-        data: {'text': text, 'user_id': userId},
+        data: data,
       );
 
       if (response.statusCode == 200) {
         if (response.data is Map<String, dynamic>) {
           final data = response.data as Map<String, dynamic>;
           print('Raw API Response: $data'); // Debug log
+
+          // Check if this is a dynamic flow teaching mode response
+          if (data.containsKey('teaching_mode') &&
+              data['teaching_mode'] == 'dynamic_flow') {
+            print('Received dynamic flow teaching response from API');
+            return data; // Return the full flow data structure with teachingMode
+          }
 
           // Check if this is a question response
           if (data.containsKey('question') &&
@@ -166,6 +192,7 @@ class ApiService extends GetxService {
           fileBytes,
           filename: fileName,
         ),
+        'skip_topic_selection': 'true',
       });
 
       final response = await _dio.post(

@@ -10,6 +10,7 @@ from pathlib import Path
 import sys
 from pydantic import BaseModel, Field
 import json
+import traceback
 
 # Add the project root directory to Python path
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
@@ -462,16 +463,101 @@ async def generate_diagram(request: DiagramRequest):
             content={"error": "Failed to generate diagram"}
         )
 
+def sanitize_response(response):
+    """
+    Sanitize the response to ensure no raw JSON or error messages are displayed to the user.
+    
+    Args:
+        response: The response from the tutor agent
+        
+    Returns:
+        Sanitized response that can be safely displayed to the user
+    """
+    logger.info(f"Sanitizing response type: {type(response)}")
+    
+    # Skip sanitization for flow responses
+    if isinstance(response, dict) and response.get('teaching_mode') == 'dynamic_flow':
+        logger.info("Skipping sanitization for dynamic_flow response")
+        return response
+    
+    # If response is a string, check for JSON-like content
+    if isinstance(response, str):
+        if response.strip().startswith('{') and response.strip().endswith('}'):
+            try:
+                # Try to parse it as JSON
+                parsed = json.loads(response)
+                
+                # If it's an error message or contains error indicators
+                if 'error' in parsed or 'title' in parsed and ('error' in parsed.get('additional_notes', '').lower() or 'too short' in parsed.get('summary', '').lower()):
+                    logger.warning("Detected error JSON in response, replacing with friendly message")
+                    return {
+                        "response": "I'm still processing this information. Could you please ask a more specific question or provide more details about what you'd like to learn?",
+                        "teaching_mode": "exploratory"
+                    }
+                
+                # If it's a normal JSON object, just return it
+                return parsed
+            except json.JSONDecodeError:
+                # Not valid JSON, continue with normal processing
+                pass
+    
+    # If it's a dictionary, check for JSON-like content in response field
+    if isinstance(response, dict) and 'response' in response:
+        # Skip sanitization for flow responses (additional check)
+        if response.get('teaching_mode') == 'dynamic_flow':
+            logger.info("Skipping response field sanitization for dynamic_flow")
+            return response
+            
+        response_text = response['response']
+        if isinstance(response_text, str):
+            if response_text.strip().startswith('{') and response_text.strip().endswith('}'):
+                try:
+                    # Check if it's a JSON string that contains an error
+                    parsed = json.loads(response_text)
+                    if 'error' in parsed or 'title' in parsed and ('error' in parsed.get('additional_notes', '').lower() or 'too short' in parsed.get('summary', '').lower()):
+                        logger.warning("Detected error JSON in response.response field, replacing with friendly message")
+                        response['response'] = "I'm still processing this information. Could you please ask a more specific question or provide more details about what you'd like to learn?"
+                except json.JSONDecodeError:
+                    # If it contains JSON-like markers but isn't valid JSON
+                    if "{'title':" in response_text or '{"title":' in response_text:
+                        logger.warning("Detected JSON-like content in response.response field, replacing with friendly message")
+                        response['response'] = "I'm still processing this information. Could you please ask a more specific question or provide more details about what you'd like to learn?"
+    
+    return response
+
 @app.post("/api/chat")
 async def chat(request: Request):
     try:
         data = await request.json()
         message = data.get('text')
         user_id = data.get('user_id', 'default_user')
+        command_type = data.get('command_type', None)
         
         if not message:
             raise HTTPException(status_code=400, detail="No message provided")
+        
+        # Special handling for start_flow command
+        if command_type == 'start_flow' or message.lower().strip() == 'start flow':
+            logger.info("Detected explicit start_flow command")
+            try:
+                # Generate response using the tutor agent with special handling for start flow
+                response = tutor.tutor_agent._teach_topic_flow(user_id=user_id)
+                
+                # Make sure we're setting the proper teaching mode
+                if isinstance(response, dict) and not response.get('teaching_mode'):
+                    response['teaching_mode'] = 'dynamic_flow'
+                
+                logger.info("Successfully started teaching flow")
+                return JSONResponse(content=response)
+            except Exception as flow_error:
+                logger.error(f"Error starting teaching flow: {str(flow_error)}")
+                traceback.print_exc()
+                return JSONResponse(content={
+                    "response": "I encountered an issue starting the learning flow. Please try again or ask me a specific question instead.",
+                    "teaching_mode": "error"
+                })
             
+        # Normal message handling
         # Get relevant content from vector store
         results = pipeline.search_content(message, top_k=3)
         
@@ -487,6 +573,9 @@ async def chat(request: Request):
         
         # Generate response using the tutor agent
         response = tutor.chat(message, context=context, user_id=user_id)
+        
+        # Sanitize the response to ensure no raw JSON is displayed to the user
+        response = sanitize_response(response)
         
         # Check if the response contains a question
         if isinstance(response, dict) and "question" in response:
@@ -552,6 +641,7 @@ async def chat(request: Request):
         
     except Exception as e:
         logger.error(f"Error in chat: {str(e)}")
+        traceback.print_exc()
         return JSONResponse(
             status_code=500,
             content={"response": "An error occurred. Please try again later."}
