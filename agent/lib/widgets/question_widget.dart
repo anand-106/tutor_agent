@@ -325,12 +325,21 @@ class QuestionWidget extends StatelessWidget {
   }
 
   void _handleOptionSelected(Map<String, dynamic> option) {
-    // Send the selected option to the chat controller
-    final optionText = option['text'];
+    // Get option ID and text
     final optionId = option['id'];
+    final optionText = option['text'];
 
-    // Form the response in a way the backend will understand
-    chatController.sendMessage(optionId);
+    print('Selected option: ID=$optionId, Text=$optionText');
+
+    // For topic selection, send the option ID
+    final questionType = question['type'] as String? ?? 'general';
+    if (questionType == 'topic_selection') {
+      print('Topic selection detected, sending ID: $optionId');
+      chatController.sendMessage(optionId);
+    } else {
+      // For other question types, send the text as the response
+      chatController.sendMessage(optionText);
+    }
   }
 
   IconData _getIconForQuestionType(String questionType) {

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 import 'package:dio/dio.dart' as dio;
+import 'dart:math' as math;
 
 class ApiService extends GetxService {
   final dio.Dio _dio = dio.Dio();
@@ -23,6 +24,14 @@ class ApiService extends GetxService {
   Future<dynamic> sendChatMessage(String text,
       {String userId = 'default_user'}) async {
     try {
+      // Check if the message is a special command (starts with !)
+      // We'll still send it to the API but avoid trying to parse these as JSON
+      bool isSpecialCommand = text.trim().startsWith('!');
+      if (isSpecialCommand) {
+        print(
+            'Sending special command to API: ${text.substring(0, math.min(20, text.length))}...');
+      }
+
       final response = await _dio.post(
         '/chat',
         data: {'text': text, 'user_id': userId},
@@ -35,13 +44,25 @@ class ApiService extends GetxService {
 
           // Check if this is a question response
           if (data.containsKey('question') &&
-              data.containsKey('has_question')) {
+              data.containsKey('has_question') &&
+              data['has_question'] == true) {
             print('Received question response from API');
             return data; // Return the full question data structure
           }
 
+          // Check if this is a lesson plan response
+          if (data.containsKey('lesson_plan') &&
+              data.containsKey('has_lesson_plan') &&
+              data['has_lesson_plan'] == true) {
+            print('Received lesson plan response from API');
+            return data;
+          }
+
           // Check if this is a diagram response
-          if (data['has_diagram'] == true && data['mermaid_code'] != null) {
+          if (data.containsKey('has_diagram') &&
+              data['has_diagram'] == true &&
+              data.containsKey('mermaid_code') &&
+              data['mermaid_code'] != null) {
             print('Received diagram response from API'); // Debug log
 
             // Clean up the Mermaid code by removing any extra backticks or mermaid tags
@@ -74,7 +95,7 @@ class ApiService extends GetxService {
 
             // Return the diagram data with the response text
             return {
-              'response': data['response'],
+              'response': data['response'] ?? '',
               'has_diagram': true,
               'mermaid_code': mermaidCode,
               'diagram_type': diagramType
@@ -95,7 +116,7 @@ class ApiService extends GetxService {
 
               // Return the flashcard data with the response text
               return {
-                'response': data['response'],
+                'response': data['response'] ?? '',
                 'flashcards': flashcards,
                 'topic': topic,
                 'description': data['description'] ??
@@ -104,13 +125,36 @@ class ApiService extends GetxService {
             }
           }
 
+          // Default case - just return the data
           return data;
+        } else if (response.data is String) {
+          // Handle plain text responses
+          print(
+              'Received plain text response from API: ${response.data.toString().substring(0, math.min(50, response.data.toString().length))}...');
+          return {'response': response.data.toString(), 'has_diagram': false};
+        } else {
+          // Handle any other response type
+          print(
+              'Received non-map response from API: ${response.data.runtimeType}');
+          return {'response': response.data.toString(), 'has_diagram': false};
         }
-        return {'response': response.data['response'], 'has_diagram': false};
+      } else if (response.statusCode == 429) {
+        // Too many requests
+        return {
+          'response':
+              'The server is currently busy. Please try again in a moment.',
+          'has_diagram': false,
+          'error': 'rate_limit'
+        };
       }
-      throw 'Invalid response from server';
+      throw 'Invalid response from server: ${response.statusCode}';
     } catch (e) {
-      throw 'Failed to send message: $e';
+      print('Error in sendChatMessage: $e');
+      return {
+        'response': 'Error communicating with the server: $e',
+        'has_diagram': false,
+        'error': 'communication'
+      };
     }
   }
 

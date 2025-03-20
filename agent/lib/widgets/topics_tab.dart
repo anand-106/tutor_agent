@@ -3,17 +3,12 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:agent/controllers/document_controller.dart';
 import 'package:agent/controllers/chat_controller.dart';
-import 'package:agent/controllers/user_progress_controller.dart';
-import 'package:agent/controllers/home_view_controller.dart';
 import 'package:agent/controllers/lesson_plan_controller.dart';
 import 'package:agent/views/lesson_plan_view.dart';
 
 class TopicsTab extends StatelessWidget {
   final DocumentController documentController = Get.find<DocumentController>();
   final ChatController chatController = Get.find<ChatController>();
-  final UserProgressController userProgressController =
-      Get.find<UserProgressController>();
-  final HomeViewController homeViewController = Get.find<HomeViewController>();
   final LessonPlanController lessonPlanController =
       Get.find<LessonPlanController>();
 
@@ -157,7 +152,8 @@ class TopicsTab extends StatelessWidget {
     );
   }
 
-  void _studyTopic(String title, String? content, {List<dynamic>? subtopics}) {
+  Future<void> _studyTopic(String title, String? content,
+      {List<dynamic>? subtopics}) async {
     // Show dialog to ask if user wants to generate a lesson plan
     Get.dialog(
       AlertDialog(
@@ -180,7 +176,7 @@ class TopicsTab extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Would you like to generate a personalized lesson plan for this topic?',
+              'How would you like to study this topic?',
               style: GoogleFonts.inter(
                 color: Colors.white.withOpacity(0.8),
               ),
@@ -192,7 +188,7 @@ class TopicsTab extends StatelessWidget {
                     color: Colors.white.withOpacity(0.6), size: 20),
                 SizedBox(width: 8),
                 Text(
-                  'Select study time:',
+                  'Select study time (for lesson plan):',
                   style: GoogleFonts.inter(
                     color: Colors.white.withOpacity(0.8),
                   ),
@@ -210,6 +206,58 @@ class TopicsTab extends StatelessWidget {
               'Cancel',
               style: GoogleFonts.inter(
                 color: Colors.white.withOpacity(0.6),
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              // Show loading indicator inside dialog
+              Get.dialog(
+                Dialog(
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  child: Center(
+                    child: Container(
+                      padding: EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Color(0xFF1A1A1A),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircularProgressIndicator(),
+                          SizedBox(height: 16),
+                          Text(
+                            'Starting study session...',
+                            style: GoogleFonts.inter(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                barrierDismissible: false,
+              );
+
+              // Close the selection dialog
+              Get.back();
+
+              // Get the document controller and call studyTopic
+              final documentController = Get.find<DocumentController>();
+              await documentController.studyTopic(title);
+
+              // Close the loading dialog
+              Get.back();
+            },
+            child: Text(
+              'Direct Study',
+              style: GoogleFonts.inter(
+                color: Get.theme.primaryColor,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),

@@ -226,6 +226,55 @@ class DocumentController extends GetxController {
       throw e;
     }
   }
+
+  Future<void> studyTopic(String topicTitle) async {
+    try {
+      // Get the chat controller
+      final chatController = Get.find<ChatController>();
+
+      // Clean up the topic title (remove extra quotes or special characters)
+      final cleanTopicTitle = topicTitle.trim();
+
+      // Check if the topic exists in our topics list
+      bool topicExists = false;
+      if (topics.value['status'] == 'success' &&
+          topics.value['topics'] is List) {
+        final topicsList = topics.value['topics'] as List;
+        for (var topic in topicsList) {
+          if (topic is Map && topic['title'] == cleanTopicTitle) {
+            topicExists = true;
+            break;
+          }
+        }
+      }
+
+      // Log the attempt
+      print(
+          'Starting study on topic: $cleanTopicTitle (exists in topic list: $topicExists)');
+
+      // Clear any existing chat
+      chatController.clearChat();
+
+      // Navigate to the chat tab
+      Get.toNamed('/chat');
+
+      // Add a system message about starting to study the topic
+      chatController.addSystemMessage(
+          'Starting a discussion about "$cleanTopicTitle". You can ask questions and explore this topic freely.');
+
+      // Send a special command to initiate a direct topic discussion without creating a lesson plan
+      chatController.sendMessage("!study_topic:$cleanTopicTitle");
+    } catch (e) {
+      print('Error starting topic study: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to start topic study: $e',
+        backgroundColor: Colors.red.withOpacity(0.1),
+        colorText: Colors.white,
+        duration: Duration(seconds: 3),
+      );
+    }
+  }
 }
 
 class DocumentInfo {

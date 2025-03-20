@@ -11,6 +11,7 @@ from .question_agent import QuestionAgent
 import json
 import re
 import logging
+import datetime
 
 class TutorAgent(BaseAgent):
     """
@@ -96,6 +97,26 @@ class TutorAgent(BaseAgent):
                     # No topics available
                     return self._create_fallback_response(
                         "No topics are available. Please upload a document first."
+                    )
+            
+            # Check for direct study command (!study_topic:TOPIC_NAME)
+            if query.strip().startswith("!study_topic:"):
+                topic_name = query.strip()[13:].strip()  # Extract topic name after !study_topic:
+                self.logger.info(f"Received direct study command for topic: {topic_name}")
+                
+                # Find the topic by name
+                found_topic = None
+                for topic in self.shared_state["topics"]:
+                    if isinstance(topic, dict) and topic.get("title", "").lower() == topic_name.lower():
+                        found_topic = topic
+                        break
+                
+                if found_topic:
+                    # Start a discussion about this topic without creating a lesson plan
+                    return self._start_topic_discussion(found_topic, user_id)
+                else:
+                    return self._create_fallback_response(
+                        f"I couldn't find the topic '{topic_name}'. Please check the topic name and try again."
                     )
         
             # Initialize conversation history if not provided
@@ -438,8 +459,17 @@ class TutorAgent(BaseAgent):
                     self.current_question = None
                     self.update_shared_state("current_question", None)
                     
-                    # Generate a lesson plan for the selected topic
-                    return self._generate_lesson_plan_for_topic(selected_topic, user_id)
+                    # Generate a lesson plan for the selected topic from topic selection UI
+                    lesson_plan_response = self._generate_lesson_plan_for_topic(selected_topic, user_id)
+                    
+                    # Add a flag to indicate this response includes a lesson plan
+                    lesson_plan_response["has_lesson_plan"] = True
+                    lesson_plan_response["is_from_topic_selection"] = True
+                    
+                    # Add a message prompting the user to access the lesson plan
+                    lesson_plan_response["response"] = f"I've created a lesson plan for '{selected_topic['title']}'. You can access it by clicking the lesson plan icon, or we can start discussing this topic right away. What would you like to know about {selected_topic['title']}?"
+                    
+                    return lesson_plan_response
             
             # If we couldn't find the topic by option text, try by ID/index
             try:
@@ -447,6 +477,8 @@ class TutorAgent(BaseAgent):
                 # Check if the ID is a number
                 if topic_id.isdigit():
                     topic_index = int(topic_id) - 1
+                    
+                    # Check if the index is valid
                     if 0 <= topic_index < len(self.presented_topics):
                         selected_topic = self.presented_topics[topic_index]
                         
@@ -460,73 +492,101 @@ class TutorAgent(BaseAgent):
                         self.update_shared_state("current_question", None)
                         
                         # Generate a lesson plan for the selected topic
-                        return self._generate_lesson_plan_for_topic(selected_topic, user_id)
+                        lesson_plan_response = self._generate_lesson_plan_for_topic(selected_topic, user_id)
+                        
+                        # Add a flag to indicate this response includes a lesson plan
+                        lesson_plan_response["has_lesson_plan"] = True
+                        lesson_plan_response["is_from_topic_selection"] = True
+                        
+                        # Add a message prompting the user to access the lesson plan
+                        lesson_plan_response["response"] = f"I've created a lesson plan for '{selected_topic['title']}'. You can access it by clicking the lesson plan icon, or we can start discussing this topic right away. What would you like to know about {selected_topic['title']}?"
+                        
+                        return lesson_plan_response
             except Exception as e:
-                self.logger.error(f"Error processing topic ID: {str(e)}")
+                self.logger.error(f"Error processing topic selection by ID: {e}")
             
-            # If we still couldn't determine a selection, ask for clarification
-            # But keep the question state active
+            # If we get here, we couldn't find a topic by name or ID
+            # Keep the topic selection state active
             self.waiting_for_question_response = True
+            self.waiting_for_topic_selection = True
+            
             return {
-                "response": "I'm not sure which topic you selected. Please specify the topic number or name.",
+                "response": "I couldn't identify which topic you want to learn about. Please select a topic by number or name from the list above.",
+                "has_question": True,
+                "question": self.current_question,
                 "teaching_mode": "topic_selection"
             }
-            
+        elif question_type == "multiple_choice":
+            # Process multiple choice response
+            pass  # Existing code
+        elif question_type == "confirmation":
+            # Process confirmation response
+            pass  # Existing code
+        
         # For other question types, reset the question state completely
         self.current_question = None
         self.update_shared_state("current_question", None)
         
-        # Continue with regular query processing if we couldn't determine how to handle the response
         return None
     
     def _generate_lesson_plan_for_topic(self, topic: Dict[str, Any], user_id: str) -> Dict[str, Any]:
         """
-        Generate a lesson plan for the selected topic and start teaching it.
+        Generate a simple lesson plan for the selected topic with just the flow of topics and subtopics.
         
         Args:
             topic: The selected topic dictionary
             user_id: The user's ID
             
         Returns:
-            Dict containing the response with the lesson plan
+            Dict containing the response with the simplified lesson plan
         """
         topic_title = topic["title"]
-        self.logger.info(f"Generating lesson plan for topic: {topic_title}")
+        self.logger.info(f"Generating simplified lesson plan for topic: {topic_title}")
         
         try:
-            # Get user knowledge level
-            try:
-                user_knowledge = self.knowledge_tracking_agent.get_user_knowledge_summary(user_id)
-                knowledge_level = user_knowledge.get("average_level", 50)
-            except Exception as e:
-                self.logger.error(f"Error getting user knowledge: {str(e)}")
-                knowledge_level = 50  # Default to intermediate if there's an error
-            
             # Extract subtopics from the selected topic
             subtopics = topic.get("subtopics", [])
             
-            # Generate a lesson plan for the selected topic
-            lesson_plan = self.lesson_plan_agent.process(
-                user_id=user_id,
-                topic=topic_title,
-                knowledge_level=knowledge_level,
-                subtopics=subtopics,
-                time_available=60
-            )
+            # Create a simplified lesson plan with just topic names in flow
+            simplified_lesson_plan = {
+                "title": f"Lesson Plan: {topic_title}",
+                "description": f"Topic flow for learning {topic_title}",
+                "main_topic": topic_title,
+                "topic_flow": [
+                    {
+                        "name": subtopic.get("title", "Untitled Subtopic"),
+                        "order": idx + 1
+                    } for idx, subtopic in enumerate(subtopics)
+                ],
+                "generated_at": datetime.datetime.now().isoformat(),
+                "user_id": user_id,
+                "topic": topic_title
+            }
             
             # Set the generated lesson plan
-            self.current_lesson_plan = lesson_plan
-            self.update_shared_state("lesson_plan", lesson_plan)
+            self.current_lesson_plan = simplified_lesson_plan
+            self.update_shared_state("lesson_plan", simplified_lesson_plan)
             self.is_teaching_lesson_plan = True
             self.current_activity_index = 0
             
-            # Start teaching the lesson plan
-            return self._start_lesson_plan_teaching(user_id)
+            # Create response for the user
+            intro_text = f"I've created a simple learning path for {topic_title}. "
+            if simplified_lesson_plan["topic_flow"]:
+                intro_text += f"We'll cover {len(simplified_lesson_plan['topic_flow'])} subtopics in sequence."
+            else:
+                intro_text += "This topic doesn't have any subtopics defined yet."
+                
+            return {
+                "response": intro_text,
+                "has_lesson_plan": True,
+                "lesson_plan": simplified_lesson_plan,
+                "is_from_topic_selection": True
+            }
             
         except Exception as e:
-            self.logger.error(f"Error generating lesson plan: {str(e)}")
+            self.logger.error(f"Error generating simplified lesson plan: {str(e)}")
             return self._create_fallback_response(
-                f"I'm having trouble creating a lesson plan for {topic_title}. Would you like to try another topic or approach?"
+                f"I'm having trouble creating a topic flow for {topic_title}. Would you like to try another topic?"
             )
     
     def _process_topic_selection(self, query: str, context: str, user_id: str) -> Optional[Dict[str, Any]]:
@@ -1543,4 +1603,61 @@ class TutorAgent(BaseAgent):
         else:
             self.logger.warning(f"Attempted to update unknown shared state key: {key}")
             self.shared_state[key] = value
-            self.logger.info(f"Added new key to shared state: {key}") 
+            self.logger.info(f"Added new key to shared state: {key}")
+    
+    def _start_topic_discussion(self, topic: Dict[str, Any], user_id: str) -> Dict[str, Any]:
+        """
+        Start a discussion about a specific topic without creating a lesson plan.
+        This is used when the user clicks the "Study" button in the topics tab.
+        
+        Args:
+            topic: The topic dictionary with title, content, and subtopics
+            user_id: The user's ID
+            
+        Returns:
+            Dict containing the initial response about the topic
+        """
+        self.logger.info(f"Starting discussion about topic: {topic.get('title')}")
+        
+        # Update the current topic
+        self.current_topic = topic.get("title", "Unknown Topic")
+        self.update_shared_state("current_topic", self.current_topic)
+        
+        # Track this interaction for knowledge modeling
+        topic_title = topic.get("title", "Unknown Topic")
+        self._track_interaction(user_id, "start_topic_discussion", f"Study {topic_title}", 
+                               {"topic": topic_title, "method": "direct_study"})
+        
+        # Get topic content and subtopics for the response
+        topic_content = topic.get("content", "")
+        subtopics = topic.get("subtopics", [])
+        
+        # Generate an introduction to the topic
+        intro_message = f"Let's discuss {topic_title}. "
+        if topic_content:
+            intro_message += f"{topic_content} "
+        
+        # Add information about subtopics if available
+        if subtopics and len(subtopics) > 0:
+            intro_message += f"\n\nThis topic includes {len(subtopics)} subtopics: "
+            subtopic_list = []
+            for st in subtopics[:5]:  # Limit to first 5 subtopics
+                st_title = st.get("title", "")
+                if st_title:
+                    subtopic_list.append(st_title)
+            
+            intro_message += ", ".join(subtopic_list)
+            if len(subtopics) > 5:
+                intro_message += f", and {len(subtopics) - 5} more."
+            
+            intro_message += "\n\nWhat specific aspect would you like to learn about first?"
+        else:
+            intro_message += "\n\nWhat would you like to know about this topic?"
+        
+        # Return a response with the teaching mode set to "discussion"
+        return {
+            "response": intro_message,
+            "teaching_mode": "discussion",
+            "has_lesson_plan": False,
+            "is_direct_study": True
+        } 

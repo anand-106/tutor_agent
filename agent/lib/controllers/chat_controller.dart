@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 import 'package:agent/models/chat_message.dart';
 import 'package:agent/services/api_service.dart';
 import 'package:agent/controllers/user_progress_controller.dart';
+import 'package:agent/controllers/lesson_plan_controller.dart';
+import 'package:agent/models/lesson_plan.dart';
 import 'dart:convert';
 
 class ChatController extends GetxController {
@@ -30,8 +32,24 @@ class ChatController extends GetxController {
       print('Received response: $response'); // Debug print
 
       if (response is Map<String, dynamic>) {
+        // Check if there was an error
+        if (response.containsKey('error')) {
+          String errorMsg = 'There was an error processing your request.';
+          if (response['error'] == 'rate_limit') {
+            errorMsg =
+                'The system is currently busy. Please try again in a moment.';
+          } else if (response['error'] == 'communication') {
+            errorMsg =
+                'There was an error communicating with the server. Please check your connection.';
+          }
+          messages.add(ChatMessage(response: errorMsg, isUser: false));
+          return;
+        }
+
         // Check if the response contains a question
-        if (response.containsKey('question')) {
+        if (response.containsKey('question') &&
+            response.containsKey('has_question') &&
+            response['has_question'] == true) {
           print('Handling question response: ${json.encode(response)}');
 
           messages.add(ChatMessage(
@@ -45,17 +63,44 @@ class ChatController extends GetxController {
           return;
         }
 
+        // Check if the response contains a lesson plan
+        if (response.containsKey('lesson_plan') &&
+            response.containsKey('has_lesson_plan') &&
+            response['has_lesson_plan'] == true) {
+          print('Handling lesson plan response');
+
+          // Save the lesson plan in the lesson plan controller
+          final lessonPlanController = Get.find<LessonPlanController>();
+          final lessonPlanData =
+              response['lesson_plan'] as Map<String, dynamic>;
+          lessonPlanController.currentLessonPlan.value =
+              LessonPlan.fromJson(lessonPlanData);
+
+          // If this is from a topic selection, inform the user
+          String messageText = response['response'] as String? ??
+              "I've created a lesson plan based on your selection.";
+
+          messages.add(ChatMessage(
+            response: messageText,
+            isUser: false,
+          ));
+
+          // If this was not triggered by direct user action (like auto-generating after topic selection),
+          // navigate to the lesson plan view
+          if (response['is_from_topic_selection'] == true) {
+            Get.toNamed('/lesson-plan');
+          }
+
+          return;
+        }
+
         String messageText;
         if (response.containsKey('flashcards')) {
           // If it's a flashcard response, keep it as JSON
           messageText = json.encode(response);
-        } else if (response.containsKey('questions') &&
-            response.containsKey('topic')) {
-          // If it's a quiz response, keep it as JSON
-          messageText = json.encode(response);
-          print('Handling quiz response: $messageText'); // Debug print
         } else {
-          messageText = response['response'] as String;
+          messageText = response['response'] as String? ??
+              "I'm not sure how to respond to that.";
         }
 
         final hasDiagram = response['has_diagram'] as bool? ?? false;
@@ -75,6 +120,12 @@ class ChatController extends GetxController {
     } catch (e) {
       print('Error in sendMessage: $e'); // Debug print
       Get.snackbar('Error', 'Failed to get response: $e');
+
+      // Add error message to chat
+      messages.add(ChatMessage(
+          response:
+              "I'm sorry, I encountered an error while processing your request. Please try again.",
+          isUser: false));
     } finally {
       isLoading.value = false;
     }

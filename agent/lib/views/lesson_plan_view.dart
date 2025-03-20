@@ -137,13 +137,21 @@ class LessonPlanView extends StatelessWidget {
               children: [
                 _buildHeader(lessonPlan, context),
                 SizedBox(height: 24),
-                _buildLearningObjectives(lessonPlan, context),
-                SizedBox(height: 24),
-                _buildActivities(lessonPlan, context),
-                SizedBox(height: 24),
-                _buildAssessment(lessonPlan, context),
-                SizedBox(height: 24),
-                _buildNextSteps(lessonPlan, context),
+                if (lessonPlan.isSimplified)
+                  _buildTopicFlow(lessonPlan, context)
+                else
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildLearningObjectives(lessonPlan, context),
+                      SizedBox(height: 24),
+                      _buildActivities(lessonPlan, context),
+                      SizedBox(height: 24),
+                      _buildAssessment(lessonPlan, context),
+                      SizedBox(height: 24),
+                      _buildNextSteps(lessonPlan, context),
+                    ],
+                  ),
               ],
             ),
           );
@@ -176,19 +184,20 @@ class LessonPlanView extends StatelessWidget {
                     ),
                   ),
                 ),
-                Chip(
-                  label: Text(
-                    lessonPlan.knowledgeLevel.toUpperCase(),
-                    style: GoogleFonts.inter(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
+                if (!lessonPlan.isSimplified)
+                  Chip(
+                    label: Text(
+                      lessonPlan.knowledgeLevel.toUpperCase(),
+                      style: GoogleFonts.inter(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
                     ),
+                    backgroundColor:
+                        _getKnowledgeLevelColor(lessonPlan.knowledgeLevel),
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
                   ),
-                  backgroundColor:
-                      _getKnowledgeLevelColor(lessonPlan.knowledgeLevel),
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
-                ),
               ],
             ),
             SizedBox(height: 8),
@@ -202,20 +211,24 @@ class LessonPlanView extends StatelessWidget {
             SizedBox(height: 16),
             Row(
               children: [
-                Icon(Icons.access_time, color: Colors.white54, size: 20),
-                SizedBox(width: 8),
-                Text(
-                  '${lessonPlan.durationMinutes} minutes',
-                  style: GoogleFonts.inter(
-                    color: Colors.white70,
-                    fontSize: 14,
+                if (!lessonPlan.isSimplified) ...[
+                  Icon(Icons.access_time, color: Colors.white54, size: 20),
+                  SizedBox(width: 8),
+                  Text(
+                    '${lessonPlan.durationMinutes} minutes',
+                    style: GoogleFonts.inter(
+                      color: Colors.white70,
+                      fontSize: 14,
+                    ),
                   ),
-                ),
-                SizedBox(width: 16),
+                  SizedBox(width: 16),
+                ],
                 Icon(Icons.topic, color: Colors.white54, size: 20),
                 SizedBox(width: 8),
                 Text(
-                  lessonPlan.topic,
+                  lessonPlan.isSimplified
+                      ? (lessonPlan.mainTopic ?? lessonPlan.topic)
+                      : lessonPlan.topic,
                   style: GoogleFonts.inter(
                     color: Colors.white70,
                     fontSize: 14,
@@ -230,6 +243,11 @@ class LessonPlanView extends StatelessWidget {
   }
 
   Widget _buildLearningObjectives(LessonPlan lessonPlan, BuildContext context) {
+    if (lessonPlan.learningObjectives == null ||
+        lessonPlan.learningObjectives!.isEmpty) {
+      return SizedBox();
+    }
+
     return Card(
       color: Colors.white.withOpacity(0.05),
       shape: RoundedRectangleBorder(
@@ -256,26 +274,34 @@ class LessonPlanView extends StatelessWidget {
               ],
             ),
             SizedBox(height: 16),
-            ...lessonPlan.learningObjectives.map((objective) => Padding(
+            ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: lessonPlan.learningObjectives?.length ?? 0,
+              itemBuilder: (context, index) {
+                return Padding(
                   padding: EdgeInsets.only(bottom: 8),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.check_circle_outline,
-                          color: Colors.white54, size: 20),
+                      Text('•',
+                          style:
+                              TextStyle(color: Colors.white70, fontSize: 18)),
                       SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          objective,
+                          lessonPlan.learningObjectives?[index] ?? '',
                           style: GoogleFonts.inter(
                             color: Colors.white70,
-                            fontSize: 16,
+                            fontSize: 14,
                           ),
                         ),
                       ),
                     ],
                   ),
-                )),
+                );
+              },
+            ),
           ],
         ),
       ),
@@ -283,6 +309,10 @@ class LessonPlanView extends StatelessWidget {
   }
 
   Widget _buildActivities(LessonPlan lessonPlan, BuildContext context) {
+    if (lessonPlan.activities == null || lessonPlan.activities!.isEmpty) {
+      return SizedBox();
+    }
+
     return Card(
       color: Colors.white.withOpacity(0.05),
       shape: RoundedRectangleBorder(
@@ -295,8 +325,7 @@ class LessonPlanView extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(Icons.play_circle_outline,
-                    color: Theme.of(context).primaryColor),
+                Icon(Icons.event_note, color: Theme.of(context).primaryColor),
                 SizedBox(width: 8),
                 Text(
                   'Activities',
@@ -308,16 +337,24 @@ class LessonPlanView extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 16),
-            ...lessonPlan.activities
-                .map((activity) => _buildActivityCard(activity, context)),
+            SizedBox(height: 12),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: lessonPlan.activities?.length ?? 0,
+              itemBuilder: (context, index) {
+                final activity = lessonPlan.activities![index];
+                return _buildActivityItem(activity, index, context);
+              },
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildActivityCard(LessonActivity activity, BuildContext context) {
+  Widget _buildActivityItem(
+      LessonActivity activity, int index, BuildContext context) {
     return Container(
       margin: EdgeInsets.only(bottom: 16),
       padding: EdgeInsets.all(16),
@@ -427,6 +464,10 @@ class LessonPlanView extends StatelessWidget {
   }
 
   Widget _buildAssessment(LessonPlan lessonPlan, BuildContext context) {
+    if (lessonPlan.assessment == null) {
+      return SizedBox();
+    }
+
     return Card(
       color: Colors.white.withOpacity(0.05),
       shape: RoundedRectangleBorder(
@@ -439,8 +480,7 @@ class LessonPlanView extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(Icons.assignment_outlined,
-                    color: Theme.of(context).primaryColor),
+                Icon(Icons.assessment, color: Theme.of(context).primaryColor),
                 SizedBox(width: 8),
                 Text(
                   'Assessment',
@@ -452,61 +492,86 @@ class LessonPlanView extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 16),
-            Row(
-              children: [
-                Chip(
-                  label: Text(
-                    lessonPlan.assessment.type.toUpperCase(),
-                    style: GoogleFonts.inter(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                  backgroundColor:
-                      Theme.of(context).primaryColor.withOpacity(0.3),
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
-                ),
-              ],
-            ),
-            SizedBox(height: 8),
-            Text(
-              lessonPlan.assessment.description,
-              style: GoogleFonts.inter(
-                color: Colors.white70,
-                fontSize: 16,
+            SizedBox(height: 12),
+            Container(
+              padding: EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
               ),
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Assessment Criteria:',
-              style: GoogleFonts.inter(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 8),
-            ...lessonPlan.assessment.criteria.map((criterion) => Padding(
-                  padding: EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      Icon(Icons.check, color: Colors.white54, size: 20),
+                      Icon(
+                        _getAssessmentIcon(
+                            lessonPlan.assessment?.type ?? 'quiz'),
+                        color: Theme.of(context).primaryColor,
+                        size: 20,
+                      ),
                       SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          criterion,
-                          style: GoogleFonts.inter(
-                            color: Colors.white70,
-                            fontSize: 14,
-                          ),
+                      Text(
+                        lessonPlan.assessment?.type?.toUpperCase() ??
+                            'ASSESSMENT',
+                        style: GoogleFonts.inter(
+                          color: Theme.of(context).primaryColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
                         ),
                       ),
                     ],
                   ),
-                )),
+                  SizedBox(height: 8),
+                  Text(
+                    lessonPlan.assessment?.description ??
+                        'No description available',
+                    style: GoogleFonts.inter(
+                      color: Colors.white70,
+                      fontSize: 14,
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  Text(
+                    'Evaluation Criteria:',
+                    style: GoogleFonts.inter(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: lessonPlan.assessment?.criteria?.length ?? 0,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: EdgeInsets.only(bottom: 4),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('•',
+                                style: TextStyle(
+                                    color: Colors.white70, fontSize: 18)),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                lessonPlan.assessment?.criteria?[index] ?? '',
+                                style: GoogleFonts.inter(
+                                  color: Colors.white70,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -514,6 +579,10 @@ class LessonPlanView extends StatelessWidget {
   }
 
   Widget _buildNextSteps(LessonPlan lessonPlan, BuildContext context) {
+    if (lessonPlan.nextSteps == null || lessonPlan.nextSteps!.isEmpty) {
+      return SizedBox();
+    }
+
     return Card(
       color: Colors.white.withOpacity(0.05),
       shape: RoundedRectangleBorder(
@@ -540,25 +609,171 @@ class LessonPlanView extends StatelessWidget {
               ],
             ),
             SizedBox(height: 16),
-            ...lessonPlan.nextSteps.map((step) => Padding(
+            ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: lessonPlan.nextSteps?.length ?? 0,
+              itemBuilder: (context, index) {
+                return Padding(
                   padding: EdgeInsets.only(bottom: 8),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.arrow_right, color: Colors.white54, size: 20),
+                      Text('•',
+                          style:
+                              TextStyle(color: Colors.white70, fontSize: 18)),
                       SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          step,
+                          lessonPlan.nextSteps?[index] ?? '',
                           style: GoogleFonts.inter(
                             color: Colors.white70,
-                            fontSize: 16,
+                            fontSize: 14,
                           ),
                         ),
                       ),
                     ],
                   ),
-                )),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTopicFlow(LessonPlan lessonPlan, BuildContext context) {
+    if (lessonPlan.topicFlow == null || lessonPlan.topicFlow!.isEmpty) {
+      return Card(
+        color: Colors.white.withOpacity(0.05),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.format_list_numbered,
+                      color: Theme.of(context).primaryColor),
+                  SizedBox(width: 8),
+                  Text(
+                    'Learning Flow',
+                    style: GoogleFonts.inter(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 12),
+              Text(
+                'No subtopics available for this topic.',
+                style: GoogleFonts.inter(
+                  color: Colors.white70,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final sortedTopics = List.from(lessonPlan.topicFlow!)
+      ..sort((a, b) => a.order.compareTo(b.order));
+
+    return Card(
+      color: Colors.white.withOpacity(0.05),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.format_list_numbered,
+                    color: Theme.of(context).primaryColor),
+                SizedBox(width: 8),
+                Text(
+                  'Learning Flow',
+                  style: GoogleFonts.inter(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 12),
+            Text(
+              'Study these subtopics in sequence to master ${lessonPlan.mainTopic ?? lessonPlan.topic}',
+              style: GoogleFonts.inter(
+                color: Colors.white70,
+                fontSize: 14,
+              ),
+            ),
+            SizedBox(height: 16),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: sortedTopics.length,
+              itemBuilder: (context, index) {
+                final topic = sortedTopics[index];
+                return Container(
+                  margin: EdgeInsets.only(bottom: 12),
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: Theme.of(context).primaryColor.withOpacity(0.2),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          color:
+                              Theme.of(context).primaryColor.withOpacity(0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            '${topic.order}',
+                            style: GoogleFonts.inter(
+                              color: Theme.of(context).primaryColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          topic.name,
+                          style: GoogleFonts.inter(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),
@@ -592,6 +807,63 @@ class LessonPlanView extends StatelessWidget {
         return Icons.book;
       default:
         return Icons.link;
+    }
+  }
+
+  IconData _getAssessmentIcon(String type) {
+    switch (type.toLowerCase()) {
+      case 'quiz':
+        return Icons.quiz;
+      case 'exam':
+        return Icons.assignment;
+      case 'project':
+        return Icons.build;
+      case 'homework':
+        return Icons.home;
+      case 'lab':
+        return Icons.science;
+      case 'presentation':
+        return Icons.slideshow;
+      case 'essay':
+        return Icons.edit;
+      case 'test':
+        return Icons.question_answer;
+      case 'survey':
+        return Icons.poll;
+      case 'interview':
+        return Icons.record_voice_over;
+      case 'observation':
+        return Icons.visibility;
+      case 'case study':
+        return Icons.book;
+      case 'research':
+        return Icons.search;
+      case 'simulation':
+        return Icons.play_circle;
+      case 'debate':
+        return Icons.forum;
+      case 'discussion':
+        return Icons.forum;
+      case 'group project':
+        return Icons.group;
+      case 'individual project':
+        return Icons.person;
+      case 'team project':
+        return Icons.group;
+      case 'peer review':
+        return Icons.reviews;
+      case 'self assessment':
+        return Icons.assessment;
+      case 'peer assessment':
+        return Icons.reviews;
+      case 'group assessment':
+        return Icons.group;
+      case 'individual assessment':
+        return Icons.person;
+      case 'team assessment':
+        return Icons.group;
+      default:
+        return Icons.assignment;
     }
   }
 }

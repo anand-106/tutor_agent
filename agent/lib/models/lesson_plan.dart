@@ -3,63 +3,105 @@ class LessonPlan {
   final String description;
   final String knowledgeLevel;
   final int durationMinutes;
-  final List<String> learningObjectives;
-  final List<LessonActivity> activities;
-  final LessonAssessment assessment;
-  final List<String> nextSteps;
+  final List<String>? learningObjectives;
+  final List<LessonActivity>? activities;
+  final LessonAssessment? assessment;
+  final List<String>? nextSteps;
+  final List<TopicFlowItem>? topicFlow;
+  final String? mainTopic;
   final String generatedAt;
   final String userId;
   final String topic;
+  final bool isSimplified;
 
   LessonPlan({
     required this.title,
     required this.description,
-    required this.knowledgeLevel,
-    required this.durationMinutes,
-    required this.learningObjectives,
-    required this.activities,
-    required this.assessment,
-    required this.nextSteps,
+    this.knowledgeLevel = "foundational",
+    this.durationMinutes = 60,
+    this.learningObjectives,
+    this.activities,
+    this.assessment,
+    this.nextSteps,
+    this.topicFlow,
+    this.mainTopic,
     required this.generatedAt,
     required this.userId,
     required this.topic,
+    this.isSimplified = false,
   });
 
   factory LessonPlan.fromJson(Map<String, dynamic> json) {
-    return LessonPlan(
-      title: json['title'] as String,
-      description: json['description'] as String,
-      knowledgeLevel: json['knowledge_level'] as String,
-      durationMinutes: json['duration_minutes'] as int,
-      learningObjectives: (json['learning_objectives'] as List)
-          .map((e) => e as String)
-          .toList(),
-      activities: (json['activities'] as List)
-          .map((e) => LessonActivity.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      assessment:
-          LessonAssessment.fromJson(json['assessment'] as Map<String, dynamic>),
-      nextSteps: (json['next_steps'] as List).map((e) => e as String).toList(),
-      generatedAt: json['generated_at'] as String,
-      userId: json['user_id'] as String,
-      topic: json['topic'] as String,
-    );
+    final bool isSimplified = json.containsKey('topic_flow');
+
+    if (isSimplified) {
+      List<TopicFlowItem> topicFlow = [];
+      if (json.containsKey('topic_flow') && json['topic_flow'] is List) {
+        topicFlow = (json['topic_flow'] as List)
+            .map((e) => TopicFlowItem.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+
+      return LessonPlan(
+        title: json['title'] as String,
+        description: json['description'] as String,
+        mainTopic: json['main_topic'] as String?,
+        topicFlow: topicFlow,
+        generatedAt: json['generated_at'] as String,
+        userId: json['user_id'] as String,
+        topic: json['topic'] as String,
+        isSimplified: true,
+      );
+    } else {
+      return LessonPlan(
+        title: json['title'] as String,
+        description: json['description'] as String,
+        knowledgeLevel: json['knowledge_level'] as String,
+        durationMinutes: json['duration_minutes'] as int,
+        learningObjectives: (json['learning_objectives'] as List)
+            .map((e) => e as String)
+            .toList(),
+        activities: (json['activities'] as List)
+            .map((e) => LessonActivity.fromJson(e as Map<String, dynamic>))
+            .toList(),
+        assessment: LessonAssessment.fromJson(
+            json['assessment'] as Map<String, dynamic>),
+        nextSteps:
+            (json['next_steps'] as List).map((e) => e as String).toList(),
+        generatedAt: json['generated_at'] as String,
+        userId: json['user_id'] as String,
+        topic: json['topic'] as String,
+        isSimplified: false,
+      );
+    }
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'title': title,
-      'description': description,
-      'knowledge_level': knowledgeLevel,
-      'duration_minutes': durationMinutes,
-      'learning_objectives': learningObjectives,
-      'activities': activities.map((e) => e.toJson()).toList(),
-      'assessment': assessment.toJson(),
-      'next_steps': nextSteps,
-      'generated_at': generatedAt,
-      'user_id': userId,
-      'topic': topic,
-    };
+    if (isSimplified) {
+      return {
+        'title': title,
+        'description': description,
+        'main_topic': mainTopic,
+        'topic_flow': topicFlow?.map((e) => e.toJson()).toList() ?? [],
+        'generated_at': generatedAt,
+        'user_id': userId,
+        'topic': topic,
+      };
+    } else {
+      return {
+        'title': title,
+        'description': description,
+        'knowledge_level': knowledgeLevel,
+        'duration_minutes': durationMinutes,
+        'learning_objectives': learningObjectives ?? [],
+        'activities': activities?.map((e) => e.toJson()).toList() ?? [],
+        'assessment': assessment?.toJson() ?? {},
+        'next_steps': nextSteps ?? [],
+        'generated_at': generatedAt,
+        'user_id': userId,
+        'topic': topic,
+      };
+    }
   }
 }
 
@@ -228,6 +270,30 @@ class CurriculumModule {
       'knowledge_level': knowledgeLevel,
       'duration_minutes': durationMinutes,
       'lesson_plan': lessonPlan.toJson(),
+    };
+  }
+}
+
+class TopicFlowItem {
+  final String name;
+  final int order;
+
+  TopicFlowItem({
+    required this.name,
+    required this.order,
+  });
+
+  factory TopicFlowItem.fromJson(Map<String, dynamic> json) {
+    return TopicFlowItem(
+      name: json['name'] as String,
+      order: json['order'] as int,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'order': order,
     };
   }
 }
