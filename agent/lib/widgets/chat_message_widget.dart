@@ -115,6 +115,60 @@ class ChatMessageWidget extends StatelessWidget {
                       ),
                     ),
 
+                    // Show diagram if present
+                    if (message.hasDiagram && message.mermaidCode != null) ...[
+                      SizedBox(height: 20),
+                      Container(
+                        margin: const EdgeInsets.symmetric(vertical: 8.0),
+                        constraints: BoxConstraints(
+                          maxWidth: MediaQuery.of(context).size.width * 0.8,
+                          maxHeight: 400,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black12,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: MermaidDiagram(
+                          diagramCode: message.mermaidCode!,
+                          width: MediaQuery.of(context).size.width * 0.8,
+                          height: 400,
+                        ),
+                      ),
+                    ],
+
+                    // Show quiz if present
+                    if (message.hasQuestion && message.question != null) ...[
+                      SizedBox(height: 20),
+                      Container(
+                        margin: EdgeInsets.only(top: 16),
+                        child: QuestionWidget(question: message.question!),
+                      ),
+                    ],
+
+                    // Show flashcards if present
+                    if (message.hasFlashcards &&
+                        message.flashcards != null) ...[
+                      SizedBox(height: 20),
+                      Container(
+                        margin: EdgeInsets.only(top: 16),
+                        child: FlashcardWidget(
+                          flashcardsData: message.flashcards!,
+                          onPinCard: (card) {
+                            if (card['is_pinned']) {
+                              chatController.pinCard(card);
+                            } else {
+                              chatController.unpinCard(card);
+                            }
+                          },
+                          onPinAll: (cards) {
+                            chatController.pinAllCards(cards
+                                .map((c) => Map<String, dynamic>.from(c))
+                                .toList());
+                          },
+                        ),
+                      ),
+                    ],
+
                     // Navigation buttons
                     SizedBox(height: 20),
                     Container(

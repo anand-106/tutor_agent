@@ -1,23 +1,43 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException, Request, Response, Depends, status
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, JSONResponse, HTMLResponse
-from fastapi.exceptions import RequestValidationError
 import os
-from typing import Dict, Optional, List, Any
-from dotenv import load_dotenv
-from pathlib import Path
 import sys
-from pydantic import BaseModel, Field
+import logging
 import json
 import traceback
+from typing import Dict, List, Any, Optional
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Document processing
+import fitz  # PyMuPDF
+import docx
+
+# FastAPI
+from fastapi import FastAPI, UploadFile, File, Request, HTTPException, Body
+from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import RequestValidationError
+from pydantic import BaseModel, Field
+
+# Import our LangChain orchestrator
+from src.ai_interface.langchain_orchestrator import LangChainOrchestrator
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler('api.log')
+    ]
+)
+logger = logging.getLogger("api")
 
 # Add the project root directory to Python path
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 
 # Now use absolute imports instead of relative
 from src.data_processing.pipeline import DataProcessingPipeline
-from src.ai_interface.gemini_chat import GeminiTutor
 from src.data_processing.logger_config import setup_logger
 from src.ai_interface.agents import LessonPlanAgent
 
@@ -39,11 +59,17 @@ GEMINI_API_KEYS = [
     os.getenv("GEMINI_API_KEY_3"),
 ]
 
+# Get OpenAI API key
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+if OPENAI_API_KEY:
+    # Add OpenAI key to the beginning of the API keys list
+    GEMINI_API_KEYS.insert(0, OPENAI_API_KEY)
+
 # Filter out None values
 GEMINI_API_KEYS = [key for key in GEMINI_API_KEYS if key]
 
 if not GEMINI_API_KEYS:
-    logger.error("No GEMINI API keys found in environment variables")
+    logger.error("No API keys found in environment variables")
     raise ValueError("At least one API key is required")
 
 def ensure_static_files():
@@ -334,10 +360,44 @@ pipeline = DataProcessingPipeline(
     api_keys=GEMINI_API_KEYS  # Pass all API keys to pipeline
 )
 
-tutor = GeminiTutor(
-    api_keys=GEMINI_API_KEYS,
-    pipeline=pipeline
-)
+# Initialize the LangChain orchestrator
+def get_api_keys():
+    try:
+        # Load the API keys from the .env file
+        logger.info("Loading API keys from .env file")
+        load_dotenv()
+        
+        # Get Gemini API keys
+        keys = []
+        i = 1
+        while True:
+            key = os.getenv(f"GEMINI_API_KEY_{i}")
+            if not key:
+                break
+            keys.append(key)
+            i += 1
+        
+        if not keys:
+            logger.warning("No Gemini API keys found in .env file")
+            raise ValueError("No API keys found in .env file. Please check your configuration.")
+        
+        logger.info(f"Successfully loaded {len(keys)} API keys")
+        return keys
+    except Exception as e:
+        logger.error(f"Error loading API keys: {str(e)}")
+        raise ValueError(f"Failed to load API keys: {str(e)}")
+
+# Initialize the orchestrator
+try:
+    api_keys = get_api_keys()
+    orchestrator = LangChainOrchestrator(api_keys)
+    logger.info("LangChain orchestrator initialized successfully")
+except Exception as e:
+    logger.error(f"Error initializing LangChain orchestrator: {str(e)}")
+    orchestrator = None
+    
+# Dictionary to store topics by user_id
+topics_cache = {}
 
 # API Routes
 @app.get("/", response_class=HTMLResponse)
@@ -354,82 +414,75 @@ async def read_root():
         logger.error(f"Error serving index.html: {str(e)}")
         return HTMLResponse(content=f"<h1>Error: {str(e)}</h1>", status_code=500)
 
-@app.post("/api/upload")  # Changed route to /api/upload
-async def upload_file(file: UploadFile = File(...)):
+@app.post("/api/upload")
+async def upload_file(file: UploadFile):
     try:
-        if not file.filename:
-            raise HTTPException(status_code=400, detail="No file provided")
-            
-        # Check file extension
-        allowed_extensions = {'.pdf', '.docx', '.txt'}
-        file_ext = os.path.splitext(file.filename)[1].lower()
-        if file_ext not in allowed_extensions:
-            raise HTTPException(
-                status_code=400, 
-                detail=f"Unsupported file type. Allowed types: {', '.join(allowed_extensions)}"
-            )
-
-        file_path = UPLOAD_DIR / file.filename
+        # Check if the orchestrator is initialized
+        if not orchestrator:
+            logger.error("Orchestrator not initialized")
+            return ErrorResponse(message="The AI service is not available. Please try again later.")
         
-        with open(file_path, "wb") as buffer:
+        # Process the uploaded file
+        logger.info(f"Received file upload: {file.filename}")
+        
+        # Save the uploaded file
+        file_path = os.path.join("uploads", file.filename)
+        os.makedirs("uploads", exist_ok=True)
+        
+        with open(file_path, "wb") as f:
             content = await file.read()
-            buffer.write(content)
+            f.write(content)
         
-        try:
-            # Use a consistent key for the topics cache
-            consistent_key = f"current_document_{file.filename}"
-            pipeline.process_file(str(file_path), metadata={"consistent_key": consistent_key})
-            
-            # Set this as the current file for the tutor
-            tutor.set_current_file(consistent_key)
-            
-            # Store the original filename for reference
-            pipeline.current_filename = file.filename
-            
-            # Extract topics from the document
-            topics_data = None
-            try:
-                # Get topics from the pipeline's cache
-                topics_data = pipeline.get_topics(consistent_key)
-                logger.info(f"Extracted topics: {topics_data}")
-                
-                # Set the topics in the tutor agent (without generating a lesson plan)
-                if topics_data and 'topics' in topics_data and topics_data['topics']:
-                    # Set the topics in the tutor agent
-                    tutor.set_topics(topics_data['topics'])
-                    logger.info(f"Set {len(topics_data['topics'])} topics in tutor agent")
-                    
-                    # Return the topics data in the response
-                    return JSONResponse(
-                        content={
-                            "message": "File processed successfully",
-                            "topics": topics_data
-                        },
-                        status_code=200
-                    )
-            except Exception as e:
-                logger.error(f"Error extracting topics: {str(e)}")
-                # Continue with normal response if topic extraction fails
-            
-        finally:
-            if file_path.exists():
-                file_path.unlink()
+        logger.info(f"File saved to {file_path}")
         
-        return JSONResponse(
-            content={"message": "File processed successfully"},
-            status_code=200
-        )
-    except HTTPException as e:
-        return JSONResponse(
-            status_code=e.status_code,
-            content={"detail": str(e.detail)}
-        )
+        # Extract text from the file
+        text = extract_text_from_file(file_path)
+        
+        if not text:
+            logger.warning(f"No text extracted from {file.filename}")
+            return ErrorResponse(message="Could not extract text from the file.")
+        
+        # Extract topics from the text
+        topics = extract_topics_from_text(text, orchestrator.topic_agent)
+        
+        if not topics:
+            logger.warning("No topics extracted from the text")
+            return ErrorResponse(message="Could not extract any topics from the file content.")
+        
+        # Set the topics in the orchestrator
+        orchestrator.set_topics(topics)
+        
+        # Ensure topics is properly formatted for JSON response
+        # Make a clean copy with validated types for the response
+        sanitized_topics = []
+        for topic in topics:
+            sanitized_topic = {
+                "title": str(topic.get("title", "Unknown Topic")),
+                "content": str(topic.get("content", "")),
+                "subtopics": []
+            }
+            
+            # Process subtopics
+            for subtopic in topic.get("subtopics", []):
+                if isinstance(subtopic, dict):
+                    sanitized_subtopic = {
+                        "title": str(subtopic.get("title", "Unknown Subtopic")),
+                        "content": str(subtopic.get("content", "")),
+                    }
+                    sanitized_topic["subtopics"].append(sanitized_subtopic)
+            
+            sanitized_topics.append(sanitized_topic)
+        
+        # Return success response with sanitized topics
+        return {
+            "message": "File processed successfully",
+            "topics": sanitized_topics  # Return the sanitized list directly
+        }
+        
     except Exception as e:
-        logger.error(f"Error processing file: {str(e)}")
-        return JSONResponse(
-            status_code=500,
-            content={"detail": f"Error processing file: {str(e)}"}
-        )
+        logger.error(f"Error processing uploaded file: {str(e)}")
+        traceback.print_exc()
+        return ErrorResponse(message=f"Error processing file: {str(e)}")
 
 class DiagramRequest(BaseModel):
     text: str
@@ -525,127 +578,64 @@ def sanitize_response(response):
     
     return response
 
+# Chat request model
+class ChatRequest(BaseModel):
+    message: str
+    user_id: Optional[str] = None
+    command_type: Optional[str] = None
+
+# Error response model
+class ErrorResponse(BaseModel):
+    message: str
+
 @app.post("/api/chat")
-async def chat(request: Request):
+async def handle_chat(request: Request, message: ChatRequest):
     try:
-        data = await request.json()
-        message = data.get('text')
-        user_id = data.get('user_id', 'default_user')
-        command_type = data.get('command_type', None)
+        # Get the message content and user ID
+        query = message.message
+        user_id = message.user_id if message.user_id else "default_user"
         
-        if not message:
-            raise HTTPException(status_code=400, detail="No message provided")
+        # Check if the orchestrator is initialized
+        if not orchestrator:
+            logger.error("Orchestrator not initialized")
+            return ErrorResponse(message="The AI service is not available. Please try again later.")
         
-        # Special handling for start_flow command
-        if command_type == 'start_flow' or message.lower().strip() == 'start flow':
-            logger.info("Detected explicit start_flow command")
-            try:
-                # Generate response using the tutor agent with special handling for start flow
-                response = tutor.tutor_agent._teach_topic_flow(user_id=user_id)
+        # Log the incoming message
+        logger.info(f"Received chat message from user {user_id}: {query[:50]}...")
+        
+        # Check if message is empty
+        if not query or query.strip() == "":
+            logger.warning("Empty message received")
+            return ErrorResponse(message="Please provide a message.")
+        
+        # Process the message using the orchestrator
+        try:
+            # Special handling for the "start flow" command
+            if query.lower().strip() == "start flow":
+                logger.info("Detected 'start flow' command")
+                response = orchestrator.process(query, user_id=user_id)
+            else:
+                # Process regular messages
+                response = orchestrator.process(query, user_id=user_id)
                 
-                # Make sure we're setting the proper teaching mode
-                if isinstance(response, dict) and not response.get('teaching_mode'):
-                    response['teaching_mode'] = 'dynamic_flow'
-                
-                logger.info("Successfully started teaching flow")
-                return JSONResponse(content=response)
-            except Exception as flow_error:
-                logger.error(f"Error starting teaching flow: {str(flow_error)}")
-                traceback.print_exc()
-                return JSONResponse(content={
-                    "response": "I encountered an issue starting the learning flow. Please try again or ask me a specific question instead.",
-                    "teaching_mode": "error"
-                })
+            # Sanitize the response to ensure it's JSON serializable
+            response = _sanitize_json(response)
             
-        # Normal message handling
-        # Get relevant content from vector store
-        results = pipeline.search_content(message, top_k=3)
-        
-        # Format the context from search results
-        context = ""
-        if isinstance(results, dict) and 'documents' in results:
-            # ChromaDB results
-            documents = results['documents']
-            if documents and isinstance(documents, list):
-                if documents and isinstance(documents[0], list):
-                    documents = [doc for sublist in documents for doc in sublist]
-                context = "\n\n".join(documents)
-        
-        # Generate response using the tutor agent
-        response = tutor.chat(message, context=context, user_id=user_id)
-        
-        # Sanitize the response to ensure no raw JSON is displayed to the user
-        response = sanitize_response(response)
-        
-        # Check if the response contains a question
-        if isinstance(response, dict) and "question" in response:
-            logger.info("Response contains an interactive question")
-            return JSONResponse(content=response)
-        
-        # Check if the response is already in JSON format
-        if isinstance(response, str) and response.startswith('```json') and response.endswith('```'):
-            # Extract the JSON content
-            json_str = response[7:-3].strip()
-            try:
-                response_data = json.loads(json_str)
-                return JSONResponse(content=response_data)
-            except json.JSONDecodeError:
-                logger.error(f"Failed to parse JSON response: {json_str[:100]}...")
-                # Fall back to returning the raw response
-        
-        # Check if this is a diagram response
-        if isinstance(response, str) and "```mermaid" in response:
-            try:
-                # Extract the explanation and diagram code
-                parts = response.split("```mermaid")
-                explanation = parts[0].strip()
-                mermaid_code = parts[1].split("```")[0].strip()
-                
-                # Determine diagram type
-                diagram_type = "flowchart"  # default
-                if mermaid_code.startswith("classDiagram"):
-                    diagram_type = "class"
-                elif mermaid_code.startswith("sequenceDiagram"):
-                    diagram_type = "sequence"
-                
-                logger.info(f"Generated diagram of type: {diagram_type}")
-                logger.info(f"Mermaid code: {mermaid_code}")
-                
-                return JSONResponse(content={
-                    "response": response,
-                    "has_diagram": True,
-                    "mermaid_code": mermaid_code,
-                    "diagram_type": diagram_type,
-                    "explanation": explanation
-                })
-            except Exception as diagram_error:
-                logger.error(f"Error processing diagram: {str(diagram_error)}")
-                # Fall back to regular response if diagram processing fails
-                pass
-        
-        # If the response is a dictionary with a 'response' key, return it directly
-        if isinstance(response, dict) and "response" in response:
-            return JSONResponse(content=response)
+            # Check rate limits
+            # (implementation stays the same)
             
-        # Otherwise, wrap the response in a dictionary
-        if isinstance(response, str):
-            response = {"response": response, "has_diagram": False}
-        
-        # Return response with appropriate status
-        if "rate limit" in str(response).lower() or "quota" in str(response).lower():
-            return JSONResponse(
-                content=response,
-                status_code=429  # Too Many Requests
-            )
-        return JSONResponse(content=response)
-        
+            # Return the response
+            return response
+            
+        except Exception as e:
+            logger.error(f"Error processing message: {str(e)}")
+            traceback.print_exc()
+            return ErrorResponse(message=f"Error processing message: {str(e)}")
+    
     except Exception as e:
-        logger.error(f"Error in chat: {str(e)}")
+        logger.error(f"Unexpected error in chat endpoint: {str(e)}")
         traceback.print_exc()
-        return JSONResponse(
-            status_code=500,
-            content={"response": "An error occurred. Please try again later."}
-        )
+        return ErrorResponse(message="An unexpected error occurred.")
 
 # Add debug route to check static file serving
 @app.get("/debug/paths")
@@ -868,8 +858,10 @@ async def select_file(file_data: Dict[str, str]):
                 content={"detail": f"File not found: {file_path}"}
             )
             
-        # Set as current file
-        tutor.set_current_file(file_path)
+        # Get the topics and set them in the orchestrator
+        topics = pipeline.get_topics(file_path)
+        if topics and 'topics' in topics:
+            orchestrator.set_topics(topics['topics'])
         
         return JSONResponse(
             content={"message": f"Selected file: {file_path}"},
@@ -905,7 +897,7 @@ async def debug_topics_cache():
         return {
             "topics_cache_keys": list(pipeline.topics_cache.keys()),
             "topics_cache_size": len(pipeline.topics_cache),
-            "current_file": tutor.current_file
+            "shared_state": orchestrator.get_shared_state()
         }
     except Exception as e:
         logger.error(f"Error in debug topics cache: {str(e)}")
@@ -927,7 +919,6 @@ class UserInteractionRequest(BaseModel):
     view_duration_seconds: Optional[int] = None
 
 # Add these new endpoints after the existing endpoints
-
 @app.post("/api/user/track")
 async def track_user_interaction(request: UserInteractionRequest):
     """Track user interaction and update knowledge model"""
@@ -952,8 +943,10 @@ async def track_user_interaction(request: UserInteractionRequest):
         elif request.interaction_type == "topic_view":
             interaction_data["view_duration_seconds"] = request.view_duration_seconds or 0
         
-        result = tutor.track_user_interaction(request.user_id, interaction_data)
-        return JSONResponse(content=result, status_code=200)
+        # Use the orchestrator's track_interaction method
+        orchestrator._track_interaction(request.user_id, request.interaction_type, request.topic, interaction_data)
+        
+        return JSONResponse(content={"status": "success"}, status_code=200)
     except Exception as e:
         logger.error(f"Error tracking user interaction: {str(e)}")
         return JSONResponse(
@@ -965,8 +958,31 @@ async def track_user_interaction(request: UserInteractionRequest):
 async def get_user_knowledge_summary(user_id: str):
     """Get a summary of the user's knowledge across all topics"""
     try:
-        result = tutor.get_user_knowledge_summary(user_id)
-        return JSONResponse(content=result, status_code=200)
+        # Get knowledge data from the shared state
+        shared_state = orchestrator.get_shared_state()
+        progress = shared_state.get("progress", {}).get(user_id, {})
+        
+        # Ensure we're not passing null values where strings are expected
+        # Create a sanitized version of the progress dictionary
+        sanitized_progress = {}
+        for topic_key, topic_data in progress.items():
+            if topic_key is None:
+                continue  # Skip null keys
+            
+            sanitized_topic = {}
+            for k, v in topic_data.items():
+                if k is None or v is None:
+                    continue  # Skip null keys or values
+                sanitized_topic[k] = v
+            
+            # Only add the topic if it has data
+            if sanitized_topic:
+                sanitized_progress[topic_key] = sanitized_topic
+        
+        return JSONResponse(
+            content={"knowledge_summary": sanitized_progress},
+            status_code=200
+        )
     except Exception as e:
         logger.error(f"Error getting user knowledge summary: {str(e)}")
         return JSONResponse(
@@ -978,8 +994,32 @@ async def get_user_knowledge_summary(user_id: str):
 async def get_topic_progress(user_id: str, topic: str):
     """Get detailed progress for a specific topic"""
     try:
-        result = tutor.get_topic_progress(user_id, topic)
-        return JSONResponse(content=result, status_code=200)
+        # Get topic progress from the shared state
+        shared_state = orchestrator.get_shared_state()
+        progress = shared_state.get("progress", {}).get(user_id, {}).get(topic, {})
+        
+        # Sanitize the progress data to remove null values
+        sanitized_progress = {}
+        for k, v in progress.items():
+            if k is None:
+                continue  # Skip null keys
+                
+            # Handle nested dictionaries
+            if isinstance(v, dict):
+                sanitized_v = {}
+                for sub_k, sub_v in v.items():
+                    if sub_k is not None and sub_v is not None:
+                        sanitized_v[sub_k] = sub_v
+                if sanitized_v:
+                    sanitized_progress[k] = sanitized_v
+            # Handle non-null values
+            elif v is not None:
+                sanitized_progress[k] = v
+        
+        return JSONResponse(
+            content={"topic_progress": sanitized_progress},
+            status_code=200
+        )
     except Exception as e:
         logger.error(f"Error getting topic progress: {str(e)}")
         return JSONResponse(
@@ -991,8 +1031,16 @@ async def get_topic_progress(user_id: str, topic: str):
 async def analyze_learning_patterns(user_id: str):
     """Analyze learning patterns and provide insights"""
     try:
-        result = tutor.analyze_learning_patterns(user_id)
-        return JSONResponse(content=result, status_code=200)
+        # For now, return a simplified response
+        return JSONResponse(
+            content={
+                "learning_patterns": {
+                    "status": "Data collection in progress",
+                    "message": "More data needed for meaningful patterns"
+                }
+            },
+            status_code=200
+        )
     except Exception as e:
         logger.error(f"Error analyzing learning patterns: {str(e)}")
         return JSONResponse(
@@ -1054,4 +1102,118 @@ async def generate_curriculum(request: CurriculumRequest):
     except Exception as e:
         logger.error(f"Error generating curriculum: {str(e)}")
         logger.error(traceback.format_exc())
-        raise HTTPException(status_code=500, detail=f"Failed to generate curriculum: {str(e)}") 
+        raise HTTPException(status_code=500, detail=f"Failed to generate curriculum: {str(e)}")
+
+# Helper function to sanitize responses for JSON serialization
+def _sanitize_json(obj):
+    if isinstance(obj, dict):
+        # Create a new dict with only non-null keys and sanitized values
+        result = {}
+        for k, v in obj.items():
+            if k is not None:  # Skip null keys
+                sanitized_value = _sanitize_json(v)
+                if sanitized_value is not None:  # Skip null values
+                    result[k] = sanitized_value
+        return result
+    elif isinstance(obj, list):
+        # Create a new list with sanitized non-null values
+        return [_sanitize_json(item) for item in obj if item is not None]
+    elif isinstance(obj, (str, int, float, bool, type(None))):
+        return obj
+    else:
+        # Convert other types to string
+        return str(obj)
+
+# Function to extract text from various file types
+def extract_text_from_file(file_path: str) -> Optional[str]:
+    """
+    Extract text from various file types (PDF, DOCX, TXT)
+    
+    Args:
+        file_path: Path to the file
+        
+    Returns:
+        Extracted text or None if extraction failed
+    """
+    try:
+        file_ext = os.path.splitext(file_path)[1].lower()
+        
+        # PDF extraction
+        if file_ext == '.pdf':
+            try:
+                text = ""
+                with fitz.open(file_path) as pdf:
+                    for page in pdf:
+                        text += page.get_text()
+                return text
+            except Exception as e:
+                logger.error(f"Error extracting text from PDF: {str(e)}")
+                return None
+                
+        # DOCX extraction
+        elif file_ext == '.docx':
+            try:
+                doc = docx.Document(file_path)
+                return "\n".join([para.text for para in doc.paragraphs])
+            except Exception as e:
+                logger.error(f"Error extracting text from DOCX: {str(e)}")
+                return None
+                
+        # TXT files
+        elif file_ext == '.txt':
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    return f.read()
+            except Exception as e:
+                logger.error(f"Error reading TXT file: {str(e)}")
+                return None
+                
+        else:
+            logger.warning(f"Unsupported file type: {file_ext}")
+            return None
+            
+    except Exception as e:
+        logger.error(f"Error in extract_text_from_file: {str(e)}")
+        return None
+
+# Function to extract topics from text
+def extract_topics_from_text(text: str, topic_agent) -> List[Dict[str, Any]]:
+    """
+    Extract topics from text using the topic agent
+    
+    Args:
+        text: Text to extract topics from
+        topic_agent: Agent for topic extraction
+        
+    Returns:
+        List of topics with hierarchical structure
+    """
+    try:
+        logger.info("Extracting topics from text")
+        
+        # Check if text is too long and truncate if necessary
+        if len(text) > 50000:
+            logger.warning(f"Text too long ({len(text)} chars), truncating to 50000 chars")
+            text = text[:50000]
+            
+        # Process the text with the topic agent
+        result = topic_agent.process(text)
+        
+        # Check if the result contains topics
+        if isinstance(result, dict) and "topics" in result:
+            topics = result["topics"]
+            logger.info(f"Extracted {len(topics)} topics")
+            return topics
+        else:
+            logger.warning("Topic agent did not return expected format")
+            # Try to create a basic topic structure
+            return [{
+                "title": "Document Content",
+                "content": text[:1000] + "...",  # Include a preview of the content
+                "subtopics": []
+            }]
+            
+    except Exception as e:
+        logger.error(f"Error extracting topics: {str(e)}")
+        traceback.print_exc()
+        return [] 

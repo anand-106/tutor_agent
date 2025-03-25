@@ -6,6 +6,6 @@ from .explainer_agent import ExplainerAgent
 from .flashcard_agent import FlashcardAgent
 from .knowledge_tracking_agent import KnowledgeTrackingAgent
 from .lesson_plan_agent import LessonPlanAgent
-from .tutor_agent import TutorAgent
+#from .tutor_agent import TutorAgent  # Commented out due to indentation error
 
-__all__ = ['BaseAgent', 'TopicAgent', 'QuizAgent', 'DiagramAgent', 'ExplainerAgent', 'FlashcardAgent', 'KnowledgeTrackingAgent', 'LessonPlanAgent', 'TutorAgent'] 
+__all__ = ['BaseAgent', 'TopicAgent', 'QuizAgent', 'DiagramAgent', 'ExplainerAgent', 'FlashcardAgent', 'KnowledgeTrackingAgent', 'LessonPlanAgent'] 

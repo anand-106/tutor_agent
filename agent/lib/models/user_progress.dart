@@ -40,9 +40,11 @@ class UserProgress {
       final strongTopics = allTopics.where((t) => t.level >= 70).toList();
 
       return UserProgress(
-        userId: json['user_id'] as String,
-        averageKnowledge: (json['average_knowledge'] as num).toDouble(),
-        topicsStudied: json['topics_studied'] as int,
+        userId: json['user_id'] != null
+            ? json['user_id'] as String
+            : "default_user",
+        averageKnowledge: (json['average_knowledge'] as num? ?? 0).toDouble(),
+        topicsStudied: json['topics_studied'] as int? ?? 0,
         weakTopics: weakTopics,
         mediumTopics: mediumTopics,
         strongTopics: strongTopics,
@@ -51,9 +53,10 @@ class UserProgress {
 
     // Handle the standard case with categorized topics
     return UserProgress(
-      userId: json['user_id'] as String,
-      averageKnowledge: (json['average_knowledge'] as num).toDouble(),
-      topicsStudied: json['topics_studied'] as int,
+      userId:
+          json['user_id'] != null ? json['user_id'] as String : "default_user",
+      averageKnowledge: (json['average_knowledge'] as num? ?? 0).toDouble(),
+      topicsStudied: json['topics_studied'] as int? ?? 0,
       weakTopics: json.containsKey('weak_topics') && json['weak_topics'] != null
           ? (json['weak_topics'] as List)
               .map((e) => TopicProgress.fromJson(e as Map<String, dynamic>))
@@ -185,6 +188,27 @@ class LearningPattern {
   });
 
   factory LearningPattern.fromJson(Map<String, dynamic> json) {
+    // Check if we have the new format with a learning_patterns field
+    if (json.containsKey('learning_patterns')) {
+      var learningPatterns = json['learning_patterns'];
+
+      // Handle the new format where we get learning_patterns as a Map
+      if (learningPatterns is Map) {
+        return LearningPattern(
+          userId: "default_user",
+          interactionCounts: {},
+          studyRegularity: learningPatterns['status']?.toString() ?? "none",
+          insights: [
+            LearningInsight(
+                type: "message",
+                value: "Info",
+                description: learningPatterns['message']?.toString() ??
+                    "No data available")
+          ],
+        );
+      }
+    }
+
     // Handle case when json is null or missing fields
     if (json == null) {
       return LearningPattern(

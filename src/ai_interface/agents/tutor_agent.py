@@ -80,12 +80,12 @@ class TutorAgent(BaseAgent):
     def process(self, query: str, context: str = "", user_id: str = "user") -> Dict[str, Any]:
         """
         Process a query and return a teaching response
-
+        
         Args:
             query: The query to process
             context: Optional context/document content
             user_id: The user's ID
-
+            
         Returns:
             Dict containing the teaching response and metadata
         """
@@ -114,7 +114,7 @@ class TutorAgent(BaseAgent):
                 if self.shared_state.get("teaching_mode") == "adaptive_lesson":
                     self.logger.info("Currently in adaptive lesson teaching mode")
                     return self._process_adaptive_lesson_interaction(query, context, user_id)
-                else:
+        else:
                     self.logger.info("Currently teaching lesson plan, processing lesson plan interaction")
                     return self._process_lesson_plan_interaction(query, user_id)
             except Exception as e:
@@ -340,7 +340,7 @@ class TutorAgent(BaseAgent):
                 
                 if isinstance(comparison_result, dict) and "explanation" in comparison_result:
                     comparison = comparison_result["explanation"]
-                else:
+                        else:
                     comparison = str(comparison_result)
                 
                 # Try to generate a comparison diagram
@@ -735,14 +735,14 @@ class TutorAgent(BaseAgent):
             # Set the generated lesson plan
             self.current_lesson_plan = simplified_lesson_plan
             self.update_shared_state("lesson_plan", simplified_lesson_plan)
-            self.is_teaching_lesson_plan = True
-            self.current_activity_index = 0
+                                    self.is_teaching_lesson_plan = True
+                                    self.current_activity_index = 0
             
             # Create response for the user
             intro_text = f"I've created a simple learning path for {topic_title}. "
             if simplified_lesson_plan["topic_flow"]:
                 intro_text += f"We'll cover {len(simplified_lesson_plan['topic_flow'])} subtopics in sequence."
-            else:
+                            else:
                 intro_text += "This topic doesn't have any subtopics defined yet."
                 
             return {
@@ -760,95 +760,70 @@ class TutorAgent(BaseAgent):
     
     def _process_topic_selection(self, query: str, context: str, user_id: str) -> Optional[Dict[str, Any]]:
         """
-        Process the user's selection of a topic from a list of options.
+        Process a topic selection from the list of presented topics.
+        This can be a numeric selection (e.g., "1", "2") or the name of a topic.
         
         Args:
-            query: The user's query (selected topic)
-            context: Document context
+            query: The user's selection
+            context: Document context (not used in this method)
             user_id: The user's ID
             
         Returns:
-            Dict containing the response with lesson plan or None if no match
+            Dict containing the response or None if no topic was selected
         """
-        # If we don't have any presented topics, there's nothing to select from
-        if not hasattr(self, 'presented_topics') or not self.presented_topics:
-            self.logger.warning("No presented topics available for selection")
+        self.logger.info(f"Processing topic selection: {query}")
+        
+        # If no topics have been presented yet, return None
+        if not self.presented_topics:
+            self.logger.info("No topics presented yet, cannot process selection")
             return None
-        
-        self.logger.info(f"Processing topic selection from {len(self.presented_topics)} topics")
-        
-        # Try to find a match for the selected topic
+            
+        # Try to find the selected topic
         selected_topic = None
-        selection_number = None
+        query_lower = query.lower().strip()
         
-        # Check if the selection is a number
-        try:
-            selection_number = int(query.strip())
-            # Check if it's a valid index (1-based)
-            if 1 <= selection_number <= len(self.presented_topics):
-                selected_topic = self.presented_topics[selection_number - 1]
-                self.logger.info(f"Selected topic by number: {selection_number}")
-        except (ValueError, TypeError):
-            # Not a number, try to match the text
-            query_lower = query.lower().strip()
-            for i, topic in enumerate(self.presented_topics):
-                topic_title = topic.get("title", "")
-                if topic_title.lower() in query_lower or query_lower in topic_title.lower():
+        # Check if it's a numeric selection
+        if query_lower.isdigit():
+            index = int(query_lower) - 1  # Convert to 0-indexed
+            if 0 <= index < len(self.presented_topics):
+                selected_topic = self.presented_topics[index]
+                self.logger.info(f"Selected topic by index {index + 1}: {selected_topic.get('title', 'Unknown')}")
+                    else:
+                self.logger.warning(f"Invalid topic index: {index + 1}, max: {len(self.presented_topics)}")
+                
+        # Check if it's a topic name or partial match
+        else:
+            for topic in self.presented_topics:
+                title = topic.get("title", "").lower()
+                if query_lower == title or query_lower in title:
                     selected_topic = topic
-                    selection_number = i + 1  # 1-based index
-                    self.logger.info(f"Selected topic by text: {topic_title}")
+                    self.logger.info(f"Selected topic by name: {topic.get('title', 'Unknown')}")
                     break
         
+        # If no topic was selected, return None
         if not selected_topic:
-            self.logger.warning(f"No topic match found for selection: {query}")
+            self.logger.warning(f"No topic selected from query: {query}")
             return None
-        
-        # Update the current topic
-        self.current_topic = selected_topic.get("title", "Selected Topic")
+            
+        # Set the current topic in shared state
+        self.current_topic = selected_topic.get("title", "Unknown Topic")
         self.update_shared_state("current_topic", self.current_topic)
         
-        # Offer learning options for the selected topic
-        topic_title = selected_topic.get("title", "this topic")
-        topic_content = selected_topic.get("content", "")
+        # Choose a learning approach based on the topic and context
+        # By default, we'll use our multi-agent learning path for a comprehensive experience
+        self.logger.info(f"Creating multi-agent learning path for topic: {self.current_topic}")
+        learning_response = self._create_multi_agent_learning_path(selected_topic, user_id)
         
-        # Create a prompt for learning options
-        options_prompt = (
-            f"I can help you learn about {topic_title} in different ways:\n\n"
-            f"1. **Comprehensive Lesson Plan** - A structured learning experience with explanations, diagrams, quizzes, and activities\n"
-            f"2. **Interactive Learning Flow** - A guided tutorial with interactive questions and explanations\n"
-            f"3. **Quick Overview** - Just the key points without additional activities\n"
-            f"4. **Personalized Adaptive Learning** - A tailored lesson that adapts to your knowledge level and asks questions to gauge understanding\n\n"
-            f"How would you like to learn about {topic_title}?"
+        # Track this interaction
+        self._track_interaction(
+            user_id=user_id,
+            intent="topic_selection",
+            query=query,
+            response={"topic": self.current_topic}
         )
         
-        # Create multiple choice options
-        learning_options = [
-            "Comprehensive Lesson Plan",
-            "Interactive Learning Flow",
-            "Quick Overview",
-            "Personalized Adaptive Learning"
-        ]
-        
-        # Generate the question
-        options_question = self.question_agent.process(
-            content=options_prompt,
-            question_type="multiple_choice",
-            options=learning_options,
-            title=f"Learning Options for {topic_title}"
-        )
-        
-        # Create the learning options response
-        self.update_shared_state("selected_topic", selected_topic)
-        self.update_shared_state("waiting_for_learning_option", True)
-        
-        return {
-            "response": f"Great choice! {topic_title} is an interesting topic. {topic_content}\n\nLet's determine how you'd like to learn about it.",
-            "teaching_mode": "topic_selection",
-            "has_question": True,
-            "question": options_question,
-            "is_from_topic_selection": True
-        }
-        
+        return learning_response
+    
     def _process_learning_option(self, query: str, context: str, user_id: str) -> Dict[str, Any]:
         """
         Process the user's selection of a learning option after selecting a topic.
@@ -1574,55 +1549,55 @@ class TutorAgent(BaseAgent):
                         text=context,
                         query=query
                     )
-                    if isinstance(explanation, dict):
-                        response_text = self._format_explanation(explanation, self.teaching_mode)
-                        response_parts.append(response_text)
-                    else:
-                        response_parts.append(str(explanation))
+                if isinstance(explanation, dict):
+                    response_text = self._format_explanation(explanation, self.teaching_mode)
+                    response_parts.append(response_text)
+                else:
+                    response_parts.append(str(explanation))
                 except Exception as e:
                     self.logger.error(f"Error using explainer agent: {str(e)}")
                     response_parts.append("I'm having trouble generating an explanation right now.")
             elif agent == "quiz":
                 try:
-                    quiz = self.quiz_agent.process(context)
-                    if isinstance(quiz, dict):
-                        # Add a natural introduction to the quiz
-                        quiz_intro = f"Let's test your understanding of {quiz.get('topic', 'this topic')} with a few questions:"
-                        response_parts.append(quiz_intro)
-                        additional_data["quiz"] = quiz
-                    else:
-                        response_parts.append(str(quiz))
+                quiz = self.quiz_agent.process(context)
+                if isinstance(quiz, dict):
+                    # Add a natural introduction to the quiz
+                    quiz_intro = f"Let's test your understanding of {quiz.get('topic', 'this topic')} with a few questions:"
+                    response_parts.append(quiz_intro)
+                    additional_data["quiz"] = quiz
+                else:
+                    response_parts.append(str(quiz))
                 except Exception as e:
                     self.logger.error(f"Error using quiz agent: {str(e)}")
                     response_parts.append("I'm having trouble generating a quiz right now.")
             elif agent == "flashcard":
                 try:
-                    flashcards = self.flashcard_agent.process(context)
-                    if isinstance(flashcards, dict):
-                        # Add a natural introduction to the flashcards
-                        flashcard_intro = f"I've created some flashcards to help you memorize key points about {flashcards.get('topic', 'this topic')}:"
-                        response_parts.append(flashcard_intro)
-                        additional_data["flashcards"] = flashcards
-                    else:
-                        response_parts.append(str(flashcards))
+                flashcards = self.flashcard_agent.process(context)
+                if isinstance(flashcards, dict):
+                    # Add a natural introduction to the flashcards
+                    flashcard_intro = f"I've created some flashcards to help you memorize key points about {flashcards.get('topic', 'this topic')}:"
+                    response_parts.append(flashcard_intro)
+                    additional_data["flashcards"] = flashcards
+                else:
+                    response_parts.append(str(flashcards))
                 except Exception as e:
                     self.logger.error(f"Error using flashcard agent: {str(e)}")
                     response_parts.append("I'm having trouble generating flashcards right now.")
             elif agent == "diagram":
                 try:
-                    # Determine the most appropriate diagram type
-                    diagram_type = self._determine_diagram_type(query, context)
+                # Determine the most appropriate diagram type
+                diagram_type = self._determine_diagram_type(query, context)
                     diagram = self.diagram_agent.process(text=context, diagram_type=diagram_type)
-                    if isinstance(diagram, dict):
-                        # Add a natural introduction to the diagram
-                        diagram_intro = f"Here's a visual representation to help you understand better:"
-                        response_parts.append(diagram_intro)
-                        additional_data["diagram"] = diagram
-                        additional_data["has_diagram"] = True
-                        additional_data["mermaid_code"] = diagram.get("mermaid_code", "")
-                        additional_data["diagram_type"] = diagram.get("diagram_type", "flowchart")
-                    else:
-                        response_parts.append(str(diagram))
+                if isinstance(diagram, dict):
+                    # Add a natural introduction to the diagram
+                    diagram_intro = f"Here's a visual representation to help you understand better:"
+                    response_parts.append(diagram_intro)
+                    additional_data["diagram"] = diagram
+                    additional_data["has_diagram"] = True
+                    additional_data["mermaid_code"] = diagram.get("mermaid_code", "")
+                    additional_data["diagram_type"] = diagram.get("diagram_type", "flowchart")
+                else:
+                    response_parts.append(str(diagram))
                 except Exception as e:
                     self.logger.error(f"Error using diagram agent: {str(e)}")
                     response_parts.append("I'm having trouble generating a diagram right now.")
@@ -1728,7 +1703,7 @@ class TutorAgent(BaseAgent):
                                 "parent_id": f"topic_{i}",
                                 "order": j
                             })
-                        else:
+                else:
                             # Handle string subtopics
                             flow_items.append({
                                 "id": f"topic_{i}_subtopic_{j}",
@@ -1825,7 +1800,7 @@ class TutorAgent(BaseAgent):
                         },
                         "waiting_for_flow_input": True
                     }
-            else:
+                else:
                 return self._create_fallback_response(
                     "I've prepared a learning flow, but there seems to be an issue with the content. Let's start with a specific question instead."
                 )
@@ -1839,467 +1814,218 @@ class TutorAgent(BaseAgent):
     
     def _process_flow_interaction(self, query: str, context: str, user_id: str) -> Dict[str, Any]:
         """
-        Process user interaction during the teaching flow, integrating all agents dynamically.
+        Process interactions within the teaching flow.
         
         Args:
             query: The user's query or command
-            context: Document context
-            user_id: The user's ID
+            context: Additional context
+            user_id: The user ID
             
         Returns:
-            Dict containing the response
+            Dict with the response to the flow interaction
         """
-        query_lower = query.lower().strip()
+        # Log the interaction for debugging
+        self.logger.info(f"Processing flow interaction: '{query}' for user {user_id}")
+        
+        # Get the current flow state
         flow_items = self.shared_state.get("flow_items", [])
-        current_position = self.shared_state.get("flow_position", 0)
-        current_item = flow_items[current_position] if flow_items and current_position < len(flow_items) else None
+        current_position = self.shared_state.get("current_position", 0)
         
-        # Check if we're in quiz mode
-        quiz_mode = self.shared_state.get("quiz_mode", False)
-        current_quiz = self.shared_state.get("current_quiz", None)
+        # Print debugging information
+        self.logger.info(f"Current flow position: {current_position} of {len(flow_items)} items")
         
-        # Check if this is a response to a question
-        current_question = self.shared_state.get("current_question", None)
+        # Default response if something goes wrong
+        default_response = {
+            "response": "I'm not sure how to proceed with the flow. Try asking a specific question or typing 'next' to continue.",
+            "teaching_mode": "dynamic_flow"
+        }
         
-        # If in quiz mode and have a current question, process quiz response
-        if quiz_mode and current_question and current_quiz:
-            self.logger.info(f"Processing quiz response for question {current_quiz.get('current_question_index', 0) + 1}/{current_quiz.get('total_questions', 0)}")
+        # No flow items found
+        if not flow_items:
+            self.logger.warning(f"No flow items found for user {user_id}")
+            return self._create_fallback_response("No learning flow is currently active. Let's start a new one.")
+        
+        # Process navigation commands
+        query_lower = query.strip().lower()
+        
+        # Handle navigation commands
+        if query_lower in ["next", "continue", "go on", "proceed"]:
+            self.logger.info(f"User requested to move to next item")
             
+            # Check if we're at the end of the flow
+            if current_position >= len(flow_items) - 1:
+                self.logger.info("Reached end of flow, providing conclusion")
+                return {
+                    "response": "We've completed this learning flow. Would you like to explore another topic or have any questions?",
+                    "teaching_mode": "dynamic_flow"
+                }
+            
+            # Move to the next position
+            current_position += 1
+            self.update_shared_state("current_position", current_position)
+            self.logger.info(f"Advanced to position {current_position}")
+            
+            # Generate content for the new position
             try:
-                # Process the response using the question agent
-                processed_response = self.question_agent.process_response(current_question, query)
+                flow_item = flow_items[current_position]
+                self.logger.info(f"Generating flow content for item: {flow_item.get('title', 'Untitled')}")
+                return self._generate_flow_content(flow_item, user_id)
+            except Exception as e:
+                self.logger.error(f"Error generating next flow content: {str(e)}")
+                return default_response
                 
-                # Get quiz info
-                question_index = current_quiz.get("current_question_index", 0)
-                total_questions = current_quiz.get("total_questions", 0)
-                topic = current_quiz.get("topic", current_item.get("title", "this topic") if current_item else "this topic")
-                questions = current_quiz.get("questions", [])
+        elif query_lower in ["previous", "back", "go back"]:
+            self.logger.info(f"User requested to move to previous item")
+            
+            # Check if we're at the beginning of the flow
+            if current_position <= 0:
+                self.logger.info("Already at the beginning of flow")
+                return {
+                    "response": "We're at the beginning of this learning flow. Let's continue from here.",
+                    "teaching_mode": "dynamic_flow"
+                }
+            
+            # Move to the previous position
+            current_position -= 1
+            self.update_shared_state("current_position", current_position)
+            self.logger.info(f"Moved back to position {current_position}")
+            
+            # Generate content for the new position
+            try:
+                flow_item = flow_items[current_position]
+                self.logger.info(f"Generating flow content for item: {flow_item.get('title', 'Untitled')}")
+                return self._generate_flow_content(flow_item, user_id)
+            except Exception as e:
+                self.logger.error(f"Error generating previous flow content: {str(e)}")
+                return default_response
                 
-                # Check if response is correct
-                is_correct = False
-                explanation = ""
-                
-                if processed_response.get("is_correct") is not None:
-                    is_correct = processed_response.get("is_correct")
-                    
-                    if is_correct:
-                        current_quiz["correct_answers"] = current_quiz.get("correct_answers", 0) + 1
-                
-                if question_index < len(questions):
-                    explanation = questions[question_index].get("explanation", "")
-                
-                # Track the quiz interaction
-                self._track_interaction(
-                    user_id=user_id,
-                    intent="quiz_answer",
-                    query=query,
-                    response={
-                        "topic": topic,
-                        "question_index": question_index,
-                        "is_correct": is_correct,
-                        "total_correct": current_quiz.get("correct_answers", 0)
-                    }
-                )
-                
-                # Update quiz state
-                current_quiz["current_question_index"] = question_index + 1
-                self.update_shared_state("current_quiz", current_quiz)
-                
-                # Check if we've completed the quiz
-                if question_index + 1 >= total_questions:
-                    # Quiz complete - prepare summary
-                    correct_answers = current_quiz.get("correct_answers", 0)
-                    score = (correct_answers / total_questions) * 100 if total_questions > 0 else 0
-                    
-                    # Get feedback from explainer agent based on score
-                    try:
-                        feedback_prompt = f"Provide feedback for a student who scored {score:.0f}% on a quiz about {topic} (got {correct_answers} out of {total_questions} questions correct)."
-                        feedback = self.explainer_agent.process(text=feedback_prompt, query=feedback_prompt)
-                        
-                        if isinstance(feedback, dict) and "explanation" in feedback:
-                            feedback_text = feedback["explanation"]
-                        else:
-                            feedback_text = str(feedback)
-                    except Exception as e:
-                        self.logger.error(f"Error getting quiz feedback: {str(e)}")
-                        feedback_text = f"You answered {correct_answers} out of {total_questions} questions correctly."
-                    
-                    # Clear quiz mode
-                    self.update_shared_state("quiz_mode", False)
-                    self.update_shared_state("current_question", None)
-                    
-                    # Provide response with result and options to continue
-                    result_text = (
-                        f"## Quiz Results: {topic}\n\n"
-                        f"You scored {score:.0f}% ({correct_answers}/{total_questions} correct)\n\n"
-                        f"{feedback_text}\n\n"
-                    )
-                    
-                    # Create follow-up options
-                    options = [
-                        "Continue to the next topic",
-                        "Review this topic again",
-                        "Get a deeper explanation of this topic",
-                        "See a diagram of key concepts"
-                    ]
-                    
-                    follow_up_question = self.question_agent.process(
-                        content="Choose what to do next",
-                        question_type="multiple_choice",
-                        options=options
-                    )
-                    
-                    # Set the question in shared state
-                    self.update_shared_state("current_question", follow_up_question)
-                    
-                    return {
-                        "response": result_text,
-                        "has_question": True,
-                        "question": follow_up_question,
-                        "teaching_mode": "dynamic_flow",
-                        "flow_structure": {
-                            "items": flow_items,
-                            "current_position": current_position
-                        },
-                        "quiz_result": {
-                            "score": score,
-                            "correct": correct_answers,
-                            "total": total_questions,
-                            "topic": topic
-                        },
-                        "waiting_for_flow_input": True
-                    }
+        elif query_lower.startswith(("go to", "jump to")) or query_lower.isdigit():
+            # Extract the target position
+            try:
+                if query_lower.isdigit():
+                    target_position = int(query_lower) - 1  # Convert to 0-based index
                 else:
-                    # Move to next question
-                    next_question = questions[question_index + 1] if question_index + 1 < len(questions) else None
-                    
-                    # Prepare response with feedback on current answer
-                    answer_feedback = ""
-                    if is_correct:
-                        answer_feedback = f"Correct! {explanation}"
+                    # Extract number from "go to X" or "jump to X"
+                    parts = query_lower.split()
+                    if len(parts) >= 3 and parts[-1].isdigit():
+                        target_position = int(parts[-1]) - 1  # Convert to 0-based index
                     else:
-                        answer_feedback = f"The answer is not quite right. {explanation}"
-                    
-                    # Set next question in shared state
-                    if next_question:
-                        self.update_shared_state("current_question", next_question)
-                        
-                        return {
-                            "response": answer_feedback,
-                            "has_question": True,
-                            "question": next_question,
-                            "teaching_mode": "dynamic_flow",
-                            "quiz_mode": True,
-                            "quiz_info": {
-                                "topic": topic,
-                                "current_question": question_index + 2,  # 1-indexed for display
-                                "total_questions": total_questions
-                            },
-                            "flow_structure": {
-                                "items": flow_items,
-                                "current_position": current_position
-                            },
-                            "waiting_for_flow_input": True
-                        }
+                        raise ValueError("Invalid position format")
                 
-            except Exception as e:
-                self.logger.error(f"Error processing quiz response: {str(e)}")
-                # Clear quiz mode on error
-                self.update_shared_state("quiz_mode", False)
-                self.update_shared_state("current_question", None)
+                self.logger.info(f"User requested to go to position {target_position + 1}")
                 
-                return {
-                    "response": f"I encountered an issue processing your quiz response. Let's continue with our exploration of {current_item.get('title', 'the topic') if current_item else 'the topic'}.",
-                    "teaching_mode": "dynamic_flow",
-                    "flow_structure": {
-                        "items": flow_items,
-                        "current_position": current_position
-                    },
-                    "waiting_for_flow_input": True
-                }
-        
-        # Process other question responses (non-quiz)
-        elif current_question:
-            self.logger.info(f"Processing response to question with type: {current_question.get('type', 'unknown')}")
-            
-            # Process the response using the question agent
-            try:
-                processed_response = self.question_agent.process_response(current_question, query)
-                self.logger.info(f"Processed question response: {processed_response}")
-                
-                # Get the question type
-                question_type = current_question.get("type", "general")
-                
-                # Handle comprehension question response
-                if question_type == "multiple_choice" and "selected_option" in processed_response:
-                    selected_option = processed_response.get("selected_option", {})
-                    selection_text = selected_option.get("text", "")
-                    
-                    # Log the student's comprehension level for knowledge tracking
-                    self.logger.info(f"Student comprehension for {self.current_topic}: {selection_text}")
-                    
-                    # Track this interaction
-                    self._track_interaction(
-                        user_id=user_id,
-                        intent="comprehension_check",
-                        query=query,
-                        response={"comprehension_level": selection_text, "topic": self.current_topic}
-                    )
-                    
-                    # Provide an appropriate response based on their comprehension level
-                    if "completely" in selection_text.lower():
-                        response_text = f"Great! I'm glad you've understood {self.current_topic} so well. Let's build on this knowledge."
-                    elif "most" in selection_text.lower():
-                        response_text = f"Good progress! For any parts of {self.current_topic} you're still unsure about, feel free to ask specific questions."
-                    elif "confused" in selection_text.lower():
-                        response_text = f"Thank you for sharing that. Let me help clarify the key points of {self.current_topic} in a different way."
-                        # Get a simpler explanation from the explainer agent
-                        try:
-                            simple_explanation = self.explainer_agent.process(
-                                text=context,
-                                query=f"Explain {self.current_topic} in simpler terms"
-                            )
-                            if isinstance(simple_explanation, dict) and "explanation" in simple_explanation:
-                                response_text += "\n\n" + simple_explanation["explanation"]
-                        except Exception as e:
-                            self.logger.error(f"Error getting simpler explanation: {str(e)}")
-                    elif "simpler" in selection_text.lower():
-                        response_text = f"I'll give you a more straightforward explanation of {self.current_topic}."
-                        # Get a much simpler explanation from the explainer agent
-                        try:
-                            simple_explanation = self.explainer_agent.process(
-                                text=context,
-                                query=f"Explain {self.current_topic} in very simple terms as if to a beginner"
-                            )
-                            if isinstance(simple_explanation, dict) and "explanation" in simple_explanation:
-                                response_text += "\n\n" + simple_explanation["explanation"]
-                        except Exception as e:
-                            self.logger.error(f"Error getting simpler explanation: {str(e)}")
-                    else:
-                        response_text = f"Thank you for your feedback on understanding {self.current_topic}. Let's continue our exploration."
-                    
-                    # Clear the current question
-                    self.update_shared_state("current_question", None)
-                    
-                    # Provide follow-up actions
-                    response_text += "\n\nWould you like to:\n\n"
-                    response_text += "1. Continue to the next topic\n"
-                    response_text += "2. Review this topic with some practice questions\n"
-                    response_text += "3. See a different explanation of this concept"
-                    
-                    # Create interactive question for the follow-up
-                    follow_up_options = [
-                        "Continue to next topic",
-                        "Practice with quiz questions",
-                        "Show a different explanation",
-                        "Show related diagrams or visuals"
-                    ]
-                    
-                    follow_up_question = self.question_agent.process(
-                        content="Choose your next action",
-                        question_type="multiple_choice",
-                        options=follow_up_options
-                    )
-                    
-                    # Update the current question
-                    self.update_shared_state("current_question", follow_up_question)
-                    
+                # Validate the target position
+                if target_position < 0 or target_position >= len(flow_items):
                     return {
-                        "response": response_text,
-                        "teaching_mode": "dynamic_flow",
-                        "has_question": True,
-                        "question": follow_up_question,
-                        "flow_structure": {
-                            "items": flow_items,
-                            "current_position": current_position
-                        },
-                        "waiting_for_flow_input": True
+                        "response": f"The position {target_position + 1} is out of range. Please choose a value between 1 and {len(flow_items)}.",
+                        "teaching_mode": "dynamic_flow"
                     }
                 
-                # Handle follow-up question response
-                if question_type == "multiple_choice" and "selected_option" in processed_response:
-                    selected_option = processed_response.get("selected_option", {})
-                    selection_text = selected_option.get("text", "")
-                    
-                    # Clear the current question
-                    self.update_shared_state("current_question", None)
-                    
-                    if "next topic" in selection_text.lower():
-                        # Move to the next flow item
-                        return self._move_to_next_flow_item(user_id, current_position, flow_items)
-                    elif "quiz" in selection_text.lower() or "practice" in selection_text.lower():
-                        # Generate practice questions
-                        return self._generate_practice_questions(user_id, current_position, flow_items)
-                    elif "explanation" in selection_text.lower() or "different" in selection_text.lower():
-                        # Generate alternative explanation
-                        return self._generate_alternative_explanation(user_id, current_position, flow_items)
-                    elif "diagram" in selection_text.lower() or "visual" in selection_text.lower():
-                        # Generate or show diagrams
-                        return self._generate_visual_content(user_id, current_position, flow_items)
-                    else:
-                        # Default to continuing with the flow
-                        return self._move_to_next_flow_item(user_id, current_position, flow_items)
+                # Update the position
+                current_position = target_position
+                self.update_shared_state("current_position", current_position)
+                self.logger.info(f"Jumped to position {current_position}")
                 
-            except Exception as e:
-                self.logger.error(f"Error processing question response: {str(e)}")
-                # Clear the current question to avoid getting stuck
-                self.update_shared_state("current_question", None)
-        
-        # Handle standard navigation commands
-        if query_lower in ["next", "continue", "forward", "go on", "proceed"]:
-            # Move to the next flow item
-            return self._move_to_next_flow_item(user_id, current_position, flow_items)
-                
-        elif query_lower in ["previous", "back", "backward", "go back"]:
-            # Move to the previous flow item
-            if current_position > 0:
-                current_position -= 1
-                self.update_shared_state("flow_position", current_position)
-                current_item = flow_items[current_position]
-                
-                # Generate content for the current item
-                content = self._generate_flow_content(current_item, user_id)
-                
-                return content
-            else:
-                # We're already at the beginning
+                # Generate content for the new position
+                try:
+                    flow_item = flow_items[current_position]
+                    self.logger.info(f"Generating flow content for item: {flow_item.get('title', 'Untitled')}")
+                    return self._generate_flow_content(flow_item, user_id)
+                except Exception as e:
+                    self.logger.error(f"Error generating flow content for position {target_position}: {str(e)}")
+                    return default_response
+            except ValueError:
+                self.logger.warning(f"Invalid position format in query: {query}")
                 return {
-                    "response": "We're at the beginning of the learning flow. You can explore this topic further or move forward to the next one.",
-                    "teaching_mode": "dynamic_flow",
-                    "flow_structure": {
-                        "items": flow_items,
-                        "current_position": current_position
-                    },
-                    "waiting_for_flow_input": True
+                    "response": "I didn't understand which position you want to go to. Please specify a number (e.g., 'go to 3').",
+                    "teaching_mode": "dynamic_flow"
                 }
                 
-        elif query_lower in ["list topics", "show topics", "topics", "list", "overview"]:
-            # List all main topics
-            topic_list = ""
-            current_item = flow_items[current_position]
+        elif "list" in query_lower and ("topics" in query_lower or "items" in query_lower):
+            # List all flow items
+            self.logger.info("User requested to list all flow items")
             
+            items_list = []
             for i, item in enumerate(flow_items):
-                if item["type"] == "topic":
-                    marker = "→ " if i == current_position else "  "
-                    topic_list += f"{marker}{item['title']}\n"
+                title = item.get("title", f"Item {i+1}")
+                current_marker = " ← Current" if i == current_position else ""
+                items_list.append(f"{i+1}. {title}{current_marker}")
             
+            items_text = "\n".join(items_list)
             return {
-                "response": f"Here are all the topics in this learning flow:\n\n{topic_list}\nWe are currently on: {current_item['title']}",
-                "teaching_mode": "dynamic_flow",
-                "flow_structure": {
-                    "items": flow_items,
-                    "current_position": current_position
-                },
-                "waiting_for_flow_input": True
+                "response": f"Here are all the items in this learning flow:\n\n{items_text}\n\nWhich one would you like to explore?",
+                "teaching_mode": "dynamic_flow"
             }
-        
-        elif query_lower in ["quiz me", "test my knowledge", "practice questions", "ask me questions", "quiz"]:
-            # Generate practice questions for the current topic
-            # Set quiz mode flag
-            self.update_shared_state("quiz_mode", True)
+            
+        elif any(word in query_lower for word in ["quiz", "question", "test", "check"]):
+            # User wants to test their knowledge
+            self.logger.info("User requested a quiz")
             return self._generate_practice_questions(user_id, current_position, flow_items)
             
-        elif query_lower in ["show flashcards", "flashcards", "review key points", "cards"]:
-            # Generate flashcards for the current topic
-            return self._generate_flashcards(user_id, current_position, flow_items)
+        elif any(word in query_lower for word in ["explain", "explain more", "details", "more"]):
+            # User wants more detailed explanation
+            self.logger.info("User requested more detailed explanation")
+            return self._generate_alternative_explanation(user_id, current_position, flow_items)
             
-        elif query_lower in ["explain", "explain more", "more detail", "tell me more", "elaborate"]:
-            # Get a more detailed explanation using the explainer agent
-            if current_item:
-                try:
-                    detailed_explanation = self.explainer_agent.process(
-                        text=current_item.get("content", current_item.get("title", "")),
-                        query=f"Provide a more detailed explanation of {current_item.get('title', 'this topic')}"
-                    )
-                    
-                    if isinstance(detailed_explanation, dict) and "explanation" in detailed_explanation:
-                        explanation_text = detailed_explanation["explanation"]
-                    else:
-                        explanation_text = str(detailed_explanation)
-                        
-                    return {
-                        "response": f"## More About {current_item.get('title', 'This Topic')}\n\n{explanation_text}",
-                        "teaching_mode": "dynamic_flow",
-                        "flow_structure": {
-                            "items": flow_items,
-                            "current_position": current_position
-                        },
-                        "waiting_for_flow_input": True
-                    }
-                except Exception as e:
-                    self.logger.error(f"Error getting detailed explanation: {str(e)}")
-            
-        elif query_lower in ["show diagram", "diagram", "visualize", "visual"]:
-            # Generate a diagram using the diagram agent
+        elif any(word in query_lower for word in ["visual", "diagram", "picture", "image", "show"]):
+            # User wants a visual representation
+            self.logger.info("User requested visual content")
             return self._generate_visual_content(user_id, current_position, flow_items)
             
-        elif query_lower in ["exit flow", "stop flow", "end flow", "quit flow", "exit", "stop", "quit"]:
-            # Exit the flow
-            self.update_shared_state("teaching_mode", "exploratory")
-            self.update_shared_state("waiting_for_flow_input", False)
-            
-            return {
-                "response": "We've exited the learning flow. Feel free to ask me any questions or start a new discussion.",
-                "teaching_mode": "exploratory"
-            }
+        elif any(word in query_lower for word in ["flashcard", "review", "summary", "card"]):
+            # User wants flashcards to review
+            self.logger.info("User requested flashcards")
+            return self._generate_flashcards(user_id, current_position, flow_items)
             
         else:
-            # Handle a regular question in the context of the current flow item
-            current_item = flow_items[current_position]
+            # Handle as a regular question within the flow
+            self.logger.info(f"Handling as a regular question: {query}")
             
-            # Analyze the query to determine intent and required agents
-            intent, required_agents = self._analyze_query(query, context)
-            
-            # Generate response based on intent and required agents
-            response = self._generate_response(intent, required_agents, context, query, user_id)
-            
-            # Add a hint about interactive features
-            hint = "You can continue exploring this topic, ask specific questions, request a quiz, or move to the next topic."
-            response["response"] += f"\n\n{hint}"
-            
-            # Keep the flow active
-            response["teaching_mode"] = "dynamic_flow"
-            response["flow_structure"] = {
-                "items": flow_items,
-                "current_position": current_position
-            }
-            response["waiting_for_flow_input"] = True
-            
-            return response
-    
-    def _move_to_next_flow_item(self, user_id: str, current_position: int, flow_items: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """
-        Move to the next flow item and generate its content.
-        
-        Args:
-            user_id: The user's ID
-            current_position: The current position in the flow
-            flow_items: The list of flow items
-            
-        Returns:
-            Dict containing the content for the next flow item
-        """
-        # Move to the next flow item if not at the end
-        if current_position < len(flow_items) - 1:
-            current_position += 1
-            self.update_shared_state("flow_position", current_position)
-            current_item = flow_items[current_position]
-            
-            # Generate content for the current item
-            content = self._generate_flow_content(current_item, user_id)
-            
-            return content
-        else:
-            # We've reached the end of the flow
-            return {
-                "response": "We've reached the end of all topics. Would you like to review any specific topic or start a discussion about something we covered?",
-                "teaching_mode": "dynamic_flow",
-                "flow_structure": {
-                    "items": flow_items,
-                    "current_position": current_position
-                },
-                "waiting_for_flow_input": True
-            }
+            # Try to get the current flow item
+            try:
+                current_item = flow_items[current_position]
+                item_title = current_item.get("title", "current topic")
+                item_content = current_item.get("content", "")
+                
+                # Prepare prompt for question answering within flow
+                prompt = f"""You are a helpful AI tutor. The user is currently learning about "{item_title}" 
+                with the following content:
+                
+                {item_content}
+                
+                The user has asked: "{query}"
+                
+                Provide a helpful, educational response that addresses their question while staying focused on 
+                the current topic. Be concise but thorough, and include relevant examples or explanations.
+                """
+                
+                try:
+                    response = self.model.generate_content(
+                        prompt,
+                        generation_config={
+                            "temperature": 0.3,
+                            "max_output_tokens": 1000
+                        }
+                    )
+                    
+                    answer = response.text
+                    self.logger.info(f"Generated response for question within flow")
+                    
+                    return {
+                        "response": answer,
+                        "teaching_mode": "dynamic_flow"
+                    }
+                    
+                except Exception as e:
+                    self.logger.error(f"Error generating response for question within flow: {str(e)}")
+                    return default_response
+                    
+            except (IndexError, KeyError) as e:
+                self.logger.error(f"Error accessing current flow item: {str(e)}")
+                return default_response
+                
+        # Fallback response
+        return default_response
     
     def _generate_practice_questions(self, user_id: str, current_position: int, flow_items: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
@@ -2401,7 +2127,7 @@ class TutorAgent(BaseAgent):
                         },
                         "waiting_for_flow_input": True
                     }
-                else:
+            else:
                     return {
                         "response": f"I prepared some quiz questions for {item_title}, but encountered an issue formatting them. Let's try a different approach to assess your understanding.",
                         "teaching_mode": "dynamic_flow",
@@ -2688,7 +2414,7 @@ class TutorAgent(BaseAgent):
         except Exception as e:
             # Log but don't fail if tracking fails
             self.logger.error(f"Error tracking interaction: {str(e)}")
-            
+    
     def _create_fallback_response(self, message: str) -> Dict[str, Any]:
         """
         Create a fallback response when an error occurs or no appropriate response is available.
@@ -2707,155 +2433,184 @@ class TutorAgent(BaseAgent):
     
     def _generate_flow_content(self, flow_item: Dict[str, Any], user_id: str) -> Dict[str, Any]:
         """
-        Generate content for a flow item with interactive questions to assess student knowledge.
+        Generate content for a flow item using the appropriate agent specified in the item.
         
         Args:
-            flow_item: The flow item to generate content for
+            flow_item: Dict containing flow item information
             user_id: The user's ID
-            
+        
         Returns:
-            Dict containing the generated content and interactive elements
+            Dict containing the generated content
         """
-        item_type = flow_item["type"]
-        item_title = flow_item["title"]
-        item_content = flow_item["content"]
+        self.logger.info(f"Generating content for flow item: {flow_item.get('title', 'Untitled')}")
         
-        # Update current topic
-        self.current_topic = item_title
-        self.update_shared_state("current_topic", item_title)
-        
-        # Prepare initial content
-        if item_type == "topic":
-            intro_text = f"# {item_title}\n\n"
-        else:
-            intro_text = f"## {item_title}\n\n"
-            
-        # Use explainer agent to generate detailed content
         try:
-            # If we have content from the topic extraction, use it as context
-            context = item_content
-            
-            # If context is too short, use a generic prompt
-            if len(context.strip()) < 50:
-                self.logger.warning(f"Content for {item_title} is too short, using generic prompt")
-                context = f"Generate a comprehensive explanation about {item_title} with key concepts, examples, and applications."
-                
-            # Get explanation from explainer agent
-            explanation = self.explainer_agent.process(
-                text=context,
-                query=f"Explain {item_title} in detail"
-            )
-            
-            content = ""
-            if isinstance(explanation, dict):
-                if "explanation" in explanation:
-                    content = explanation["explanation"]
-                elif "title" in explanation and "detailed_explanation" in explanation:
-                    # Handle error or formatted response case
-                    if "error" in explanation.get("additional_notes", "").lower() or "too short" in explanation.get("summary", "").lower():
-                        self.logger.warning(f"Explainer agent returned error for {item_title}: {explanation.get('summary', 'Unknown error')}")
-                        # Generate a simpler explanation without depending on the original content
-                        content = f"{item_title} is an important concept to understand. While I don't have extensive details on this specific topic, I can help you explore the key aspects of {item_title} through some guided learning activities and questions. Let's start with what you already know about this topic and build from there."
-                    else:
-                        # It's a structured explanation - format it nicely
-                        content = f"{explanation.get('summary', '')}\n\n"
-                        
-                        if explanation.get('key_points'):
-                            content += "**Key Points:**\n"
-                            for point in explanation.get('key_points', []):
-                                content += f"- {point}\n"
-                            content += "\n"
-                        
-                        content += explanation.get('detailed_explanation', '')
-                        
-                        if explanation.get('examples'):
-                            content += "\n\n**Examples:**\n"
-                            for example in explanation.get('examples', []):
-                                content += f"- {example}\n"
-                else:
-                    # Use string representation as fallback
-                    content = str(explanation)
-            else:
-                content = str(explanation)
-            
-            # If content is still problematic (too short, JSON string, etc.)
-            if len(content.strip()) < 100 or (content.strip().startswith('{') and content.strip().endswith('}')):
-                self.logger.warning(f"Generated content for {item_title} is inadequate, using fallback text")
-                content = f"The topic of {item_title} encompasses various important concepts and applications. While we explore this topic, feel free to ask specific questions about any aspect you'd like to understand better. I'm here to guide your learning journey on {item_title}."
-            
-            # Create the response object
-            response = {
-                "response": intro_text + content,
-                "teaching_mode": "dynamic_flow",
-                "item_title": item_title,
-                "item_type": item_type
-            }
-                
-            # Generate diagram if appropriate
-            if self._should_generate_diagram_for_topic(item_title):
-                try:
-                    diagram = self.diagram_agent.process(text=content, diagram_type="auto")
-                    if isinstance(diagram, dict) and "mermaid_code" in diagram:
-                        diagram_content = f"\n\nHere's a visual representation to help you understand:\n\n"
-                        response["response"] += diagram_content
-                        response["has_diagram"] = True
-                        response["diagram"] = diagram
-                        response["mermaid_code"] = diagram.get("mermaid_code")
-                except Exception as e:
-                    self.logger.error(f"Error generating diagram for flow item: {str(e)}")
-            
-            # Generate a comprehension question to assess understanding
-            try:
-                # Generate a multiple-choice question about this topic
-                options = [
-                    "I understand this concept completely",
-                    "I understand most of it but have some questions",
-                    "I'm still confused about some key points",
-                    "I need a simpler explanation"
-                ]
-                
-                comprehension_question = self.question_agent.process(
-                    content=content,
-                    question_type="multiple_choice",
-                    question_text=f"How well do you understand {item_title}?",
-                    options=options
-                )
-                
-                response["has_question"] = True
-                response["question"] = comprehension_question
-                
-                # Save the current question to shared state
-                self.update_shared_state("current_question", comprehension_question)
-                
-            except Exception as e:
-                self.logger.error(f"Error generating comprehension question: {str(e)}")
-            
-            # Try to generate quiz questions for this topic
-            try:
-                quiz = self.quiz_agent.process(content, num_questions=2)
-                if isinstance(quiz, dict) and "questions" in quiz and len(quiz["questions"]) > 0:
-                    response["has_quiz"] = True
-                    response["quiz"] = quiz
-                    response["response"] += "\n\nI've prepared some quiz questions to test your understanding of this topic."
-            except Exception as e:
-                self.logger.error(f"Error generating quiz for flow item: {str(e)}")
-            
-            # Try to generate flashcards for key points
-            try:
-                flashcards = self.flashcard_agent.process(content)
-                if isinstance(flashcards, dict) and "cards" in flashcards and len(flashcards["cards"]) > 0:
-                    response["has_flashcards"] = True
-                    response["flashcards"] = flashcards
-                    response["response"] += "\n\nI've created flashcards to help you review key concepts in this topic."
-            except Exception as e:
-                self.logger.error(f"Error generating flashcards for flow item: {str(e)}")
-            
-            # Add navigation hints
-            navigation_text = "\n\nNavigate through this learning flow using the buttons below or ask questions about any aspect that interests you."
-            response["response"] += navigation_text
+            # Extract item details
+            item_title = flow_item.get("title", "Untitled")
+            item_content = flow_item.get("content", "")
+            item_type = flow_item.get("type", "standard")
+            agent_type = flow_item.get("agent_type", "tutor")
+            agent_prompt = flow_item.get("agent_prompt", "")
             
             # Track this interaction
-            self.logger.info(f"Tracking flow item view for user {user_id}: {item_title}")
+            self._track_interaction(
+                user_id=user_id,
+                intent="view_flow_item",
+                query="",
+                response={"item_title": item_title, "item_type": item_type}
+            )
+            
+            # Prepare the response structure
+            response = {
+                "teaching_mode": "dynamic_flow",
+                "current_item": item_title
+            }
+            
+            # Generate content based on agent type
+            if agent_type == "explainer":
+                self.logger.info(f"Using explainer agent for flow item: {item_title}")
+                
+                # If we have an agent prompt, use it, otherwise use the item content
+                query = agent_prompt if agent_prompt else f"Explain {item_title}"
+                content_text = item_content if len(item_content) > 100 else f"Explain {item_title} in detail with examples and real-world applications."
+                
+                # Generate explanation using the explainer agent
+                explanation = self.explainer_agent.process(
+                    text=content_text,
+                    query=query
+                )
+                
+                if isinstance(explanation, dict):
+                    # Format a detailed explanation
+                    result_text = f"# {item_title}\n\n"
+                    
+                    if "summary" in explanation and explanation["summary"]:
+                        result_text += f"{explanation['summary']}\n\n"
+                    
+                    if "detailed_explanation" in explanation and explanation["detailed_explanation"]:
+                        result_text += f"{explanation['detailed_explanation']}\n\n"
+                    
+                    if "key_points" in explanation and explanation["key_points"]:
+                        result_text += "## Key Points\n\n"
+                        for point in explanation["key_points"]:
+                            result_text += f"- {point}\n"
+                        result_text += "\n"
+                    
+                    if "examples" in explanation and explanation["examples"]:
+                        result_text += "## Examples\n\n"
+                        for example in explanation["examples"]:
+                            result_text += f"- {example}\n"
+                        result_text += "\n"
+                else:
+                    result_text = str(explanation)
+                
+                response["response"] = result_text
+                
+            elif agent_type == "diagram":
+                self.logger.info(f"Using diagram agent for flow item: {item_title}")
+                
+                # Generate diagram using the diagram agent
+                diagram_type = flow_item.get("diagram_type", "auto")
+                
+                diagram = self.diagram_agent.process(
+                    text=agent_prompt if agent_prompt else f"Create a visual representation of {item_title}",
+                    diagram_type=diagram_type
+                )
+                
+                if isinstance(diagram, dict) and "mermaid_code" in diagram:
+                    explanation = diagram.get("explanation", f"This diagram illustrates the key concepts and relationships in {item_title}.")
+                    
+                    response["response"] = f"# {item_title}\n\n{explanation}"
+                    response["has_diagram"] = True
+                    response["mermaid_code"] = diagram["mermaid_code"]
+                    response["diagram_type"] = diagram.get("diagram_type", "flowchart")
+                else:
+                    response["response"] = f"# {item_title}\n\nI was unable to generate a diagram for this topic."
+            
+            elif agent_type == "quiz":
+                self.logger.info(f"Using quiz agent for flow item: {item_title}")
+                
+                # Extract quiz options if available
+                options = flow_item.get("options", {})
+                num_questions = options.get("num_questions", 3)
+                difficulty = options.get("difficulty", "mixed")
+                include_explanations = options.get("include_explanations", True)
+                
+                # Generate quiz using the quiz agent
+                quiz = self.quiz_agent.process(
+                    text=item_content if len(item_content) > 100 else f"Generate questions about {item_title}",
+                    num_questions=num_questions,
+                    topic=item_title,
+                    difficulty=difficulty,
+                    include_explanations=include_explanations
+                )
+                
+                if isinstance(quiz, dict) and "questions" in quiz and len(quiz["questions"]) > 0:
+                    introduction_text = f"Let's test your understanding of {item_title} with {num_questions} questions."
+                    
+                    response["response"] = f"# Quiz: {item_title}\n\n{introduction_text}"
+                    response["has_quiz"] = True
+                    response["quiz"] = quiz
+                    
+                    # Update shared state for quiz tracking
+                    self.update_shared_state("quiz_mode", True)
+                    self.update_shared_state("current_quiz", {
+                        "topic": item_title,
+                        "current_question_index": 0,
+                        "total_questions": len(quiz["questions"]),
+                        "correct_answers": 0,
+                        "questions": quiz["questions"]
+                    })
+                    
+                    # Set the first question as the current question
+                    if len(quiz["questions"]) > 0:
+                        self.update_shared_state("current_question", quiz["questions"][0])
+                else:
+                    response["response"] = f"# {item_title}\n\nI was unable to generate quiz questions for this topic."
+            
+            elif agent_type == "flashcard":
+                self.logger.info(f"Using flashcard agent for flow item: {item_title}")
+                
+                # Generate flashcards using the flashcard agent
+                flashcards = self.flashcard_agent.process(
+                    text=agent_prompt if agent_prompt else f"Create flashcards about {item_title}",
+                    num_cards=flow_item.get("num_cards", 5)
+                )
+                
+                if isinstance(flashcards, dict) and "flashcards" in flashcards and len(flashcards["flashcards"]) > 0:
+                    introduction_text = f"Here are some flashcards to help you review key concepts about {item_title}."
+                    
+                    response["response"] = f"# Flashcards: {item_title}\n\n{introduction_text}"
+                    response["has_flashcards"] = True
+                    response["flashcards"] = flashcards
+                else:
+                    response["response"] = f"# {item_title}\n\nI was unable to generate flashcards for this topic."
+            
+            else:  # Default to tutor/standard content
+                self.logger.info(f"Using tutor agent for flow item: {item_title}")
+                
+                # For introduction, conclusion, or standard items, use formatted content
+                if item_type in ["introduction", "conclusion", "standard"]:
+                    formatted_content = f"# {item_title}\n\n{item_content}"
+                    
+                    # If this is an introduction, add a welcome message
+                    if item_type == "introduction":
+                        formatted_content += "\n\nYou can navigate through this learning path using commands like 'next', 'previous', or ask specific questions at any time."
+                    
+                    # If this is a conclusion, add a summary
+                    if item_type == "conclusion":
+                        formatted_content += "\n\nYou've completed this learning path. You can review specific topics by saying 'go to [topic name]' or explore another subject."
+                    
+                    response["response"] = formatted_content
+                else:
+                    # Fallback to standard content
+                    response["response"] = f"# {item_title}\n\n{item_content}"
+            
+            # Include flow structure information
+            response["flow_structure"] = {
+                "current_position": self.shared_state.get("flow_position", 0),
+                "total_items": len(self.shared_state.get("flow_items", []))
+            }
             
             return response
             
@@ -2863,15 +2618,11 @@ class TutorAgent(BaseAgent):
             self.logger.error(f"Error generating flow content: {str(e)}")
             traceback.print_exc()
             
-            # Enhanced fallback content with more educational value
-            fallback_response = {
-                "response": f"{intro_text}Let's explore {item_title}. While I'm preparing comprehensive material on this topic, I'd like to know what aspects of {item_title} you're most interested in learning about. What specific questions do you have about {item_title}?\n\nYou can also navigate to other topics using the commands below, or ask me to generate a practice quiz on this topic.",
-                "teaching_mode": "dynamic_flow",
-                "item_title": item_title,
-                "item_type": item_type
+            # Return a fallback response
+            return {
+                "response": f"# {flow_item.get('title', 'Untitled')}\n\nI encountered an issue generating content for this topic. Let's continue with our learning journey.",
+                "teaching_mode": "dynamic_flow"
             }
-            
-            return fallback_response
     
     def _generate_integrated_lesson_plan(self, topic: Dict[str, Any], user_id: str) -> Dict[str, Any]:
         """
@@ -2945,7 +2696,7 @@ class TutorAgent(BaseAgent):
                 
                 if isinstance(intro_explanation, dict) and "explanation" in intro_explanation:
                     intro_content = intro_explanation["explanation"]
-                else:
+            else:
                     intro_content = str(intro_explanation)
                 
                 intro_activity = {
@@ -3067,7 +2818,7 @@ class TutorAgent(BaseAgent):
                 
                 if isinstance(reflection_questions, dict) and "explanation" in reflection_questions:
                     reflection_content = reflection_questions["explanation"]
-                else:
+        else:
                     reflection_content = str(reflection_questions)
                 
                 reflection_activity = {
@@ -4022,3 +3773,183 @@ When you're ready to continue, just let me know.
         
         # If no specific intent was detected, return general question
         return result
+    
+    def _create_multi_agent_learning_path(self, topic: Dict[str, Any], user_id: str) -> Dict[str, Any]:
+        """
+        Create a comprehensive learning path that actively uses all specialized agents in 
+        a structured sequence to provide a rich, multi-modal learning experience.
+        
+        Args:
+            topic: Dictionary containing the topic to teach
+            user_id: The user's ID
+            
+        Returns:
+            Dict containing the structured learning path
+        """
+        self.logger.info(f"Creating multi-agent learning path for topic: {topic.get('title', 'Unknown')}")
+        
+        try:
+            # Extract topic information
+            topic_title = topic.get('title', 'Unknown Topic')
+            topic_content = topic.get('content', '')
+            subtopics = topic.get('subtopics', [])
+            
+            # Define a set of learning activities that utilize all agents
+            flow_items = []
+            
+            # Add introduction item
+            flow_items.append({
+                "type": "introduction",
+                "title": f"Introduction to {topic_title}",
+                "content": f"We'll explore {topic_title} using multiple learning approaches to help you understand and retain the key concepts. This will include explanations, visual diagrams, interactive quizzes, and flashcards for review.",
+                "agent_type": "tutor"
+            })
+            
+            # Add topic overview from explainer agent
+            flow_items.append({
+                "type": "explanation",
+                "title": f"Overview of {topic_title}",
+                "content": topic_content,
+                "agent_type": "explainer",
+                "agent_prompt": f"Provide a comprehensive overview of {topic_title} with clear explanations of the key concepts and real-world relevance."
+            })
+            
+            # Add visual representation from diagram agent
+            flow_items.append({
+                "type": "visualization",
+                "title": f"Visual Representation of {topic_title}",
+                "content": f"A diagram to visualize the key components and relationships in {topic_title}.",
+                "agent_type": "diagram",
+                "agent_prompt": f"Create a visual representation of {topic_title} showing the main concepts and their relationships."
+            })
+            
+            # For each subtopic, create a mini-sequence of learning activities
+            for i, subtopic in enumerate(subtopics):
+                subtopic_title = subtopic.get('title', f"Subtopic {i+1}")
+                subtopic_content = subtopic.get('content', '')
+                
+                # Explainer agent for detailed explanation
+                flow_items.append({
+                    "type": "subtopic",
+                    "title": subtopic_title,
+                    "content": subtopic_content,
+                    "agent_type": "explainer",
+                    "agent_prompt": f"Explain {subtopic_title} in detail with examples and applications."
+                })
+                
+                # Diagram agent for visual aid if the topic is suitable
+                if self._should_generate_diagram_for_topic(subtopic_title):
+                    flow_items.append({
+                        "type": "visualization",
+                        "title": f"Visual Representation of {subtopic_title}",
+                        "content": f"A diagram to illustrate the key concepts in {subtopic_title}.",
+                        "agent_type": "diagram",
+                        "agent_prompt": f"Create a visual representation of {subtopic_title} showing its main concepts."
+                    })
+                
+                # Add knowledge check after every subtopic
+                flow_items.append({
+                    "type": "knowledge_check",
+                    "title": f"Quick Check: {subtopic_title}",
+                    "content": f"Let's check your understanding of {subtopic_title} with a quick question.",
+                    "agent_type": "quiz",
+                    "agent_prompt": f"Generate a single challenging question about {subtopic_title} to test understanding."
+                })
+            
+            # Add comprehensive quiz from quiz agent
+            flow_items.append({
+                "type": "assessment",
+                "title": f"Quiz: {topic_title}",
+                "content": f"Now let's test your understanding of {topic_title} with a comprehensive quiz.",
+                "agent_type": "quiz",
+                "agent_prompt": f"Generate a set of 5 questions covering all aspects of {topic_title} at varying difficulty levels.",
+                "options": {
+                    "num_questions": 5,
+                    "include_explanations": True,
+                    "difficulty": "adaptive"
+                }
+            })
+            
+            # Add flashcards from flashcard agent
+            flow_items.append({
+                "type": "review",
+                "title": f"Flashcards: {topic_title}",
+                "content": f"Use these flashcards to review and memorize key concepts from {topic_title}.",
+                "agent_type": "flashcard",
+                "agent_prompt": f"Generate a comprehensive set of flashcards covering the key terms, concepts, and principles in {topic_title}."
+            })
+            
+            # Add synthesis/summary from explainer agent
+            flow_items.append({
+                "type": "summary",
+                "title": f"Summary of {topic_title}",
+                "content": f"Let's recap what we've learned about {topic_title}.",
+                "agent_type": "explainer",
+                "agent_prompt": f"Create a comprehensive summary of {topic_title}, highlighting the key points and their relationships."
+            })
+            
+            # Add application/practical item
+            flow_items.append({
+                "type": "application",
+                "title": f"Practical Applications of {topic_title}",
+                "content": f"Let's explore how {topic_title} is applied in real-world scenarios.",
+                "agent_type": "explainer",
+                "agent_prompt": f"Describe practical applications and real-world examples of {topic_title} in different contexts."
+            })
+            
+            # Add conclusion
+            flow_items.append({
+                "type": "conclusion",
+                "title": f"Conclusion: {topic_title}",
+                "content": f"You've completed the comprehensive learning path for {topic_title}. You can now explore other topics or ask specific questions about what you've learned.",
+                "agent_type": "tutor"
+            })
+            
+            # Create the learning path structure
+            learning_path = {
+                "title": f"Multi-Agent Learning: {topic_title}",
+                "description": f"A comprehensive learning path for {topic_title} utilizing multiple teaching approaches.",
+                "topic": topic,
+                "flow_items": flow_items,
+                "current_position": 0,
+                "total_items": len(flow_items),
+                "user_id": user_id,
+                "created_at": self._get_current_timestamp()
+            }
+            
+            self.logger.info(f"Created multi-agent learning path with {len(flow_items)} activities for topic: {topic_title}")
+            
+            # Update the shared state
+            self.update_shared_state("flow_items", flow_items)
+            self.update_shared_state("flow_position", 0)
+            self.update_shared_state("current_topic", topic_title)
+            self.update_shared_state("teaching_mode", "dynamic_flow")
+            
+            # Generate the introduction content
+            intro_item = flow_items[0]
+            intro_content = self._generate_flow_content(intro_item, user_id)
+            
+            return {
+                "response": intro_content.get("response", f"Welcome to your learning journey on {topic_title}!"),
+                "teaching_mode": "dynamic_flow",
+                "flow": {
+                    "title": learning_path["title"],
+                    "description": learning_path["description"],
+                    "topics": flow_items,
+                    "current_position": 0,
+                    "total_items": len(flow_items)
+                }
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Error creating multi-agent learning path: {str(e)}")
+            traceback.print_exc()
+            return {
+                "response": f"I encountered an issue creating a learning path for {topic.get('title', 'this topic')}. Let's try a different approach.",
+                "teaching_mode": "exploratory"
+            }
+            
+    def _get_current_timestamp(self) -> str:
+        """Get the current timestamp as a string."""
+        from datetime import datetime
+        return datetime.now().isoformat()

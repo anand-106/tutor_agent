@@ -32,21 +32,55 @@ class UserProgressController extends GetxController {
       errorMessage.value = "";
 
       final response = await _apiService.getUserKnowledgeSummary(userId.value);
-      userProgress.value = UserProgress.fromJson(response);
 
-      // Also fetch learning patterns
-      await fetchLearningPatterns();
+      // Check if response is valid and contains expected data structure
+      if (response != null && response is Map<String, dynamic>) {
+        // Handle potential missing data with defaults
+        userProgress.value = UserProgress.fromJson(response);
 
-      Get.snackbar(
-        'Success',
-        'User progress loaded successfully',
-        backgroundColor: Colors.green.withOpacity(0.1),
-        colorText: Colors.white,
-        duration: Duration(seconds: 2),
-      );
+        // Also fetch learning patterns
+        await fetchLearningPatterns();
+
+        Get.snackbar(
+          'Success',
+          'User progress loaded successfully',
+          backgroundColor: Colors.green.withOpacity(0.1),
+          colorText: Colors.white,
+          duration: Duration(seconds: 2),
+        );
+      } else {
+        // Handle empty or invalid response with a default structure
+        userProgress.value = UserProgress(
+            userId: userId.value,
+            averageKnowledge: 0.0,
+            topicsStudied: 0,
+            weakTopics: [],
+            mediumTopics: [],
+            strongTopics: []);
+
+        hasError.value = true;
+        errorMessage.value = "Invalid data received from server";
+        Get.snackbar(
+          'Warning',
+          'Could not load user progress data',
+          backgroundColor: Colors.amber.withOpacity(0.1),
+          colorText: Colors.white,
+          duration: Duration(seconds: 3),
+        );
+      }
     } catch (e) {
       hasError.value = true;
       errorMessage.value = "Failed to load user progress: $e";
+
+      // Set default user progress on error
+      userProgress.value = UserProgress(
+          userId: userId.value,
+          averageKnowledge: 0.0,
+          topicsStudied: 0,
+          weakTopics: [],
+          mediumTopics: [],
+          strongTopics: []);
+
       Get.snackbar(
         'Error',
         errorMessage.value,
@@ -65,17 +99,26 @@ class UserProgressController extends GetxController {
 
       // Check if response is valid
       if (response != null && response is Map<String, dynamic>) {
-        // Ensure the response has the expected structure
-        if (!response.containsKey('insights')) {
-          response['insights'] = [];
+        try {
+          // Create a more robust LearningPattern from the response
+          learningPattern.value = LearningPattern.fromJson(response);
+        } catch (e) {
+          print('Error parsing learning patterns data: $e');
+          // Create a default LearningPattern on error
+          learningPattern.value = LearningPattern(
+            userId: userId.value,
+            interactionCounts: {},
+            studyRegularity: "none",
+            insights: [
+              LearningInsight(
+                  type: "error",
+                  value: "Error",
+                  description: "Could not parse learning patterns data.")
+            ],
+          );
         }
-        if (!response.containsKey('interaction_counts')) {
-          response['interaction_counts'] = {};
-        }
-
-        learningPattern.value = LearningPattern.fromJson(response);
       } else {
-        // Create a default learning pattern if response is invalid
+        // Create a default LearningPattern if response is invalid
         learningPattern.value = LearningPattern(
           userId: userId.value,
           interactionCounts: {},
@@ -85,14 +128,18 @@ class UserProgressController extends GetxController {
       }
     } catch (e) {
       print('Error fetching learning patterns: $e');
-      // Create a default learning pattern on error
+      // Create a default LearningPattern on error
       learningPattern.value = LearningPattern(
         userId: userId.value,
         interactionCounts: {},
         studyRegularity: "none",
-        insights: [],
+        insights: [
+          LearningInsight(
+              type: "error",
+              value: "Error",
+              description: "Error fetching learning data: ${e.toString()}")
+        ],
       );
-      // Don't show error snackbar for this, as it's secondary information
     }
   }
 

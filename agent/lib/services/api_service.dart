@@ -22,38 +22,56 @@ class ApiService extends GetxService {
   }
 
   Future<dynamic> sendChatMessage(String text,
-      {String userId = 'default_user'}) async {
+      {String userId = 'default_user', bool isSystemCommand = false}) async {
     try {
       // Check if the message is a special command (starts with !)
       // We'll still send it to the API but avoid trying to parse these as JSON
       bool isSpecialCommand = text.trim().startsWith('!') ||
           text.trim().toLowerCase() == 'start flow' ||
-          text.trim().toLowerCase() == 'next' ||
-          text.trim().toLowerCase() == 'previous' ||
-          text.trim().toLowerCase() == 'list topics';
+          text.trim().toLowerCase() == '!select_topics';
 
-      // If it's the topic selection command, replace it with start flow command
-      if (text.trim() == '!select_topics') {
-        text = 'start flow';
+      // Check if this is a question response with our special format
+      bool isQuestionResponse = text.trim().startsWith('!answer:');
+
+      print(
+          'Sending message: $text, isSystemCommand: $isSystemCommand, isSpecialCommand: $isSpecialCommand, isQuestionResponse: $isQuestionResponse');
+
+      // Prepare data for API
+      Map<String, dynamic> data = {
+        'message': text,
+        'user_id': userId,
+      };
+
+      // If this is a system command or special command, add command_type
+      if (isSystemCommand || isSpecialCommand) {
+        if (text.trim().toLowerCase() == 'start flow') {
+          print('Sending start_flow command type to API');
+          data['command_type'] = 'start_flow';
+        } else if (text.trim().toLowerCase() == '!select_topics') {
+          print('Sending select_topics command type to API');
+          data['command_type'] = 'select_topics';
+        } else if (isQuestionResponse) {
+          print('Sending question_response command type to API');
+          data['command_type'] = 'question_response';
+
+          // Parse the answer format: !answer:id:text
+          List<String> parts = text.split(':');
+          if (parts.length >= 3) {
+            data['answer_id'] = parts[1];
+            data['answer_text'] = parts.sublist(2).join(':');
+          }
+        }
       }
 
-      // Add special flag for flow commands
-      Map<String, dynamic> data = {'text': text, 'user_id': userId};
-
-      // Add a special flag to clearly identify the start flow command
-      if (text.trim().toLowerCase() == 'start flow') {
-        data['command_type'] = 'start_flow';
-        print('Sending start_flow command with special flag');
-      }
-
-      if (isSpecialCommand) {
-        print(
-            'Sending special command to API: ${text.substring(0, math.min(20, text.length))}...');
-      }
-
+      // Call the chat API
       final response = await _dio.post(
         '/chat',
         data: data,
+        options: dio.Options(
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        ),
       );
 
       if (response.statusCode == 200) {
@@ -238,11 +256,54 @@ class ApiService extends GetxService {
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         print('User Knowledge Summary: $responseData'); // Debug print
-        return responseData;
+
+        // Validate the response structure
+        if (responseData != null && responseData is Map<String, dynamic>) {
+          // Ensure the required fields are present
+          if (!responseData.containsKey('user_id')) {
+            responseData['user_id'] = userId;
+          }
+          if (!responseData.containsKey('average_knowledge')) {
+            responseData['average_knowledge'] = 0;
+          }
+          if (!responseData.containsKey('topics_studied')) {
+            responseData['topics_studied'] = 0;
+          }
+
+          return responseData;
+        } else {
+          // Return a default structure if response is not valid
+          return {
+            'user_id': userId,
+            'average_knowledge': 0,
+            'topics_studied': 0,
+            'weak_topics': [],
+            'medium_topics': [],
+            'strong_topics': []
+          };
+        }
       }
-      throw 'Failed to get user knowledge summary';
+
+      // Return default structure on non-200 status code
+      return {
+        'user_id': userId,
+        'average_knowledge': 0,
+        'topics_studied': 0,
+        'weak_topics': [],
+        'medium_topics': [],
+        'strong_topics': []
+      };
     } catch (e) {
-      throw 'Error getting user knowledge summary: $e';
+      print('Error getting user knowledge summary: $e');
+      // Return default structure on exception
+      return {
+        'user_id': userId,
+        'average_knowledge': 0,
+        'topics_studied': 0,
+        'weak_topics': [],
+        'medium_topics': [],
+        'strong_topics': []
+      };
     }
   }
 
@@ -272,26 +333,51 @@ class ApiService extends GetxService {
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         print('Learning Patterns: $responseData'); // Debug print
-        return responseData;
+
+        // Ensure we're returning a proper Map<String, dynamic>
+        if (responseData is Map) {
+          // Convert any LinkedMap to a regular Map<String, dynamic>
+          Map<String, dynamic> result = {};
+
+          // Convert the learning_patterns field if it exists
+          if (responseData.containsKey('learning_patterns')) {
+            var patterns = responseData['learning_patterns'];
+            if (patterns is Map) {
+              // Convert to a regular Map<String, dynamic>
+              Map<String, dynamic> convertedPatterns = {};
+              patterns.forEach((key, value) {
+                convertedPatterns[key.toString()] = value;
+              });
+              result['learning_patterns'] = convertedPatterns;
+            } else {
+              // If not a map, just set an empty object
+              result['learning_patterns'] = {};
+            }
+          } else {
+            // If no learning_patterns field, create a default one
+            result['learning_patterns'] = {};
+          }
+
+          return result;
+        }
       }
 
-      // Return default structure on error
-      print(
-          'Failed to get learning patterns: Status code ${response.statusCode}');
+      // Return default structure on non-200 status code or invalid data
+      print('Using default learning patterns structure');
       return {
-        "user_id": userId,
-        "interaction_counts": {},
-        "study_regularity": "none",
-        "insights": []
+        "learning_patterns": {
+          "status": "Data collection in progress",
+          "message": "More data needed for meaningful patterns"
+        }
       };
     } catch (e) {
       print('Error getting learning patterns: $e');
       // Return default structure on exception
       return {
-        "user_id": userId,
-        "interaction_counts": {},
-        "study_regularity": "none",
-        "insights": []
+        "learning_patterns": {
+          "status": "Data collection in progress",
+          "message": "More data needed for meaningful patterns"
+        }
       };
     }
   }

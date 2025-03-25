@@ -40,8 +40,13 @@ class QuizAgent(BaseAgent):
                     "questions": [
                         {{
                             "question": "Clear, concise question?",
-                            "options": ["Option A", "Option B", "Option C", "Option D"],
-                            "correct_answer": "Correct option exactly as written above",
+                            "options": [
+                                {{"text": "Option A", "is_correct": false}},
+                                {{"text": "Option B", "is_correct": false}},
+                                {{"text": "Option C", "is_correct": false}},
+                                {{"text": "Option D", "is_correct": true}}
+                            ],
+                            "correct_answer": "Option D",
                             "explanation": "Brief explanation of the correct answer",
                             "subtopic": "Specific subtopic this question relates to"
                         }}
@@ -53,6 +58,8 @@ class QuizAgent(BaseAgent):
                 2. Each question must:
                    - Be clear and concise
                    - Have exactly 4 options
+                   - Each option must be a dictionary with "text" and "is_correct" fields
+                   - Only ONE option should have "is_correct" set to true
                    - Include the correct answer that matches one option exactly
                    - Include a brief explanation
                    - Include a specific subtopic this question relates to
@@ -114,10 +121,73 @@ class QuizAgent(BaseAgent):
                     required_question_keys = ["question", "options", "correct_answer", "explanation"]
                     if not all(k in question for k in required_question_keys):
                         raise ValueError("Question missing required fields")
-                    if len(question["options"]) != 4:
+                    
+                    # Validate options format
+                    options = question["options"]
+                    
+                    # Ensure options is a list
+                    if not isinstance(options, list):
+                        raise ValueError("Options must be a list")
+                    
+                    # Ensure options is not empty and has exactly 4 items
+                    if len(options) != 4:
                         raise ValueError("Question must have exactly 4 options")
-                    if question["correct_answer"] not in question["options"]:
-                        raise ValueError("Correct answer must match one of the options exactly")
+                    
+                    # Get the correct answer for validation
+                    correct_answer = question["correct_answer"]
+                    
+                    # Reformat options if necessary
+                    formatted_options = []
+                    correct_option_found = False
+                    
+                    for i, option in enumerate(options):
+                        if isinstance(option, dict) and "text" in option and "is_correct" in option:
+                            # Option is already in the right format
+                            option_text = option["text"]
+                            is_correct = option_text == correct_answer
+                            
+                            # Fix is_correct flag if it doesn't match correct_answer
+                            if is_correct != option["is_correct"]:
+                                option["is_correct"] = is_correct
+                                
+                            if is_correct:
+                                correct_option_found = True
+                                
+                            formatted_options.append(option)
+                        elif isinstance(option, str):
+                            # Option is a string, convert to dict
+                            is_correct = option == correct_answer
+                            formatted_options.append({
+                                "text": option,
+                                "is_correct": is_correct
+                            })
+                            
+                            if is_correct:
+                                correct_option_found = True
+                        else:
+                            # Try to extract text field if option is a dict without expected fields
+                            if isinstance(option, dict) and "text" in option:
+                                option_text = option["text"]
+                            else:
+                                option_text = str(option)
+                                
+                            is_correct = option_text == correct_answer
+                            formatted_options.append({
+                                "text": option_text,
+                                "is_correct": is_correct
+                            })
+                            
+                            if is_correct:
+                                correct_option_found = True
+                    
+                    # If no correct option was found, set the first one as correct
+                    if not correct_option_found and formatted_options:
+                        formatted_options[0]["is_correct"] = True
+                        question["correct_answer"] = formatted_options[0]["text"]
+                    
+                    # Update options in the question
+                    question["options"] = formatted_options
+                    
                     # Add subtopic if missing
                     if "subtopic" not in question:
                         question["subtopic"] = quiz_data["topic"]

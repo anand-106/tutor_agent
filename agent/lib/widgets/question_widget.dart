@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:agent/controllers/chat_controller.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:convert';
 
 class QuestionWidget extends StatelessWidget {
   final Map<String, dynamic> question;
@@ -14,11 +15,28 @@ class QuestionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Debug print the question object
+    debugPrint('Rendering QuestionWidget with data: ${json.encode(question)}');
+
+    // Extract question properties with safe fallbacks
     final questionType = question['type'] as String? ?? 'general';
     final title = question['title'] as String? ?? 'Question';
     final message = question['message'] as String? ?? '';
-    final hasOptions = question['has_options'] as bool? ?? false;
-    final options = question['options'] as List<dynamic>? ?? [];
+
+    // Check if the options field exists and is properly formatted
+    final hasOptions = question.containsKey('options') &&
+        question['options'] is List &&
+        (question['options'] as List).isNotEmpty;
+
+    // Get options or provide an empty list as fallback
+    final options = hasOptions
+        ? List<dynamic>.from(question['options'] as List)
+        : <dynamic>[];
+
+    if (!hasOptions && questionType == 'multiple_choice') {
+      debugPrint(
+          'Warning: multiple_choice question type without valid options');
+    }
 
     return Container(
       decoration: BoxDecoration(
@@ -36,7 +54,7 @@ class QuestionWidget extends StatelessWidget {
         ],
       ),
       margin: EdgeInsets.symmetric(vertical: 8),
-      padding: EdgeInsets.all(12),
+      padding: EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -49,12 +67,14 @@ class QuestionWidget extends StatelessWidget {
                 size: 20,
               ),
               SizedBox(width: 8),
-              Text(
-                title,
-                style: GoogleFonts.inter(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).primaryColor,
+              Expanded(
+                child: Text(
+                  title,
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).primaryColor,
+                  ),
                 ),
               ),
             ],
@@ -63,23 +83,41 @@ class QuestionWidget extends StatelessWidget {
           // Divider
           Divider(
             color: Colors.white.withOpacity(0.1),
-            height: 16,
+            height: 24,
           ),
 
           // Question message
-          Text(
-            message,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: Colors.white.withOpacity(0.9),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: Text(
+              message,
+              style: GoogleFonts.inter(
+                fontSize: 16,
+                color: Colors.white.withOpacity(0.9),
+              ),
             ),
           ),
 
-          SizedBox(height: 12),
-
           // Options (if present)
-          if (hasOptions && options.isNotEmpty)
-            ..._buildOptions(context, options, questionType),
+          if (hasOptions) ..._buildOptions(context, options, questionType),
+
+          // Fallback if no options are present but they should be
+          if (!hasOptions &&
+              (questionType == 'multiple_choice' ||
+                  questionType == 'topic_selection'))
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'No options available for this question.',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.white.withOpacity(0.7),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -88,6 +126,9 @@ class QuestionWidget extends StatelessWidget {
   List<Widget> _buildOptions(
       BuildContext context, List<dynamic> options, String questionType) {
     final widgets = <Widget>[];
+
+    debugPrint(
+        'Building options for question type: $questionType with ${options.length} options');
 
     // Build appropriate options based on question type
     if (questionType == 'topic_selection') {
@@ -108,14 +149,15 @@ class QuestionWidget extends StatelessWidget {
           ),
           itemCount: options.length,
           itemBuilder: (context, index) {
-            final option = options[index];
+            final option = _normalizeOption(options[index], index);
             return _buildCompactTopicCard(context, option, index);
           },
         ),
       );
     } else if (questionType == 'multiple_choice') {
       // Use list tile style options for multiple choice
-      for (final option in options) {
+      for (int i = 0; i < options.length; i++) {
+        final option = _normalizeOption(options[i], i);
         widgets.add(_buildOptionListTile(context, option));
         widgets.add(SizedBox(height: 6));
       }
@@ -125,22 +167,24 @@ class QuestionWidget extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            for (final option in options)
+            for (int i = 0; i < options.length; i++)
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8),
                 child: ElevatedButton(
-                  onPressed: () => _handleOptionSelected(option),
+                  onPressed: () =>
+                      _handleOptionSelected(_normalizeOption(options[i], i)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: option['id'] == 'yes'
-                        ? Colors.green.withOpacity(0.8)
-                        : Colors.red.withOpacity(0.8),
+                    backgroundColor:
+                        _normalizeOption(options[i], i)['id'] == 'yes'
+                            ? Colors.green.withOpacity(0.8)
+                            : Colors.red.withOpacity(0.8),
                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                   child: Text(
-                    option['text'],
+                    _normalizeOption(options[i], i)['text'],
                     style: GoogleFonts.inter(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
@@ -153,13 +197,43 @@ class QuestionWidget extends StatelessWidget {
       );
     } else {
       // Default to simple list for other question types
-      for (final option in options) {
+      for (int i = 0; i < options.length; i++) {
+        final option = _normalizeOption(options[i], i);
         widgets.add(_buildOptionListTile(context, option));
         widgets.add(SizedBox(height: 6));
       }
     }
 
     return widgets;
+  }
+
+  // Helper method to normalize option format
+  Map<String, dynamic> _normalizeOption(dynamic option, int index) {
+    if (option is Map<String, dynamic>) {
+      // Ensure the option has at least these fields
+      return {
+        'id': option['id'] ?? '${index + 1}',
+        'text': option['text'] ?? 'Option ${index + 1}',
+        'description': option['description'] ?? '',
+        'is_correct': option['is_correct'] ?? false,
+      };
+    } else if (option is String) {
+      // Convert string to map format
+      return {
+        'id': '${index + 1}',
+        'text': option,
+        'description': '',
+        'is_correct': false,
+      };
+    } else {
+      // Fallback for unexpected types
+      return {
+        'id': '${index + 1}',
+        'text': 'Option ${index + 1}',
+        'description': '',
+        'is_correct': false,
+      };
+    }
   }
 
   Widget _buildCompactTopicCard(
@@ -234,57 +308,6 @@ class QuestionWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildTopicCard(BuildContext context, Map<String, dynamic> topic) {
-    return Card(
-      color: Colors.black.withOpacity(0.3),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(
-          color: Theme.of(context).primaryColor.withOpacity(0.3),
-        ),
-      ),
-      elevation: 4,
-      child: InkWell(
-        onTap: () => _handleOptionSelected(topic),
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: EdgeInsets.all(12),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                topic['text'],
-                textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (topic.containsKey('description') &&
-                  topic['description'] != null)
-                Padding(
-                  padding: EdgeInsets.only(top: 4),
-                  child: Text(
-                    topic['description'],
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: Colors.white.withOpacity(0.7),
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildOptionListTile(
       BuildContext context, Map<String, dynamic> option) {
     return Container(
@@ -329,16 +352,23 @@ class QuestionWidget extends StatelessWidget {
     final optionId = option['id'];
     final optionText = option['text'];
 
-    print('Selected option: ID=$optionId, Text=$optionText');
+    debugPrint('Selected option: ID=$optionId, Text=$optionText');
 
     // For topic selection, send the option ID
     final questionType = question['type'] as String? ?? 'general';
     if (questionType == 'topic_selection') {
-      print('Topic selection detected, sending ID: $optionId');
+      debugPrint('Topic selection detected, sending ID: $optionId');
       chatController.sendMessage(optionId);
     } else {
-      // For other question types, send the text as the response
-      chatController.sendMessage(optionText);
+      // Get relevant info from the question to include in response
+      final questionMessage = question['message'] as String? ?? '';
+
+      // For multiple choice and other types, construct a formatted response
+      // This helps the backend identify it as an answer to a question
+      String responseText = "!answer:$optionId:$optionText";
+
+      debugPrint('Sending formatted answer response: $responseText');
+      chatController.sendMessage(responseText, isQuestionResponse: true);
     }
   }
 

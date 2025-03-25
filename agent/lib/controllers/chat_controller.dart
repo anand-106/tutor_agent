@@ -16,77 +16,75 @@ class ChatController extends GetxController {
   final RxList<Map<String, dynamic>> pinnedFlashcards =
       <Map<String, dynamic>>[].obs;
 
-  Future<void> sendMessage(String text) async {
+  Future<void> sendMessage(String text,
+      {bool isSystemCommand = false, bool isQuestionResponse = false}) async {
     if (text.trim().isEmpty) return;
 
-    // Add user message
-    messages.add(ChatMessage(response: text, isUser: true));
+    // Add user message, but not for system commands
+    if (!isSystemCommand) {
+      messages.add(ChatMessage(response: text, isUser: true));
+    }
 
     try {
       isLoading.value = true;
 
+      // Special handling for question responses
+      String messageToSend = text;
+      if (isQuestionResponse && text.startsWith('!answer:')) {
+        print('Processing question response: $text');
+        // The message is already formatted for the backend
+      }
+
       // Get AI response with user ID
       final response = await _apiService.sendChatMessage(
-        text,
-        userId: _userProgressController.userId.value,
+        messageToSend,
+        userId: 'user1', // TODO: Replace with actual user ID when available
+        isSystemCommand: isSystemCommand,
       );
       print('Received response: $response'); // Debug print
 
       if (response is Map<String, dynamic>) {
-        // Check if there was an error
-        if (response.containsKey('error')) {
-          String errorMsg = 'There was an error processing your request.';
-          if (response['error'] == 'rate_limit') {
-            errorMsg =
-                'The system is currently busy. Please try again in a moment.';
-          } else if (response['error'] == 'communication') {
-            errorMsg =
-                'There was an error communicating with the server. Please check your connection.';
-          }
-          messages.add(ChatMessage(response: errorMsg, isUser: false));
-          return;
-        }
+        // Handle different response types
 
-        // Check if this is a topic selection question - if so, automatically start the dynamic flow
-        if (response.containsKey('teaching_mode') &&
-            response['teaching_mode'] == 'topic_selection' &&
-            response.containsKey('has_question') &&
-            response['has_question'] == true) {
-          print(
-              'Topic selection detected, automatically starting dynamic flow');
-
-          // Get the document controller to start the flow
-          final documentController = Get.find<DocumentController>();
-          documentController.startStudyingFlow();
-          return;
-        }
-
-        // Check if this is a dynamic flow teaching mode response
+        // Check if this is a dynamic flow teaching response
         if (response.containsKey('teaching_mode') &&
             response['teaching_mode'] == 'dynamic_flow') {
           print('Handling dynamic flow teaching response');
 
-          // Get the flow content
-          final String flowContent = response['response'] as String? ??
-              "Let's continue with our lesson flow.";
+          // Extract the basic response message
+          String messageText = response['response'] as String? ??
+              "I'm starting an interactive learning flow for this topic.";
 
-          // Add the flow content as a message
+          // Check for diagram content
+          final hasDiagram = response['has_diagram'] as bool? ?? false;
+          final mermaidCode = response['mermaid_code'] as String?;
+          final diagramType = response['diagram_type'] as String?;
+
+          // Check for question content (important for comprehension checks)
+          final hasQuestion = response['has_question'] as bool? ?? false;
+          final question = hasQuestion
+              ? response['question'] as Map<String, dynamic>?
+              : null;
+
+          // Check for flashcards content
+          final hasFlashcards = response['has_flashcards'] as bool? ?? false;
+          final flashcards = hasFlashcards
+              ? response['flashcards'] as Map<String, dynamic>?
+              : null;
+
+          // Create appropriate chat message based on content
           messages.add(ChatMessage(
-            response: flowContent,
+            response: messageText,
             isUser: false,
+            hasDiagram: hasDiagram,
+            mermaidCode: mermaidCode,
+            diagramType: diagramType,
+            hasQuestion: hasQuestion,
+            question: question,
+            hasFlashcards: hasFlashcards,
+            flashcards: flashcards,
             teachingMode: 'dynamic_flow',
           ));
-
-          // Check if there are navigation hints
-          if (response.containsKey('navigation_hints')) {
-            // The UI can show these as buttons or chips to help user navigate
-            print('Flow has navigation hints: ${response['navigation_hints']}');
-          }
-
-          // Check if there's a current topic being taught
-          if (response.containsKey('current_topic')) {
-            print('Current flow topic: ${response['current_topic']}');
-          }
 
           return;
         }
@@ -95,7 +93,7 @@ class ChatController extends GetxController {
         if (response.containsKey('question') &&
             response.containsKey('has_question') &&
             response['has_question'] == true) {
-          print('Handling question response: ${json.encode(response)}');
+          print('Handling question response');
 
           messages.add(ChatMessage(
             response:
@@ -176,12 +174,23 @@ class ChatController extends GetxController {
     }
   }
 
+  // Add a system message (message from the system, not the user or AI)
   void addSystemMessage(String text) {
-    messages.add(ChatMessage(response: text, isUser: false));
+    messages.add(ChatMessage(
+      response: text,
+      isUser: false,
+      teachingMode: 'system',
+    ));
   }
 
+  // Clear all chat messages
   void clearChat() {
     messages.clear();
+  }
+
+  // Set the loading state
+  void setLoading(bool loading) {
+    isLoading.value = loading;
   }
 
   void pinCard(Map<String, dynamic> card) {

@@ -57,10 +57,49 @@ class DocumentController extends GetxController {
 
           // Check if the response contains topics
           if (response.containsKey('topics')) {
-            topics.value = {
-              'status': 'success',
-              'topics': response['topics']['topics']
-            };
+            try {
+              print('Upload response contains topics: ${response['topics']}');
+              final uploadTopics = response['topics'];
+
+              if (uploadTopics is List) {
+                // Direct list of topics - simplest and expected case
+                topics.value = {'status': 'success', 'topics': uploadTopics};
+                print(
+                    'Upload provided a clean list of ${uploadTopics.length} topics');
+              } else if (uploadTopics is Map<String, dynamic>) {
+                // Handle the case where it's a map with a topics field
+                if (uploadTopics.containsKey('topics') &&
+                    uploadTopics['topics'] is List) {
+                  topics.value = {
+                    'status': 'success',
+                    'topics': uploadTopics['topics']
+                  };
+                  print(
+                      'Extracted topics list from nested map in upload response');
+                } else {
+                  // Treat it as a single topic if it has a title
+                  if (uploadTopics.containsKey('title')) {
+                    topics.value = {
+                      'status': 'success',
+                      'topics': [uploadTopics]
+                    };
+                    print('Treating topics map as a single topic');
+                  } else {
+                    // Fallback - fetch topics separately
+                    print('Topics structure unrecognized, fetching separately');
+                    await refreshTopics();
+                  }
+                }
+              } else {
+                // Not a list or map - fetch topics separately
+                print(
+                    'Unexpected topics type in upload response: ${uploadTopics.runtimeType}');
+                await refreshTopics();
+              }
+            } catch (e) {
+              print('Error processing topics from upload response: $e');
+              await refreshTopics();
+            }
           } else {
             // Fetch topics after successful upload if not included in response
             await refreshTopics();
@@ -124,24 +163,79 @@ class DocumentController extends GetxController {
       topics.value = {'status': 'loading', 'topics': []};
 
       final response = await _apiService.getTopics();
-      print('API Response: $response'); // Debug print
+      print('API Response for topics: $response'); // Debug print
 
       if (response.containsKey('topics')) {
         final topicsList = response['topics'];
-        if (topicsList is List && topicsList.isNotEmpty) {
-          // The topics are already in the correct format
+
+        if (topicsList is List) {
+          // Direct list of topics - simplest case
           topics.value = {'status': 'success', 'topics': topicsList};
-        } else if (response['topics'] is Map<String, dynamic>) {
-          // Extract from the document structure
-          final documentTopics = response['topics'] as Map<String, dynamic>;
-          if (documentTopics.isNotEmpty) {
-            final firstDocument = documentTopics.values.first;
-            if (firstDocument is Map<String, dynamic>) {
-              final mainTopics = firstDocument['topics'] as List? ?? [];
-              topics.value = {'status': 'success', 'topics': mainTopics};
+          print(
+              'Topics loaded successfully as list: ${topicsList.length} topics');
+        } else if (topicsList is Map<String, dynamic>) {
+          // It's a map structure - need to extract the actual topics list
+          print('Topics returned as map, extracting list from structure');
+
+          // Check if it has a topics field (nested structure)
+          if (topicsList.containsKey('topics') &&
+              topicsList['topics'] is List) {
+            topics.value = {
+              'status': 'success',
+              'topics': topicsList['topics']
+            };
+            print('Extracted topics list from nested map');
+          } else if (topicsList.isNotEmpty) {
+            // Try to extract from the document structure (older API)
+            try {
+              final firstDocument = topicsList.values.first;
+              if (firstDocument is Map<String, dynamic> &&
+                  firstDocument.containsKey('topics') &&
+                  firstDocument['topics'] is List) {
+                topics.value = {
+                  'status': 'success',
+                  'topics': firstDocument['topics']
+                };
+                print('Extracted topics from document structure');
+              } else {
+                // Fallback - wrap the map in a list
+                topics.value = {
+                  'status': 'success',
+                  'topics': [topicsList]
+                };
+                print('Using map as a single topic');
+              }
+            } catch (e) {
+              print('Error extracting from map structure: $e');
+              topics.value = {
+                'status': 'success',
+                'topics': [topicsList]
+              };
             }
+          } else {
+            // Empty map
+            topics.value = {'status': 'success', 'topics': []};
+            print('Topics map is empty');
           }
+        } else {
+          // Not a list or map - convert to string and use as title
+          print(
+              'Topics returned as unexpected type: ${topicsList.runtimeType}');
+          topics.value = {
+            'status': 'success',
+            'topics': [
+              {
+                'title': topicsList.toString(),
+                'content': 'Topic content converted from non-standard format',
+                'subtopics': []
+              }
+            ]
+          };
         }
+      } else {
+        // No topics key
+        topics.value = {'status': 'success', 'topics': []};
+        print('No topics key in API response');
       }
 
       print('Final processed topics: ${topics.value}'); // Debug print
@@ -266,32 +360,40 @@ class DocumentController extends GetxController {
     }
   }
 
+  // Start the dynamic flow for studying
   Future<void> startStudyingFlow() async {
     try {
       // Get the chat controller
-      final chatController = Get.find<ChatController>();
+      final ChatController chatController = Get.find<ChatController>();
 
-      // Clear any existing chat
+      // Clear any existing chat first
       chatController.clearChat();
 
-      // Navigate to the chat tab
+      // Navigate to chat tab if we're not already there
       Get.toNamed('/chat');
 
-      // Add a system message about starting the full learning flow
+      // Add a system message about starting the learning flow
       chatController.addSystemMessage(
-          'Starting an interactive learning flow covering all topics. You can use "next", "previous", or "list topics" commands to navigate.');
+          "Starting interactive learning flow... This will help you comprehend the document through a multi-agent experience utilizing explainers, diagrams, quizzes, and flashcards.");
 
-      // Send a special command to initiate the teaching flow
-      chatController.sendMessage("start flow");
+      // Send the start flow command to the backend
+      print('Sending start flow command to initiate multi-agent learning path');
+
+      // Tell the user it's loading
+      chatController.setLoading(true);
+
+      // Send the start flow command - added await here
+      await chatController.sendMessage("start flow", isSystemCommand: true);
+
+      // Log debug information
+      print('Start studying flow command sent successfully');
     } catch (e) {
       print('Error starting study flow: $e');
-      Get.snackbar(
-        'Error',
-        'Failed to start study flow: $e',
-        backgroundColor: Colors.red.withOpacity(0.1),
-        colorText: Colors.white,
-        duration: Duration(seconds: 3),
-      );
+
+      // Show error in the chat
+      final ChatController chatController = Get.find<ChatController>();
+      chatController.addSystemMessage(
+          "There was an error starting the learning flow. Please try again or upload a different document.");
     }
   }
 }

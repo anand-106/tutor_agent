@@ -6,6 +6,8 @@ class ChatMessage {
   final String? diagramType;
   final bool hasQuestion;
   final Map<String, dynamic>? question;
+  final bool hasFlashcards;
+  final Map<String, dynamic>? flashcards;
   final String? teachingMode;
 
   ChatMessage({
@@ -16,6 +18,8 @@ class ChatMessage {
     this.diagramType,
     this.hasQuestion = false,
     this.question,
+    this.hasFlashcards = false,
+    this.flashcards,
     this.teachingMode,
   });
 
@@ -30,6 +34,10 @@ class ChatMessage {
       question: json['question'] != null
           ? Map<String, dynamic>.from(json['question'] as Map)
           : null,
+      hasFlashcards: json['has_flashcards'] as bool? ?? false,
+      flashcards: json['flashcards'] != null
+          ? Map<String, dynamic>.from(json['flashcards'] as Map)
+          : null,
       teachingMode: json['teaching_mode'] as String?,
     );
   }
@@ -43,6 +51,8 @@ class ChatMessage {
       'diagram_type': diagramType,
       'has_question': hasQuestion,
       'question': question,
+      'has_flashcards': hasFlashcards,
+      'flashcards': flashcards,
       'teaching_mode': teachingMode,
     };
   }

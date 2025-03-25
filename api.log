@@ -1,0 +1,2021 @@
+2025-03-23 14:31:37,450 - api - INFO - Static files check complete
+2025-03-23 14:31:42,006 - api - INFO - Static files check complete
+2025-03-23 14:32:34,218 - api - INFO - Static files check complete
+2025-03-23 14:32:34,220 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:32:34,222 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:32:34,222 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:32:34,224 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:32:34,225 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:32:35,082 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-23 14:32:35,082 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-23 14:32:35,109 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-23 14:32:35,350 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-23 14:32:35,351 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-23 14:32:35,352 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-23 14:32:35,353 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-23 14:32:35,353 - data_pipeline - INFO - Successfully initialized all components
+2025-03-23 14:32:35,354 - api - INFO - Loading API keys from .env file
+2025-03-23 14:32:35,356 - api - INFO - Successfully loaded 3 API keys
+2025-03-23 14:32:35,357 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-23 14:32:35,359 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-23 14:32:35,359 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-23 14:32:35,361 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-23 14:32:35,363 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-23 14:32:35,364 - quizagent - INFO - QuizAgent initialized
+2025-03-23 14:32:35,366 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-23 14:32:35,368 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-23 14:32:35,369 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-23 14:32:35,370 - topicagent - INFO - TopicAgent initialized
+2025-03-23 14:32:35,370 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-23 14:32:35,372 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-23 14:32:39,339 - api - INFO - Static files check complete
+2025-03-23 14:32:39,341 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:32:39,342 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:32:39,343 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:32:39,345 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:32:39,345 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:32:39,897 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-23 14:32:39,898 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-23 14:32:39,918 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-23 14:32:40,117 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-23 14:32:40,118 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-23 14:32:40,118 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-23 14:32:40,119 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-23 14:32:40,119 - data_pipeline - INFO - Successfully initialized all components
+2025-03-23 14:32:40,120 - api - INFO - Loading API keys from .env file
+2025-03-23 14:32:40,121 - api - INFO - Successfully loaded 3 API keys
+2025-03-23 14:32:40,123 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-23 14:32:40,125 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-23 14:32:40,126 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-23 14:32:40,127 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-23 14:32:40,127 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-23 14:32:40,128 - quizagent - INFO - QuizAgent initialized
+2025-03-23 14:32:40,130 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-23 14:32:40,131 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-23 14:32:40,133 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-23 14:32:40,133 - topicagent - INFO - TopicAgent initialized
+2025-03-23 14:32:40,133 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-23 14:32:40,134 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-23 14:33:43,169 - api - INFO - Static files check complete
+2025-03-23 14:33:43,172 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:33:43,174 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:33:43,174 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:33:43,177 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:33:43,177 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:33:43,763 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-23 14:33:43,764 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-23 14:33:43,785 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-23 14:33:43,980 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-23 14:33:43,981 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-23 14:33:43,982 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-23 14:33:43,982 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-23 14:33:43,982 - data_pipeline - INFO - Successfully initialized all components
+2025-03-23 14:33:43,982 - api - INFO - Loading API keys from .env file
+2025-03-23 14:33:43,984 - api - INFO - Successfully loaded 3 API keys
+2025-03-23 14:33:43,985 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-23 14:33:43,986 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-23 14:33:43,987 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-23 14:33:43,988 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-23 14:33:43,990 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-23 14:33:43,990 - quizagent - INFO - QuizAgent initialized
+2025-03-23 14:33:43,991 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-23 14:33:43,992 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-23 14:33:43,994 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-23 14:33:43,994 - topicagent - INFO - TopicAgent initialized
+2025-03-23 14:33:43,995 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-23 14:33:43,995 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-23 14:34:12,446 - api - INFO - Static files check complete
+2025-03-23 14:34:12,449 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:34:12,451 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:34:12,451 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:34:12,454 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:34:12,454 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:34:13,010 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-23 14:34:13,010 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-23 14:34:13,029 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-23 14:34:13,229 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-23 14:34:13,229 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-23 14:34:13,231 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-23 14:34:13,231 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-23 14:34:13,231 - data_pipeline - INFO - Successfully initialized all components
+2025-03-23 14:34:13,233 - api - INFO - Loading API keys from .env file
+2025-03-23 14:34:13,234 - api - INFO - Successfully loaded 3 API keys
+2025-03-23 14:34:13,234 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-23 14:34:13,236 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-23 14:34:13,237 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-23 14:34:13,238 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-23 14:34:13,239 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-23 14:34:13,240 - quizagent - INFO - QuizAgent initialized
+2025-03-23 14:34:13,241 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-23 14:34:13,242 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-23 14:34:13,244 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-23 14:34:13,245 - topicagent - INFO - TopicAgent initialized
+2025-03-23 14:34:13,245 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-23 14:34:13,246 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-23 14:34:26,725 - api - INFO - Static files check complete
+2025-03-23 14:34:26,727 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:34:26,728 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:34:26,728 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:34:26,729 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:34:26,731 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:34:27,277 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-23 14:34:27,277 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-23 14:34:27,300 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-23 14:34:27,497 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-23 14:34:27,498 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-23 14:34:27,499 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-23 14:34:27,500 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-23 14:34:27,500 - data_pipeline - INFO - Successfully initialized all components
+2025-03-23 14:34:27,500 - api - INFO - Loading API keys from .env file
+2025-03-23 14:34:27,503 - api - INFO - Successfully loaded 3 API keys
+2025-03-23 14:34:27,504 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-23 14:34:27,505 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-23 14:34:27,506 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-23 14:34:27,507 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-23 14:34:27,509 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-23 14:34:27,509 - quizagent - INFO - QuizAgent initialized
+2025-03-23 14:34:27,510 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-23 14:34:27,511 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-23 14:34:27,513 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-23 14:34:27,513 - topicagent - INFO - TopicAgent initialized
+2025-03-23 14:34:27,513 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-23 14:34:27,514 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-23 14:34:27,921 - api - INFO - Static files check complete
+2025-03-23 14:34:27,923 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:34:27,924 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:34:27,925 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:34:27,926 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:34:27,927 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:34:28,503 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-23 14:34:28,503 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-23 14:34:28,520 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-23 14:34:28,718 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-23 14:34:28,718 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-23 14:34:28,720 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-23 14:34:28,720 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-23 14:34:28,720 - data_pipeline - INFO - Successfully initialized all components
+2025-03-23 14:34:28,720 - api - INFO - Loading API keys from .env file
+2025-03-23 14:34:28,722 - api - INFO - Successfully loaded 3 API keys
+2025-03-23 14:34:28,723 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-23 14:34:28,724 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-23 14:34:28,725 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-23 14:34:28,726 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-23 14:34:28,727 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-23 14:34:28,728 - quizagent - INFO - QuizAgent initialized
+2025-03-23 14:34:28,729 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-23 14:34:28,729 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-23 14:34:28,730 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-23 14:34:28,732 - topicagent - INFO - TopicAgent initialized
+2025-03-23 14:34:28,732 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-23 14:34:28,733 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-23 14:36:28,938 - api - INFO - Static files check complete
+2025-03-23 14:36:28,941 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:36:28,942 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:36:28,944 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:36:28,945 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:36:28,946 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:36:29,482 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-23 14:36:29,483 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-23 14:36:29,503 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-23 14:36:29,698 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-23 14:36:29,699 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-23 14:36:29,701 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-23 14:36:29,702 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-23 14:36:29,702 - data_pipeline - INFO - Successfully initialized all components
+2025-03-23 14:36:29,703 - api - INFO - Loading API keys from .env file
+2025-03-23 14:36:29,704 - api - INFO - Successfully loaded 3 API keys
+2025-03-23 14:36:29,705 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-23 14:36:29,706 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-23 14:36:29,706 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-23 14:36:29,708 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-23 14:36:29,710 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-23 14:36:29,711 - quizagent - INFO - QuizAgent initialized
+2025-03-23 14:36:29,712 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-23 14:36:29,713 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-23 14:36:29,715 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-23 14:36:29,715 - topicagent - INFO - TopicAgent initialized
+2025-03-23 14:36:29,715 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-23 14:36:29,716 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-23 14:36:48,570 - api - INFO - Static files check complete
+2025-03-23 14:36:48,571 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:36:48,573 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:36:48,573 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:36:48,575 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:36:48,576 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:36:49,144 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-23 14:36:49,144 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-23 14:36:49,163 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-23 14:36:49,373 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-23 14:36:49,373 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-23 14:36:49,374 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-23 14:36:49,374 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-23 14:36:49,375 - data_pipeline - INFO - Successfully initialized all components
+2025-03-23 14:36:49,375 - api - INFO - Loading API keys from .env file
+2025-03-23 14:36:49,377 - api - INFO - Successfully loaded 3 API keys
+2025-03-23 14:36:49,377 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-23 14:36:49,379 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-23 14:36:49,380 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-23 14:36:49,382 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-23 14:36:49,383 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-23 14:36:49,384 - quizagent - INFO - QuizAgent initialized
+2025-03-23 14:36:49,385 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-23 14:36:49,386 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-23 14:36:49,388 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-23 14:36:49,388 - topicagent - INFO - TopicAgent initialized
+2025-03-23 14:36:49,388 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-23 14:36:49,390 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-23 14:37:21,481 - api - INFO - Static files check complete
+2025-03-23 14:37:21,483 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:37:21,485 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:37:21,487 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:37:21,489 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:37:21,489 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:37:22,152 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-23 14:37:22,153 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-23 14:37:22,175 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-23 14:37:22,390 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-23 14:37:22,390 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-23 14:37:22,392 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-23 14:37:22,393 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-23 14:37:22,394 - data_pipeline - INFO - Successfully initialized all components
+2025-03-23 14:37:22,394 - api - INFO - Loading API keys from .env file
+2025-03-23 14:37:22,395 - api - INFO - Successfully loaded 3 API keys
+2025-03-23 14:37:22,397 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-23 14:37:22,398 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-23 14:37:22,399 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-23 14:37:22,401 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-23 14:37:22,403 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-23 14:37:22,404 - quizagent - INFO - QuizAgent initialized
+2025-03-23 14:37:22,405 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-23 14:37:22,406 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-23 14:37:22,408 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-23 14:37:22,409 - topicagent - INFO - TopicAgent initialized
+2025-03-23 14:37:22,409 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-23 14:37:22,410 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-23 14:37:46,551 - api - INFO - Static files check complete
+2025-03-23 14:37:46,552 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:37:46,553 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:37:46,554 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:37:46,555 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:37:46,556 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:37:53,147 - api - INFO - Static files check complete
+2025-03-23 14:37:53,149 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:37:53,151 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:37:53,151 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:37:53,152 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:37:53,153 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:37:53,668 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-23 14:37:53,669 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-23 14:37:53,689 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-23 14:37:53,891 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-23 14:37:53,892 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-23 14:37:53,894 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-23 14:37:53,894 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-23 14:37:53,895 - data_pipeline - INFO - Successfully initialized all components
+2025-03-23 14:37:53,895 - api - INFO - Loading API keys from .env file
+2025-03-23 14:37:53,897 - api - INFO - Successfully loaded 3 API keys
+2025-03-23 14:37:53,899 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-23 14:37:53,899 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-23 14:37:53,901 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-23 14:37:53,902 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-23 14:37:53,903 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-23 14:37:53,904 - quizagent - INFO - QuizAgent initialized
+2025-03-23 14:37:53,905 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-23 14:37:53,906 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-23 14:37:53,907 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-23 14:37:53,908 - topicagent - INFO - TopicAgent initialized
+2025-03-23 14:37:53,908 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-23 14:37:53,909 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-23 14:38:06,812 - api - INFO - Static files check complete
+2025-03-23 14:38:06,814 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:38:06,815 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:38:06,816 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:38:06,817 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:38:06,818 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:38:07,390 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-23 14:38:07,390 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-23 14:38:07,411 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-23 14:38:07,607 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-23 14:38:07,608 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-23 14:38:07,609 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-23 14:38:07,610 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-23 14:38:07,610 - data_pipeline - INFO - Successfully initialized all components
+2025-03-23 14:38:07,610 - api - INFO - Loading API keys from .env file
+2025-03-23 14:38:07,611 - api - INFO - Successfully loaded 3 API keys
+2025-03-23 14:38:07,613 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-23 14:38:07,614 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-23 14:38:07,615 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-23 14:38:07,616 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-23 14:38:07,617 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-23 14:38:07,618 - quizagent - INFO - QuizAgent initialized
+2025-03-23 14:38:07,620 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-23 14:38:07,621 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-23 14:38:07,623 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-23 14:38:07,624 - topicagent - INFO - TopicAgent initialized
+2025-03-23 14:38:07,624 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-23 14:38:07,625 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-23 14:38:10,778 - api - INFO - Static files check complete
+2025-03-23 14:38:10,780 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:38:10,781 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:38:10,782 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:38:10,783 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:38:10,784 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:38:11,317 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-23 14:38:11,317 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-23 14:38:11,336 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-23 14:38:11,551 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-23 14:38:11,551 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-23 14:38:11,553 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-23 14:38:11,553 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-23 14:38:11,554 - data_pipeline - INFO - Successfully initialized all components
+2025-03-23 14:38:11,554 - api - INFO - Loading API keys from .env file
+2025-03-23 14:38:11,555 - api - INFO - Successfully loaded 3 API keys
+2025-03-23 14:38:11,557 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-23 14:38:11,558 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-23 14:38:11,558 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-23 14:38:11,560 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-23 14:38:11,561 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-23 14:38:11,562 - quizagent - INFO - QuizAgent initialized
+2025-03-23 14:38:11,563 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-23 14:38:11,564 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-23 14:38:11,566 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-23 14:38:11,566 - topicagent - INFO - TopicAgent initialized
+2025-03-23 14:38:11,567 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-23 14:38:11,567 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-23 14:38:43,231 - api - INFO - Static files check complete
+2025-03-23 14:38:43,233 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:38:43,235 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:38:43,235 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:38:43,236 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:38:43,238 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:38:43,768 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-23 14:38:43,769 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-23 14:38:43,788 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-23 14:38:43,984 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-23 14:38:43,985 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-23 14:38:43,986 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-23 14:38:43,986 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-23 14:38:43,987 - data_pipeline - INFO - Successfully initialized all components
+2025-03-23 14:38:43,987 - api - INFO - Loading API keys from .env file
+2025-03-23 14:38:43,989 - api - INFO - Successfully loaded 3 API keys
+2025-03-23 14:38:43,991 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-23 14:38:43,992 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-23 14:38:43,992 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-23 14:38:43,994 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-23 14:38:43,996 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-23 14:38:43,996 - quizagent - INFO - QuizAgent initialized
+2025-03-23 14:38:43,998 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-23 14:38:44,000 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-23 14:38:44,001 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-23 14:38:44,001 - topicagent - INFO - TopicAgent initialized
+2025-03-23 14:38:44,001 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-23 14:38:44,003 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-23 14:38:58,750 - api - INFO - Static files check complete
+2025-03-23 14:38:58,753 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:38:58,754 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:38:58,755 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:38:58,755 - api - INFO - Static files check complete
+2025-03-23 14:38:58,756 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:38:58,757 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:38:58,757 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:38:58,758 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:38:58,759 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:38:58,760 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:38:58,761 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:38:59,334 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-23 14:38:59,334 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-23 14:38:59,342 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-23 14:38:59,343 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-23 14:38:59,354 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-23 14:38:59,364 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-23 14:38:59,583 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-23 14:38:59,583 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-23 14:38:59,585 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-23 14:38:59,585 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-23 14:38:59,586 - data_pipeline - INFO - Successfully initialized all components
+2025-03-23 14:38:59,586 - api - INFO - Loading API keys from .env file
+2025-03-23 14:38:59,587 - api - INFO - Successfully loaded 3 API keys
+2025-03-23 14:38:59,589 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-23 14:38:59,591 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-23 14:38:59,591 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-23 14:38:59,593 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-23 14:38:59,595 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-23 14:38:59,595 - quizagent - INFO - QuizAgent initialized
+2025-03-23 14:38:59,597 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-23 14:38:59,597 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-23 14:38:59,597 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-23 14:38:59,598 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-23 14:38:59,599 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-23 14:38:59,599 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-23 14:38:59,599 - data_pipeline - INFO - Successfully initialized all components
+2025-03-23 14:38:59,599 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-23 14:38:59,600 - api - INFO - Loading API keys from .env file
+2025-03-23 14:38:59,600 - topicagent - INFO - TopicAgent initialized
+2025-03-23 14:38:59,600 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-23 14:38:59,600 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-23 14:38:59,602 - api - INFO - Successfully loaded 3 API keys
+2025-03-23 14:38:59,603 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-23 14:38:59,605 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-23 14:38:59,605 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-23 14:38:59,607 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-23 14:38:59,608 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-23 14:38:59,608 - quizagent - INFO - QuizAgent initialized
+2025-03-23 14:38:59,610 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-23 14:38:59,612 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-23 14:38:59,613 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-23 14:38:59,614 - topicagent - INFO - TopicAgent initialized
+2025-03-23 14:38:59,614 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-23 14:38:59,616 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-23 14:39:16,575 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-23 14:39:16,576 - api - INFO - Response status: 200
+2025-03-23 14:39:33,081 - api - INFO - Request: OPTIONS http://127.0.0.1:8000/api/upload
+2025-03-23 14:39:33,082 - api - INFO - Response status: 200
+2025-03-23 14:39:33,084 - api - INFO - Request: POST http://127.0.0.1:8000/api/upload
+2025-03-23 14:39:33,165 - api - INFO - Received file upload: MINI PROJECT RTVD (1).pdf
+2025-03-23 14:39:33,192 - api - INFO - File saved to uploads\MINI PROJECT RTVD (1).pdf
+2025-03-23 14:39:33,264 - api - INFO - Extracting topics from text
+2025-03-23 14:39:33,265 - topicagent - INFO - Processing text of length 3515 to extract topics
+2025-03-23 14:39:45,866 - topicagent - INFO - Successfully extracted 4 topics
+2025-03-23 14:39:45,867 - api - INFO - Extracted 4 topics
+2025-03-23 14:39:45,867 - langchain_orchestrator - INFO - Set 4 topics in orchestrator
+2025-03-23 14:39:45,870 - api - INFO - Response status: 200
+2025-03-23 14:40:22,108 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-23 14:40:22,110 - api - INFO - Response status: 200
+2025-03-23 14:40:31,019 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-23 14:40:31,021 - api - INFO - Response status: 200
+2025-03-23 14:41:05,292 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-23 14:41:05,293 - api - INFO - Response status: 200
+2025-03-23 14:41:05,409 - api - INFO - Request: GET http://127.0.0.1:8000/favicon.ico
+2025-03-23 14:41:05,410 - api - INFO - Response status: 404
+2025-03-23 14:41:15,536 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/topics
+2025-03-23 14:41:15,537 - api - INFO - Response status: 404
+2025-03-23 14:42:19,064 - api - INFO - Static files check complete
+2025-03-23 14:42:19,065 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:42:19,067 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:42:19,068 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:42:19,068 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:42:19,069 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:42:19,589 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-23 14:42:19,590 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-23 14:42:19,607 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-23 14:42:19,760 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-23 14:42:19,760 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-23 14:42:19,762 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-23 14:42:19,762 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-23 14:42:19,762 - data_pipeline - INFO - Successfully initialized all components
+2025-03-23 14:42:19,763 - api - INFO - Loading API keys from .env file
+2025-03-23 14:42:19,764 - api - INFO - Successfully loaded 3 API keys
+2025-03-23 14:42:19,765 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-23 14:42:19,766 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-23 14:42:19,766 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-23 14:42:19,767 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-23 14:42:19,768 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-23 14:42:19,769 - quizagent - INFO - QuizAgent initialized
+2025-03-23 14:42:19,769 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-23 14:42:19,770 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-23 14:42:19,771 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-23 14:42:19,772 - topicagent - INFO - TopicAgent initialized
+2025-03-23 14:42:19,772 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-23 14:42:19,772 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-23 14:42:35,401 - api - INFO - Static files check complete
+2025-03-23 14:42:35,402 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:42:35,404 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:42:35,404 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:42:35,405 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:42:35,405 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:42:35,827 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-23 14:42:35,827 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-23 14:42:35,844 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-23 14:42:35,990 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-23 14:42:35,990 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-23 14:42:35,991 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-23 14:42:35,992 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-23 14:42:35,992 - data_pipeline - INFO - Successfully initialized all components
+2025-03-23 14:42:35,992 - api - INFO - Loading API keys from .env file
+2025-03-23 14:42:35,993 - api - INFO - Successfully loaded 3 API keys
+2025-03-23 14:42:35,994 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-23 14:42:35,996 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-23 14:42:35,996 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-23 14:42:35,997 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-23 14:42:35,998 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-23 14:42:35,999 - quizagent - INFO - QuizAgent initialized
+2025-03-23 14:42:36,000 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-23 14:42:36,000 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-23 14:42:36,001 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-23 14:42:36,002 - topicagent - INFO - TopicAgent initialized
+2025-03-23 14:42:36,002 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-23 14:42:36,002 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-23 14:42:48,614 - api - INFO - Static files check complete
+2025-03-23 14:42:48,616 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:42:48,617 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:42:48,618 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:42:48,618 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:42:48,619 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:42:49,021 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-23 14:42:49,022 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-23 14:42:49,035 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-23 14:42:49,177 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-23 14:42:49,178 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-23 14:42:49,179 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-23 14:42:49,179 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-23 14:42:49,179 - data_pipeline - INFO - Successfully initialized all components
+2025-03-23 14:42:49,179 - api - INFO - Loading API keys from .env file
+2025-03-23 14:42:49,180 - api - INFO - Successfully loaded 3 API keys
+2025-03-23 14:42:49,181 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-23 14:42:49,182 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-23 14:42:49,182 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-23 14:42:49,183 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-23 14:42:49,185 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-23 14:42:49,185 - quizagent - INFO - QuizAgent initialized
+2025-03-23 14:42:49,186 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-23 14:42:49,187 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-23 14:42:49,189 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-23 14:42:49,189 - topicagent - INFO - TopicAgent initialized
+2025-03-23 14:42:49,189 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-23 14:42:49,189 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-23 14:43:04,316 - api - INFO - Static files check complete
+2025-03-23 14:43:04,317 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:43:04,319 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:43:04,319 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:43:04,320 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:43:04,320 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:43:04,747 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-23 14:43:04,748 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-23 14:43:04,760 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-23 14:43:04,917 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-23 14:43:04,917 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-23 14:43:04,918 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-23 14:43:04,919 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-23 14:43:04,919 - data_pipeline - INFO - Successfully initialized all components
+2025-03-23 14:43:04,919 - api - INFO - Loading API keys from .env file
+2025-03-23 14:43:04,920 - api - INFO - Successfully loaded 3 API keys
+2025-03-23 14:43:04,921 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-23 14:43:04,923 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-23 14:43:04,923 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-23 14:43:04,924 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-23 14:43:04,925 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-23 14:43:04,926 - quizagent - INFO - QuizAgent initialized
+2025-03-23 14:43:04,926 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-23 14:43:04,927 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-23 14:43:04,928 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-23 14:43:04,928 - topicagent - INFO - TopicAgent initialized
+2025-03-23 14:43:04,929 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-23 14:43:04,929 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-23 14:43:27,954 - api - INFO - Static files check complete
+2025-03-23 14:43:27,956 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:43:27,956 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:43:27,957 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:43:27,958 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:43:27,958 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:43:28,363 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-23 14:43:28,364 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-23 14:43:28,379 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-23 14:43:28,547 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-23 14:43:28,547 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-23 14:43:28,548 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-23 14:43:28,549 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-23 14:43:28,549 - data_pipeline - INFO - Successfully initialized all components
+2025-03-23 14:43:28,549 - api - INFO - Loading API keys from .env file
+2025-03-23 14:43:28,550 - api - INFO - Successfully loaded 3 API keys
+2025-03-23 14:43:28,551 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-23 14:43:28,552 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-23 14:43:28,553 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-23 14:43:28,555 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-23 14:43:28,556 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-23 14:43:28,557 - quizagent - INFO - QuizAgent initialized
+2025-03-23 14:43:28,558 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-23 14:43:28,559 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-23 14:43:28,560 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-23 14:43:28,560 - topicagent - INFO - TopicAgent initialized
+2025-03-23 14:43:28,560 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-23 14:43:28,561 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-23 14:43:44,773 - api - INFO - Static files check complete
+2025-03-23 14:43:44,774 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:43:44,775 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:43:44,776 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:43:44,776 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:43:44,777 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:43:45,202 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-23 14:43:45,203 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-23 14:43:45,221 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-23 14:43:45,397 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-23 14:43:45,398 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-23 14:43:45,400 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-23 14:43:45,400 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-23 14:43:45,400 - data_pipeline - INFO - Successfully initialized all components
+2025-03-23 14:43:45,401 - api - INFO - Loading API keys from .env file
+2025-03-23 14:43:45,402 - api - INFO - Successfully loaded 3 API keys
+2025-03-23 14:43:45,403 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-23 14:43:45,404 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-23 14:43:45,404 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-23 14:43:45,406 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-23 14:43:45,407 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-23 14:43:45,408 - quizagent - INFO - QuizAgent initialized
+2025-03-23 14:43:45,409 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-23 14:43:45,410 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-23 14:43:45,411 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-23 14:43:45,411 - topicagent - INFO - TopicAgent initialized
+2025-03-23 14:43:45,412 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-23 14:43:45,412 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-23 14:43:59,639 - api - INFO - Static files check complete
+2025-03-23 14:43:59,641 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:43:59,642 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:43:59,643 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:43:59,643 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:43:59,644 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:44:00,049 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-23 14:44:00,049 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-23 14:44:00,063 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-23 14:44:00,212 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-23 14:44:00,213 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-23 14:44:00,214 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-23 14:44:00,214 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-23 14:44:00,214 - data_pipeline - INFO - Successfully initialized all components
+2025-03-23 14:44:00,215 - api - INFO - Loading API keys from .env file
+2025-03-23 14:44:00,216 - api - INFO - Successfully loaded 3 API keys
+2025-03-23 14:44:00,216 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-23 14:44:00,217 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-23 14:44:00,218 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-23 14:44:00,219 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-23 14:44:00,220 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-23 14:44:00,220 - quizagent - INFO - QuizAgent initialized
+2025-03-23 14:44:00,222 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-23 14:44:00,223 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-23 14:44:00,224 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-23 14:44:00,225 - topicagent - INFO - TopicAgent initialized
+2025-03-23 14:44:00,225 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-23 14:44:00,225 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-23 14:44:09,932 - api - INFO - Static files check complete
+2025-03-23 14:44:09,934 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:44:09,935 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:44:09,935 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:44:09,936 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:44:09,936 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:44:10,064 - api - INFO - Static files check complete
+2025-03-23 14:44:10,065 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:44:10,066 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:44:10,067 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:44:10,068 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:44:10,068 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:44:10,362 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-23 14:44:10,362 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-23 14:44:10,377 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-23 14:44:10,538 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-23 14:44:10,538 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-23 14:44:10,543 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-23 14:44:10,544 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-23 14:44:10,545 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-23 14:44:10,545 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-23 14:44:10,546 - data_pipeline - INFO - Successfully initialized all components
+2025-03-23 14:44:10,546 - api - INFO - Loading API keys from .env file
+2025-03-23 14:44:10,547 - api - INFO - Successfully loaded 3 API keys
+2025-03-23 14:44:10,548 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-23 14:44:10,549 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-23 14:44:10,550 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-23 14:44:10,551 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-23 14:44:10,552 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-23 14:44:10,552 - quizagent - INFO - QuizAgent initialized
+2025-03-23 14:44:10,552 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-23 14:44:10,553 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-23 14:44:10,554 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-23 14:44:10,555 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-23 14:44:10,555 - topicagent - INFO - TopicAgent initialized
+2025-03-23 14:44:10,556 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-23 14:44:10,556 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-23 14:44:10,689 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-23 14:44:10,690 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-23 14:44:10,691 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-23 14:44:10,691 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-23 14:44:10,691 - data_pipeline - INFO - Successfully initialized all components
+2025-03-23 14:44:10,691 - api - INFO - Loading API keys from .env file
+2025-03-23 14:44:10,692 - api - INFO - Successfully loaded 3 API keys
+2025-03-23 14:44:10,693 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-23 14:44:10,694 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-23 14:44:10,695 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-23 14:44:10,696 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-23 14:44:10,697 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-23 14:44:10,697 - quizagent - INFO - QuizAgent initialized
+2025-03-23 14:44:10,698 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-23 14:44:10,699 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-23 14:44:10,700 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-23 14:44:10,700 - topicagent - INFO - TopicAgent initialized
+2025-03-23 14:44:10,700 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-23 14:44:10,700 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-23 14:44:23,083 - api - INFO - Request: POST http://127.0.0.1:8000/api/upload
+2025-03-23 14:44:23,147 - api - INFO - Received file upload: MINI PROJECT RTVD (1).pdf
+2025-03-23 14:44:23,171 - api - INFO - File saved to uploads\MINI PROJECT RTVD (1).pdf
+2025-03-23 14:44:23,202 - api - INFO - Extracting topics from text
+2025-03-23 14:44:23,202 - topicagent - INFO - Processing text of length 3515 to extract topics
+2025-03-23 14:44:33,813 - topicagent - INFO - Successfully extracted 4 topics
+2025-03-23 14:44:33,813 - api - INFO - Extracted 4 topics
+2025-03-23 14:44:33,814 - langchain_orchestrator - INFO - Set 4 topics in orchestrator
+2025-03-23 14:44:33,815 - api - INFO - Response status: 200
+2025-03-23 14:46:31,739 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-23 14:46:31,740 - api - INFO - Response status: 200
+2025-03-23 14:47:00,141 - api - INFO - Static files check complete
+2025-03-23 14:47:00,142 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:47:00,143 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:47:00,144 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:47:00,145 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:47:00,145 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:47:00,740 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-23 14:47:00,740 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-23 14:47:00,759 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-23 14:47:00,914 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-23 14:47:00,915 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-23 14:47:00,916 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-23 14:47:00,916 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-23 14:47:00,917 - data_pipeline - INFO - Successfully initialized all components
+2025-03-23 14:47:00,917 - api - INFO - Loading API keys from .env file
+2025-03-23 14:47:00,918 - api - INFO - Successfully loaded 3 API keys
+2025-03-23 14:47:00,919 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-23 14:47:00,920 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-23 14:47:00,922 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-23 14:47:00,923 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-23 14:47:00,924 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-23 14:47:00,924 - quizagent - INFO - QuizAgent initialized
+2025-03-23 14:47:00,925 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-23 14:47:00,925 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-23 14:47:00,927 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-23 14:47:00,927 - topicagent - INFO - TopicAgent initialized
+2025-03-23 14:47:00,927 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-23 14:47:00,928 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-23 14:47:12,219 - api - INFO - Static files check complete
+2025-03-23 14:47:12,220 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:47:12,221 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:47:12,222 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:47:12,222 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:47:12,223 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:47:12,665 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-23 14:47:12,665 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-23 14:47:12,681 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-23 14:47:12,865 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-23 14:47:12,865 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-23 14:47:12,866 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-23 14:47:12,867 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-23 14:47:12,867 - data_pipeline - INFO - Successfully initialized all components
+2025-03-23 14:47:12,867 - api - INFO - Loading API keys from .env file
+2025-03-23 14:47:12,868 - api - INFO - Successfully loaded 3 API keys
+2025-03-23 14:47:12,869 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-23 14:47:12,870 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-23 14:47:12,871 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-23 14:47:12,872 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-23 14:47:12,874 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-23 14:47:12,874 - quizagent - INFO - QuizAgent initialized
+2025-03-23 14:47:12,875 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-23 14:47:12,876 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-23 14:47:12,877 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-23 14:47:12,878 - topicagent - INFO - TopicAgent initialized
+2025-03-23 14:47:12,878 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-23 14:47:12,878 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-23 14:47:36,824 - api - INFO - Static files check complete
+2025-03-23 14:47:36,825 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:47:36,826 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:47:36,827 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:47:36,828 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:47:36,828 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:47:37,278 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-23 14:47:37,278 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-23 14:47:37,290 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-23 14:47:37,425 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-23 14:47:37,425 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-23 14:47:37,427 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-23 14:47:37,427 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-23 14:47:37,427 - data_pipeline - INFO - Successfully initialized all components
+2025-03-23 14:47:37,427 - api - INFO - Loading API keys from .env file
+2025-03-23 14:47:37,428 - api - INFO - Successfully loaded 3 API keys
+2025-03-23 14:47:37,429 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-23 14:47:37,429 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-23 14:47:37,430 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-23 14:47:37,430 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-23 14:47:37,432 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-23 14:47:37,432 - quizagent - INFO - QuizAgent initialized
+2025-03-23 14:47:37,433 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-23 14:47:37,434 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-23 14:47:37,435 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-23 14:47:37,435 - topicagent - INFO - TopicAgent initialized
+2025-03-23 14:47:37,435 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-23 14:47:37,436 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-23 14:47:57,577 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-23 14:47:57,579 - api - INFO - Response status: 200
+2025-03-23 14:48:25,098 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-23 14:48:25,099 - api - INFO - Response status: 200
+2025-03-23 14:48:40,749 - api - INFO - Static files check complete
+2025-03-23 14:48:40,751 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:48:40,752 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:48:40,753 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:48:40,754 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:48:40,755 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:48:41,212 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-23 14:48:41,212 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-23 14:48:41,226 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-23 14:48:41,358 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-23 14:48:41,359 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-23 14:48:41,360 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-23 14:48:41,360 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-23 14:48:41,360 - data_pipeline - INFO - Successfully initialized all components
+2025-03-23 14:48:41,360 - api - INFO - Loading API keys from .env file
+2025-03-23 14:48:41,362 - api - INFO - Successfully loaded 3 API keys
+2025-03-23 14:48:41,363 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-23 14:48:41,363 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-23 14:48:41,364 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-23 14:48:41,364 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-23 14:48:41,365 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-23 14:48:41,366 - quizagent - INFO - QuizAgent initialized
+2025-03-23 14:48:41,367 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-23 14:48:41,368 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-23 14:48:41,368 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-23 14:48:41,370 - topicagent - INFO - TopicAgent initialized
+2025-03-23 14:48:41,370 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-23 14:48:41,370 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-23 14:48:41,389 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-23 14:48:41,390 - api - INFO - Response status: 200
+2025-03-23 14:48:47,150 - api - INFO - Static files check complete
+2025-03-23 14:48:47,150 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-23 14:48:47,152 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-23 14:48:47,153 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-23 14:48:47,154 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-23 14:48:47,154 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-23 14:48:47,584 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-23 14:48:47,584 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-23 14:48:47,598 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-23 14:48:47,749 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-23 14:48:47,749 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-23 14:48:47,750 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-23 14:48:47,751 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-23 14:48:47,751 - data_pipeline - INFO - Successfully initialized all components
+2025-03-23 14:48:47,751 - api - INFO - Loading API keys from .env file
+2025-03-23 14:48:47,752 - api - INFO - Successfully loaded 3 API keys
+2025-03-23 14:48:47,753 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-23 14:48:47,754 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-23 14:48:47,754 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-23 14:48:47,756 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-23 14:48:47,757 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-23 14:48:47,757 - quizagent - INFO - QuizAgent initialized
+2025-03-23 14:48:47,758 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-23 14:48:47,759 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-23 14:48:47,760 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-23 14:48:47,760 - topicagent - INFO - TopicAgent initialized
+2025-03-23 14:48:47,760 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-23 14:48:47,761 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-23 14:49:41,445 - api - INFO - Request: OPTIONS http://127.0.0.1:8000/api/upload
+2025-03-23 14:49:41,445 - api - INFO - Response status: 200
+2025-03-23 14:49:41,448 - api - INFO - Request: POST http://127.0.0.1:8000/api/upload
+2025-03-23 14:49:41,507 - api - INFO - Received file upload: MINI PROJECT RTVD (1).pdf
+2025-03-23 14:49:41,532 - api - INFO - File saved to uploads\MINI PROJECT RTVD (1).pdf
+2025-03-23 14:49:41,562 - api - INFO - Extracting topics from text
+2025-03-23 14:49:41,562 - topicagent - INFO - Processing text of length 3515 to extract topics
+2025-03-23 14:49:54,109 - topicagent - INFO - Successfully extracted 4 topics
+2025-03-23 14:49:54,110 - api - INFO - Extracted 4 topics
+2025-03-23 14:49:54,110 - langchain_orchestrator - INFO - Set 4 topics in orchestrator
+2025-03-23 14:49:54,111 - api - INFO - Response status: 200
+2025-03-23 14:50:14,903 - api - INFO - Request: OPTIONS http://127.0.0.1:8000/api/chat
+2025-03-23 14:50:14,904 - api - INFO - Response status: 200
+2025-03-23 14:50:14,906 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-23 14:50:14,911 - api - INFO - Response status: 422
+2025-03-23 14:51:52,072 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-23 14:51:52,073 - api - INFO - Response status: 200
+2025-03-23 14:52:07,837 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-23 14:52:07,838 - api - INFO - Response status: 200
+2025-03-23 14:52:16,034 - api - INFO - Request: POST http://127.0.0.1:8000/api/upload
+2025-03-23 14:52:16,100 - api - INFO - Received file upload: MINI PROJECT RTVD (1).pdf
+2025-03-23 14:52:16,109 - api - INFO - File saved to uploads\MINI PROJECT RTVD (1).pdf
+2025-03-23 14:52:16,140 - api - INFO - Extracting topics from text
+2025-03-23 14:52:16,141 - topicagent - INFO - Processing text of length 3515 to extract topics
+2025-03-23 14:52:26,816 - topicagent - INFO - Successfully extracted 4 topics
+2025-03-23 14:52:26,817 - api - INFO - Extracted 4 topics
+2025-03-23 14:52:26,817 - langchain_orchestrator - INFO - Set 4 topics in orchestrator
+2025-03-23 14:52:26,818 - api - INFO - Response status: 200
+2025-03-23 14:52:32,404 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-23 14:52:32,405 - api - INFO - Received chat message from user user1: start flow...
+2025-03-23 14:52:32,406 - api - INFO - Detected 'start flow' command
+2025-03-23 14:52:32,406 - langchain_orchestrator - INFO - Processing query: start flow...
+2025-03-23 14:52:32,406 - langchain_orchestrator - INFO - Detected 'start flow' command
+2025-03-23 14:52:32,407 - langchain_orchestrator - INFO - Creating multi-agent learning path
+2025-03-23 14:52:32,407 - langchain_orchestrator - INFO - Creating flow items for topic: Project Purpose and Scope
+2025-03-23 14:52:32,407 - langchain_orchestrator - INFO - Generating content for flow item: Understanding Project Purpose and Scope (type: explainer)
+2025-03-23 14:52:32,408 - langchain_orchestrator - INFO - Using explainer agent
+2025-03-23 14:52:39,138 - explaineragent - INFO - Successfully generated explanation
+2025-03-23 14:52:39,138 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: start_flow, Time: 2025-03-23 14:52:39
+2025-03-23 14:52:39,139 - api - INFO - Response status: 200
+2025-03-25 22:35:14,890 - api - INFO - Static files check complete
+2025-03-25 22:35:14,892 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-25 22:35:14,893 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-25 22:35:14,895 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-25 22:35:14,895 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-25 22:35:14,896 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-25 22:35:15,668 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-25 22:35:15,668 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-25 22:35:15,697 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-25 22:35:15,925 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-25 22:35:15,925 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-25 22:35:15,927 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-25 22:35:15,928 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-25 22:35:15,928 - data_pipeline - INFO - Successfully initialized all components
+2025-03-25 22:35:15,929 - api - INFO - Loading API keys from .env file
+2025-03-25 22:35:15,930 - api - INFO - Successfully loaded 3 API keys
+2025-03-25 22:35:15,931 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-25 22:35:15,933 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-25 22:35:15,933 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-25 22:35:15,935 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-25 22:35:15,936 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-25 22:35:15,937 - quizagent - INFO - QuizAgent initialized
+2025-03-25 22:35:15,938 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-25 22:35:15,940 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-25 22:35:15,941 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-25 22:35:15,942 - topicagent - INFO - TopicAgent initialized
+2025-03-25 22:35:15,942 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-25 22:35:15,943 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-25 22:38:31,273 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-25 22:38:31,275 - api - INFO - Response status: 200
+2025-03-25 22:43:00,842 - api - INFO - Static files check complete
+2025-03-25 22:43:00,844 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-25 22:43:00,845 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-25 22:43:00,846 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-25 22:43:00,847 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-25 22:43:00,848 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-25 22:43:01,565 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-25 22:43:01,566 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-25 22:43:01,593 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-25 22:43:01,800 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-25 22:43:01,800 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-25 22:43:01,802 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-25 22:43:01,802 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-25 22:43:01,802 - data_pipeline - INFO - Successfully initialized all components
+2025-03-25 22:43:01,803 - api - INFO - Loading API keys from .env file
+2025-03-25 22:43:01,804 - api - INFO - Successfully loaded 3 API keys
+2025-03-25 22:43:01,805 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-25 22:43:01,808 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-25 22:43:01,808 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-25 22:43:01,810 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-25 22:43:01,812 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-25 22:43:01,813 - quizagent - INFO - QuizAgent initialized
+2025-03-25 22:43:01,814 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-25 22:43:01,815 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-25 22:43:01,817 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-25 22:43:01,817 - topicagent - INFO - TopicAgent initialized
+2025-03-25 22:43:01,817 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-25 22:43:01,818 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-25 22:45:15,296 - api - INFO - Static files check complete
+2025-03-25 22:45:15,298 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-25 22:45:15,298 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-25 22:45:15,299 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-25 22:45:15,301 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-25 22:45:15,303 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-25 22:45:15,926 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-25 22:45:15,926 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-25 22:45:15,948 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-25 22:45:16,153 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-25 22:45:16,153 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-25 22:45:16,154 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-25 22:45:16,155 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-25 22:45:16,155 - data_pipeline - INFO - Successfully initialized all components
+2025-03-25 22:45:16,156 - api - INFO - Loading API keys from .env file
+2025-03-25 22:45:16,157 - api - INFO - Successfully loaded 3 API keys
+2025-03-25 22:45:16,158 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-25 22:45:16,159 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-25 22:45:16,160 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-25 22:45:16,161 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-25 22:45:16,162 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-25 22:45:16,163 - quizagent - INFO - QuizAgent initialized
+2025-03-25 22:45:16,164 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-25 22:45:16,165 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-25 22:45:16,166 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-25 22:45:16,167 - topicagent - INFO - TopicAgent initialized
+2025-03-25 22:45:16,168 - questionagent - INFO - QuestionAgent initialized without shared state
+2025-03-25 22:45:16,169 - questionagent - INFO - Initialized Question Agent
+2025-03-25 22:45:16,169 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-25 22:45:16,170 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-25 22:46:08,855 - api - INFO - Static files check complete
+2025-03-25 22:46:08,857 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-25 22:46:08,858 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-25 22:46:08,859 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-25 22:46:08,860 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-25 22:46:08,861 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-25 22:46:09,555 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-25 22:46:09,555 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-25 22:46:09,578 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-25 22:46:09,784 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-25 22:46:09,785 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-25 22:46:09,786 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-25 22:46:09,787 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-25 22:46:09,787 - data_pipeline - INFO - Successfully initialized all components
+2025-03-25 22:46:09,788 - api - INFO - Loading API keys from .env file
+2025-03-25 22:46:09,789 - api - INFO - Successfully loaded 3 API keys
+2025-03-25 22:46:09,790 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-25 22:46:09,792 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-25 22:46:09,792 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-25 22:46:09,793 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-25 22:46:09,795 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-25 22:46:09,796 - quizagent - INFO - QuizAgent initialized
+2025-03-25 22:46:09,797 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-25 22:46:09,799 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-25 22:46:09,800 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-25 22:46:09,800 - topicagent - INFO - TopicAgent initialized
+2025-03-25 22:46:09,802 - questionagent - INFO - QuestionAgent initialized without shared state
+2025-03-25 22:46:09,802 - questionagent - INFO - Initialized Question Agent
+2025-03-25 22:46:09,802 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-25 22:46:09,803 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-25 22:46:39,058 - api - INFO - Static files check complete
+2025-03-25 22:46:39,061 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-25 22:46:39,062 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-25 22:46:39,063 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-25 22:46:39,064 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-25 22:46:39,065 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-25 22:46:39,638 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-25 22:46:39,639 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-25 22:46:39,659 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-25 22:46:39,841 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-25 22:46:39,842 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-25 22:46:39,844 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-25 22:46:39,845 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-25 22:46:39,845 - data_pipeline - INFO - Successfully initialized all components
+2025-03-25 22:46:39,845 - api - INFO - Loading API keys from .env file
+2025-03-25 22:46:39,846 - api - INFO - Successfully loaded 3 API keys
+2025-03-25 22:46:39,848 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-25 22:46:39,849 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-25 22:46:39,850 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-25 22:46:39,851 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-25 22:46:39,852 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-25 22:46:39,853 - quizagent - INFO - QuizAgent initialized
+2025-03-25 22:46:39,854 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-25 22:46:39,855 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-25 22:46:39,855 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-25 22:46:39,857 - topicagent - INFO - TopicAgent initialized
+2025-03-25 22:46:39,857 - questionagent - INFO - QuestionAgent initialized without shared state
+2025-03-25 22:46:39,858 - questionagent - INFO - Initialized Question Agent
+2025-03-25 22:46:39,858 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-25 22:46:39,858 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-25 22:47:13,932 - api - INFO - Static files check complete
+2025-03-25 22:47:13,934 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-25 22:47:13,935 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-25 22:47:13,937 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-25 22:47:13,939 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-25 22:47:13,939 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-25 22:47:14,574 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-25 22:47:14,574 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-25 22:47:14,592 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-25 22:47:15,107 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-25 22:47:15,108 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-25 22:47:15,109 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-25 22:47:15,109 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-25 22:47:15,110 - data_pipeline - INFO - Successfully initialized all components
+2025-03-25 22:47:15,110 - api - INFO - Loading API keys from .env file
+2025-03-25 22:47:15,112 - api - INFO - Successfully loaded 3 API keys
+2025-03-25 22:47:15,113 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-25 22:47:15,115 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-25 22:47:15,115 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-25 22:47:15,117 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-25 22:47:15,118 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-25 22:47:15,119 - quizagent - INFO - QuizAgent initialized
+2025-03-25 22:47:15,121 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-25 22:47:15,122 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-25 22:47:15,124 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-25 22:47:15,124 - topicagent - INFO - TopicAgent initialized
+2025-03-25 22:47:15,125 - questionagent - INFO - QuestionAgent initialized without shared state
+2025-03-25 22:47:15,125 - questionagent - INFO - Initialized Question Agent
+2025-03-25 22:47:15,127 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-25 22:47:15,127 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-25 22:47:29,893 - api - INFO - Request: OPTIONS http://127.0.0.1:8000/api/upload
+2025-03-25 22:47:29,895 - api - INFO - Response status: 200
+2025-03-25 22:47:29,898 - api - INFO - Request: POST http://127.0.0.1:8000/api/upload
+2025-03-25 22:47:29,900 - api - INFO - Received file upload: Real-Time Violence Detection System Using Deep Learning (1).pdf
+2025-03-25 22:47:29,932 - api - INFO - File saved to uploads\Real-Time Violence Detection System Using Deep Learning (1).pdf
+2025-03-25 22:47:29,970 - api - INFO - Extracting topics from text
+2025-03-25 22:47:29,971 - topicagent - INFO - Processing text of length 1492 to extract topics
+2025-03-25 22:47:41,484 - topicagent - INFO - Successfully extracted 5 topics
+2025-03-25 22:47:41,484 - api - INFO - Extracted 5 topics
+2025-03-25 22:47:41,485 - langchain_orchestrator - INFO - Set 5 topics in orchestrator
+2025-03-25 22:47:41,486 - api - INFO - Response status: 200
+2025-03-25 22:47:47,911 - api - INFO - Request: OPTIONS http://127.0.0.1:8000/api/chat
+2025-03-25 22:47:47,912 - api - INFO - Response status: 200
+2025-03-25 22:47:47,915 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-25 22:47:47,916 - api - INFO - Received chat message from user user1: start flow...
+2025-03-25 22:47:47,917 - api - INFO - Detected 'start flow' command
+2025-03-25 22:47:47,917 - langchain_orchestrator - INFO - Processing query: start flow...
+2025-03-25 22:47:47,918 - langchain_orchestrator - INFO - Detected 'start flow' command
+2025-03-25 22:47:47,918 - langchain_orchestrator - INFO - Creating multi-agent learning path
+2025-03-25 22:47:47,918 - langchain_orchestrator - INFO - Creating flow items for topic: Violence Detection Model
+2025-03-25 22:47:47,919 - langchain_orchestrator - INFO - Generating content for flow item: Understanding Violence Detection Model (type: explainer)
+2025-03-25 22:47:47,919 - langchain_orchestrator - INFO - Using explainer agent
+2025-03-25 22:47:57,645 - explaineragent - INFO - Successfully generated explanation
+2025-03-25 22:47:57,646 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: start_flow, Time: 2025-03-25 22:47:57
+2025-03-25 22:47:57,647 - api - INFO - Response status: 200
+2025-03-25 23:02:23,769 - api - INFO - Static files check complete
+2025-03-25 23:02:23,771 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-25 23:02:23,771 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-25 23:02:23,773 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-25 23:02:23,774 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-25 23:02:23,774 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-25 23:02:24,293 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-25 23:02:24,294 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-25 23:02:24,314 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-25 23:02:24,518 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-25 23:02:24,519 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-25 23:02:24,520 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-25 23:02:24,520 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-25 23:02:24,520 - data_pipeline - INFO - Successfully initialized all components
+2025-03-25 23:02:24,521 - api - INFO - Loading API keys from .env file
+2025-03-25 23:02:24,522 - api - INFO - Successfully loaded 3 API keys
+2025-03-25 23:02:24,523 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-25 23:02:24,524 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-25 23:02:24,525 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-25 23:02:24,526 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-25 23:02:24,527 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-25 23:02:24,527 - quizagent - INFO - QuizAgent initialized
+2025-03-25 23:02:24,528 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-25 23:02:24,529 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-25 23:02:24,531 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-25 23:02:24,531 - topicagent - INFO - TopicAgent initialized
+2025-03-25 23:02:24,532 - questionagent - INFO - QuestionAgent initialized without shared state
+2025-03-25 23:02:24,532 - questionagent - INFO - Initialized Question Agent
+2025-03-25 23:02:24,533 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-25 23:02:24,533 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-25 23:03:42,874 - api - INFO - Static files check complete
+2025-03-25 23:03:42,876 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-25 23:03:42,877 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-25 23:03:42,879 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-25 23:03:42,880 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-25 23:03:42,881 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-25 23:03:43,481 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-25 23:03:43,481 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-25 23:03:43,501 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-25 23:03:43,699 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-25 23:03:43,699 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-25 23:03:43,700 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-25 23:03:43,700 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-25 23:03:43,701 - data_pipeline - INFO - Successfully initialized all components
+2025-03-25 23:03:43,701 - api - INFO - Loading API keys from .env file
+2025-03-25 23:03:43,702 - api - INFO - Successfully loaded 3 API keys
+2025-03-25 23:03:43,703 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-25 23:03:43,705 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-25 23:03:43,705 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-25 23:03:43,707 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-25 23:03:43,709 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-25 23:03:43,709 - quizagent - INFO - QuizAgent initialized
+2025-03-25 23:03:43,711 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-25 23:03:43,712 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-25 23:03:43,714 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-25 23:03:43,714 - topicagent - INFO - TopicAgent initialized
+2025-03-25 23:03:43,715 - questionagent - INFO - QuestionAgent initialized without shared state
+2025-03-25 23:03:43,716 - questionagent - INFO - Initialized Question Agent
+2025-03-25 23:03:43,716 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-25 23:03:43,716 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-25 23:05:53,854 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-25 23:05:53,856 - api - INFO - Response status: 200
+2025-03-25 23:06:09,777 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-25 23:06:09,779 - api - INFO - Response status: 200
+2025-03-25 23:06:16,798 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-25 23:06:16,800 - api - INFO - Response status: 200
+2025-03-25 23:06:21,095 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-25 23:06:21,097 - api - INFO - Response status: 200
+2025-03-25 23:07:35,653 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-25 23:07:35,654 - api - INFO - Response status: 200
+2025-03-25 23:07:36,351 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/patterns
+2025-03-25 23:07:36,352 - api - INFO - Response status: 200
+2025-03-25 23:07:55,942 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-25 23:07:55,943 - api - INFO - Response status: 200
+2025-03-25 23:07:56,514 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/patterns
+2025-03-25 23:07:56,516 - api - INFO - Response status: 200
+2025-03-25 23:08:13,072 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-25 23:08:13,074 - api - INFO - Response status: 200
+2025-03-25 23:08:13,628 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/patterns
+2025-03-25 23:08:13,629 - api - INFO - Response status: 200
+2025-03-25 23:08:54,047 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-25 23:08:54,049 - api - INFO - Response status: 200
+2025-03-25 23:08:54,553 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/patterns
+2025-03-25 23:08:54,555 - api - INFO - Response status: 200
+2025-03-25 23:09:03,252 - api - INFO - Request: OPTIONS http://127.0.0.1:8000/api/upload
+2025-03-25 23:09:03,253 - api - INFO - Response status: 200
+2025-03-25 23:09:03,256 - api - INFO - Request: POST http://127.0.0.1:8000/api/upload
+2025-03-25 23:09:03,259 - api - INFO - Received file upload: Real-Time Violence Detection System Using Deep Learning (1).pdf
+2025-03-25 23:09:03,283 - api - INFO - File saved to uploads\Real-Time Violence Detection System Using Deep Learning (1).pdf
+2025-03-25 23:09:03,292 - api - INFO - Extracting topics from text
+2025-03-25 23:09:03,292 - topicagent - INFO - Processing text of length 1492 to extract topics
+2025-03-25 23:09:15,007 - topicagent - INFO - Successfully extracted 5 topics
+2025-03-25 23:09:15,008 - api - INFO - Extracted 5 topics
+2025-03-25 23:09:15,008 - langchain_orchestrator - INFO - Set 5 topics in orchestrator
+2025-03-25 23:09:15,010 - api - INFO - Response status: 200
+2025-03-25 23:09:20,489 - api - INFO - Request: OPTIONS http://127.0.0.1:8000/api/chat
+2025-03-25 23:09:20,490 - api - INFO - Response status: 200
+2025-03-25 23:09:20,495 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-25 23:09:20,496 - api - INFO - Received chat message from user user1: start flow...
+2025-03-25 23:09:20,497 - api - INFO - Detected 'start flow' command
+2025-03-25 23:09:20,497 - langchain_orchestrator - INFO - Processing query: start flow...
+2025-03-25 23:09:20,498 - langchain_orchestrator - INFO - Detected 'start flow' command
+2025-03-25 23:09:20,498 - langchain_orchestrator - INFO - Creating multi-agent learning path
+2025-03-25 23:09:20,498 - langchain_orchestrator - INFO - Creating comprehensive curriculum with 5 topics
+2025-03-25 23:09:20,499 - langchain_orchestrator - INFO - Creating comprehensive curriculum with 5 topics
+2025-03-25 23:09:20,499 - langchain_orchestrator - INFO - Generating content for curriculum item: Understanding Violence Detection Model (type: explainer)
+2025-03-25 23:09:20,500 - langchain_orchestrator - INFO - Generating content with specific text for: Understanding Violence Detection Model (type: explainer)
+2025-03-25 23:09:20,500 - langchain_orchestrator - INFO - Using explainer agent with specific content
+2025-03-25 23:09:30,486 - explaineragent - INFO - Successfully generated explanation
+2025-03-25 23:09:30,487 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: start_curriculum, Time: 2025-03-25 23:09:30
+2025-03-25 23:09:30,488 - api - INFO - Response status: 200
+2025-03-25 23:09:36,294 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-25 23:09:36,295 - api - INFO - Received chat message from user user1: next...
+2025-03-25 23:09:36,295 - langchain_orchestrator - INFO - Processing query: next...
+2025-03-25 23:09:36,296 - langchain_orchestrator - INFO - Detected 'next' command
+2025-03-25 23:09:36,296 - langchain_orchestrator - INFO - Navigating next in learning flow
+2025-03-25 23:09:36,297 - langchain_orchestrator - INFO - Navigating next in the curriculum
+2025-03-25 23:09:36,297 - langchain_orchestrator - INFO - Generating content for curriculum item: Visual Representation of Violence Detection Model (type: diagram)
+2025-03-25 23:09:36,298 - langchain_orchestrator - INFO - Generating content with specific text for: Visual Representation of Violence Detection Model (type: diagram)
+2025-03-25 23:09:36,298 - langchain_orchestrator - INFO - Using diagram agent with specific content
+2025-03-25 23:09:40,639 - diagramagent - INFO - Successfully generated class diagram
+2025-03-25 23:09:40,640 - langchain_orchestrator - INFO - Adding comprehension check question
+2025-03-25 23:09:40,641 - langchain_orchestrator - INFO - Generating comprehension check for specific content
+2025-03-25 23:09:40,641 - quizagent - INFO - Generating quiz with 1 questions
+2025-03-25 23:09:40,955 - quizagent - INFO - Switched to API key 2
+2025-03-25 23:09:44,531 - quizagent - DEBUG - Raw response: ```json
+{
+  "topic": "Violence Detection Model",
+  "questions": [
+    {
+      "question": "What underlying architecture does the violence detection model utilize?",
+      "options": ["ResNet50", "Ince...
+2025-03-25 23:09:44,532 - quizagent - DEBUG - Cleaned response: {   "topic": "Violence Detection Model",   "questions": [     {       "question": "What underlying architecture does the violence detection model utilize?",       "options": ["ResNet50", "Inception V3...
+2025-03-25 23:09:44,532 - quizagent - INFO - Successfully generated quiz with 1 questions on topic 'Violence Detection Model'
+2025-03-25 23:09:44,533 - langchain_orchestrator - ERROR - Error generating content with specific text: string indices must be integers
+2025-03-25 23:09:44,535 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: navigate_next, Time: 2025-03-25 23:09:44
+2025-03-25 23:09:44,536 - api - INFO - Response status: 200
+2025-03-25 23:11:37,695 - api - INFO - Static files check complete
+2025-03-25 23:11:37,697 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-25 23:11:37,699 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-25 23:11:37,699 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-25 23:11:37,701 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-25 23:11:37,702 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-25 23:11:38,210 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-25 23:11:38,211 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-25 23:11:38,230 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-25 23:11:38,422 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-25 23:11:38,422 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-25 23:11:38,423 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-25 23:11:38,424 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-25 23:11:38,424 - data_pipeline - INFO - Successfully initialized all components
+2025-03-25 23:11:38,424 - api - INFO - Loading API keys from .env file
+2025-03-25 23:11:38,425 - api - INFO - Successfully loaded 3 API keys
+2025-03-25 23:11:38,426 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-25 23:11:38,428 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-25 23:11:38,428 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-25 23:11:38,430 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-25 23:11:38,430 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-25 23:11:38,432 - quizagent - INFO - QuizAgent initialized
+2025-03-25 23:11:38,433 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-25 23:11:38,433 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-25 23:11:38,434 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-25 23:11:38,435 - topicagent - INFO - TopicAgent initialized
+2025-03-25 23:11:38,435 - questionagent - INFO - QuestionAgent initialized without shared state
+2025-03-25 23:11:38,436 - questionagent - INFO - Initialized Question Agent
+2025-03-25 23:11:38,436 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-25 23:11:38,436 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-25 23:11:59,424 - api - INFO - Static files check complete
+2025-03-25 23:11:59,425 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-25 23:11:59,425 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-25 23:11:59,427 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-25 23:11:59,428 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-25 23:11:59,428 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-25 23:12:00,011 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-25 23:12:00,011 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-25 23:12:00,038 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-25 23:12:00,245 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-25 23:12:00,246 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-25 23:12:00,247 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-25 23:12:00,247 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-25 23:12:00,248 - data_pipeline - INFO - Successfully initialized all components
+2025-03-25 23:12:00,248 - api - INFO - Loading API keys from .env file
+2025-03-25 23:12:00,250 - api - INFO - Successfully loaded 3 API keys
+2025-03-25 23:12:00,251 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-25 23:12:00,252 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-25 23:12:00,252 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-25 23:12:00,253 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-25 23:12:00,255 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-25 23:12:00,256 - quizagent - INFO - QuizAgent initialized
+2025-03-25 23:12:00,257 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-25 23:12:00,258 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-25 23:12:00,260 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-25 23:12:00,260 - topicagent - INFO - TopicAgent initialized
+2025-03-25 23:12:00,261 - questionagent - INFO - QuestionAgent initialized without shared state
+2025-03-25 23:12:00,261 - questionagent - INFO - Initialized Question Agent
+2025-03-25 23:12:00,261 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-25 23:12:00,261 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-25 23:12:30,719 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-25 23:12:30,720 - api - INFO - Response status: 200
+2025-03-25 23:12:31,310 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/patterns
+2025-03-25 23:12:31,311 - api - INFO - Response status: 200
+2025-03-25 23:13:27,950 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-25 23:13:27,951 - api - INFO - Response status: 200
+2025-03-25 23:13:28,277 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/patterns
+2025-03-25 23:13:28,278 - api - INFO - Response status: 200
+2025-03-25 23:13:49,870 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-25 23:13:49,871 - api - INFO - Response status: 200
+2025-03-25 23:13:50,238 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/patterns
+2025-03-25 23:13:50,239 - api - INFO - Response status: 200
+2025-03-25 23:14:09,380 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-25 23:14:09,381 - api - INFO - Response status: 200
+2025-03-25 23:14:09,732 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/patterns
+2025-03-25 23:14:09,734 - api - INFO - Response status: 200
+2025-03-25 23:14:37,567 - api - INFO - Static files check complete
+2025-03-25 23:14:37,568 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-25 23:14:37,569 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-25 23:14:37,570 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-25 23:14:37,572 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-25 23:14:37,572 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-25 23:14:38,146 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-25 23:14:38,147 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-25 23:14:38,162 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-25 23:14:38,358 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-25 23:14:38,359 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-25 23:14:38,359 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-25 23:14:38,361 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-25 23:14:38,361 - data_pipeline - INFO - Successfully initialized all components
+2025-03-25 23:14:38,362 - api - INFO - Loading API keys from .env file
+2025-03-25 23:14:38,363 - api - INFO - Successfully loaded 3 API keys
+2025-03-25 23:14:38,364 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-25 23:14:38,365 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-25 23:14:38,366 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-25 23:14:38,367 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-25 23:14:38,369 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-25 23:14:38,369 - quizagent - INFO - QuizAgent initialized
+2025-03-25 23:14:38,371 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-25 23:14:38,372 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-25 23:14:38,373 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-25 23:14:38,373 - topicagent - INFO - TopicAgent initialized
+2025-03-25 23:14:38,375 - questionagent - INFO - QuestionAgent initialized without shared state
+2025-03-25 23:14:38,375 - questionagent - INFO - Initialized Question Agent
+2025-03-25 23:14:38,376 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-25 23:14:38,376 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-25 23:14:58,680 - api - INFO - Static files check complete
+2025-03-25 23:14:58,682 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-25 23:14:58,683 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-25 23:14:58,685 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-25 23:14:58,685 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-25 23:14:58,686 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-25 23:14:59,275 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-25 23:14:59,275 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-25 23:14:59,295 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-25 23:14:59,519 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-25 23:14:59,520 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-25 23:14:59,520 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-25 23:14:59,521 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-25 23:14:59,521 - data_pipeline - INFO - Successfully initialized all components
+2025-03-25 23:14:59,521 - api - INFO - Loading API keys from .env file
+2025-03-25 23:14:59,524 - api - INFO - Successfully loaded 3 API keys
+2025-03-25 23:14:59,526 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-25 23:14:59,527 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-25 23:14:59,527 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-25 23:14:59,528 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-25 23:14:59,530 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-25 23:14:59,531 - quizagent - INFO - QuizAgent initialized
+2025-03-25 23:14:59,532 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-25 23:14:59,534 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-25 23:14:59,535 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-25 23:14:59,536 - topicagent - INFO - TopicAgent initialized
+2025-03-25 23:14:59,537 - questionagent - INFO - QuestionAgent initialized without shared state
+2025-03-25 23:14:59,537 - questionagent - INFO - Initialized Question Agent
+2025-03-25 23:14:59,537 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-25 23:14:59,538 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-25 23:15:32,104 - api - INFO - Static files check complete
+2025-03-25 23:15:32,106 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-25 23:15:32,106 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-25 23:15:32,108 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-25 23:15:32,109 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-25 23:15:32,110 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-25 23:15:32,756 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-25 23:15:32,756 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-25 23:15:32,777 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-25 23:15:32,979 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-25 23:15:32,980 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-25 23:15:32,981 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-25 23:15:32,982 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-25 23:15:32,982 - data_pipeline - INFO - Successfully initialized all components
+2025-03-25 23:15:32,983 - api - INFO - Loading API keys from .env file
+2025-03-25 23:15:32,984 - api - INFO - Successfully loaded 3 API keys
+2025-03-25 23:15:32,985 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-25 23:15:32,986 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-25 23:15:32,987 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-25 23:15:32,988 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-25 23:15:32,988 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-25 23:15:32,989 - quizagent - INFO - QuizAgent initialized
+2025-03-25 23:15:32,990 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-25 23:15:32,992 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-25 23:15:32,994 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-25 23:15:32,994 - topicagent - INFO - TopicAgent initialized
+2025-03-25 23:15:32,995 - questionagent - INFO - QuestionAgent initialized without shared state
+2025-03-25 23:15:32,995 - questionagent - INFO - Initialized Question Agent
+2025-03-25 23:15:32,995 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-25 23:15:32,996 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-25 23:16:01,051 - api - INFO - Static files check complete
+2025-03-25 23:16:01,052 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-25 23:16:01,054 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-25 23:16:01,054 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-25 23:16:01,055 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-25 23:16:01,056 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-25 23:16:01,596 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-25 23:16:01,596 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-25 23:16:01,617 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-25 23:16:01,817 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-25 23:16:01,817 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-25 23:16:01,819 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-25 23:16:01,819 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-25 23:16:01,819 - data_pipeline - INFO - Successfully initialized all components
+2025-03-25 23:16:01,819 - api - INFO - Loading API keys from .env file
+2025-03-25 23:16:01,820 - api - INFO - Successfully loaded 3 API keys
+2025-03-25 23:16:01,821 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-25 23:16:01,824 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-25 23:16:01,824 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-25 23:16:01,826 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-25 23:16:01,827 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-25 23:16:01,827 - quizagent - INFO - QuizAgent initialized
+2025-03-25 23:16:01,828 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-25 23:16:01,829 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-25 23:16:01,830 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-25 23:16:01,831 - topicagent - INFO - TopicAgent initialized
+2025-03-25 23:16:01,832 - questionagent - INFO - QuestionAgent initialized without shared state
+2025-03-25 23:16:01,833 - questionagent - INFO - Initialized Question Agent
+2025-03-25 23:16:01,833 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-25 23:16:01,833 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-25 23:16:27,176 - api - INFO - Static files check complete
+2025-03-25 23:16:27,177 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-25 23:16:27,177 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-25 23:16:27,179 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-25 23:16:27,179 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-25 23:16:27,180 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-25 23:16:27,739 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-25 23:16:27,740 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-25 23:16:27,761 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-25 23:16:28,059 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-25 23:16:28,059 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-25 23:16:28,061 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-25 23:16:28,061 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-25 23:16:28,061 - data_pipeline - INFO - Successfully initialized all components
+2025-03-25 23:16:28,062 - api - INFO - Loading API keys from .env file
+2025-03-25 23:16:28,063 - api - INFO - Successfully loaded 3 API keys
+2025-03-25 23:16:28,064 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-25 23:16:28,066 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-25 23:16:28,066 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-25 23:16:28,068 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-25 23:16:28,069 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-25 23:16:28,070 - quizagent - INFO - QuizAgent initialized
+2025-03-25 23:16:28,071 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-25 23:16:28,073 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-25 23:16:28,074 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-25 23:16:28,075 - topicagent - INFO - TopicAgent initialized
+2025-03-25 23:16:28,077 - questionagent - INFO - QuestionAgent initialized without shared state
+2025-03-25 23:16:28,078 - questionagent - INFO - Initialized Question Agent
+2025-03-25 23:16:28,078 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-25 23:16:28,079 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-25 23:16:45,475 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-25 23:16:45,477 - api - INFO - Response status: 200
+2025-03-25 23:16:46,061 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/patterns
+2025-03-25 23:16:46,062 - api - INFO - Response status: 200
+2025-03-25 23:16:51,881 - api - INFO - Request: POST http://127.0.0.1:8000/api/upload
+2025-03-25 23:16:51,884 - api - INFO - Received file upload: Real-Time Violence Detection System Using Deep Learning (1).pdf
+2025-03-25 23:16:51,905 - api - INFO - File saved to uploads\Real-Time Violence Detection System Using Deep Learning (1).pdf
+2025-03-25 23:16:51,914 - api - INFO - Extracting topics from text
+2025-03-25 23:16:51,914 - topicagent - INFO - Processing text of length 1492 to extract topics
+2025-03-25 23:17:03,382 - topicagent - INFO - Successfully extracted 5 topics
+2025-03-25 23:17:03,383 - api - INFO - Extracted 5 topics
+2025-03-25 23:17:03,383 - langchain_orchestrator - INFO - Set 5 topics in orchestrator
+2025-03-25 23:17:03,385 - api - INFO - Response status: 200
+2025-03-25 23:18:48,427 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-25 23:18:48,429 - api - INFO - Received chat message from user user1: start flow...
+2025-03-25 23:18:48,429 - api - INFO - Detected 'start flow' command
+2025-03-25 23:18:48,430 - langchain_orchestrator - INFO - Processing query: start flow...
+2025-03-25 23:18:48,430 - langchain_orchestrator - INFO - Detected 'start flow' command
+2025-03-25 23:18:48,431 - langchain_orchestrator - INFO - Creating multi-agent learning path
+2025-03-25 23:18:48,431 - langchain_orchestrator - INFO - Creating comprehensive curriculum with 5 topics
+2025-03-25 23:18:48,431 - langchain_orchestrator - INFO - Creating comprehensive curriculum with 5 topics
+2025-03-25 23:18:48,432 - langchain_orchestrator - INFO - Generating content for curriculum item: Understanding Violence Detection Model (type: explainer)
+2025-03-25 23:18:48,432 - langchain_orchestrator - INFO - Generating content with specific text for: Understanding Violence Detection Model (type: explainer)
+2025-03-25 23:18:48,433 - langchain_orchestrator - INFO - Using explainer agent with specific content
+2025-03-25 23:18:58,966 - explaineragent - INFO - Successfully generated explanation
+2025-03-25 23:18:58,968 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: start_curriculum, Time: 2025-03-25 23:18:58
+2025-03-25 23:18:58,968 - api - INFO - Response status: 200
+2025-03-25 23:19:03,597 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-25 23:19:03,598 - api - INFO - Received chat message from user user1: next...
+2025-03-25 23:19:03,598 - langchain_orchestrator - INFO - Processing query: next...
+2025-03-25 23:19:03,599 - langchain_orchestrator - INFO - Detected 'next' command
+2025-03-25 23:19:03,599 - langchain_orchestrator - INFO - Navigating next in learning flow
+2025-03-25 23:19:03,599 - langchain_orchestrator - INFO - Navigating next in the curriculum
+2025-03-25 23:19:03,600 - langchain_orchestrator - INFO - Generating content for curriculum item: Visual Representation of Violence Detection Model (type: diagram)
+2025-03-25 23:19:03,601 - langchain_orchestrator - INFO - Generating content with specific text for: Visual Representation of Violence Detection Model (type: diagram)
+2025-03-25 23:19:03,601 - langchain_orchestrator - INFO - Using diagram agent with specific content
+2025-03-25 23:19:07,408 - diagramagent - INFO - Successfully generated class diagram
+2025-03-25 23:19:07,409 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: navigate_next, Time: 2025-03-25 23:19:07
+2025-03-25 23:19:07,410 - api - INFO - Response status: 200
+2025-03-25 23:19:20,327 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-25 23:19:20,329 - api - INFO - Received chat message from user user1: next...
+2025-03-25 23:19:20,329 - langchain_orchestrator - INFO - Processing query: next...
+2025-03-25 23:19:20,331 - langchain_orchestrator - INFO - Detected 'next' command
+2025-03-25 23:19:20,331 - langchain_orchestrator - INFO - Navigating next in learning flow
+2025-03-25 23:19:20,331 - langchain_orchestrator - INFO - Navigating next in the curriculum
+2025-03-25 23:19:20,332 - langchain_orchestrator - INFO - Generating content for curriculum item: Quick Check: Violence Detection Model (type: practice)
+2025-03-25 23:19:20,332 - langchain_orchestrator - INFO - Generating content with specific text for: Quick Check: Violence Detection Model (type: practice)
+2025-03-25 23:19:20,333 - langchain_orchestrator - INFO - Using quiz agent with specific content
+2025-03-25 23:19:20,334 - quizagent - INFO - Generating quiz with 1 questions
+2025-03-25 23:19:23,772 - quizagent - DEBUG - Raw response: ```json
+{
+  "topic": "Violence Detection Model",
+  "questions": [
+    {
+      "question": "What is the core machine learning model used for classifying video frames in the described violence detection...
+2025-03-25 23:19:23,773 - quizagent - DEBUG - Cleaned response: {   "topic": "Violence Detection Model",   "questions": [     {       "question": "What is the core machine learning model used for classifying video frames in the described violence detection system?...
+2025-03-25 23:19:23,773 - quizagent - INFO - Successfully generated quiz with 1 questions on topic 'Violence Detection Model'
+2025-03-25 23:19:23,774 - questionagent - INFO - Generating multiple_choice question
+2025-03-25 23:19:23,775 - questionagent - INFO - Generating multiple choice question
+2025-03-25 23:19:23,775 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: navigate_next, Time: 2025-03-25 23:19:23
+2025-03-25 23:19:23,777 - api - INFO - Response status: 200
+2025-03-25 23:19:38,702 - api - INFO - Request: OPTIONS http://127.0.0.1:8000/api/chat
+2025-03-25 23:19:38,703 - api - INFO - Response status: 200
+2025-03-25 23:19:38,707 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-25 23:19:38,707 - api - INFO - Received chat message from user user1: next...
+2025-03-25 23:19:38,708 - langchain_orchestrator - INFO - Processing query: next...
+2025-03-25 23:19:38,708 - langchain_orchestrator - INFO - Detected 'next' command
+2025-03-25 23:19:38,708 - langchain_orchestrator - INFO - Navigating next in learning flow
+2025-03-25 23:19:38,710 - langchain_orchestrator - INFO - Navigating next in the curriculum
+2025-03-25 23:19:38,710 - langchain_orchestrator - INFO - Generating content for curriculum item: Understanding Model Selection (type: explainer)
+2025-03-25 23:19:38,711 - langchain_orchestrator - INFO - Generating content with specific text for: Understanding Model Selection (type: explainer)
+2025-03-25 23:19:38,712 - langchain_orchestrator - INFO - Using explainer agent with specific content
+2025-03-25 23:19:47,227 - explaineragent - INFO - Successfully generated explanation
+2025-03-25 23:19:47,227 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: navigate_next, Time: 2025-03-25 23:19:47
+2025-03-25 23:19:47,228 - api - INFO - Response status: 200
+2025-03-25 23:25:59,058 - api - INFO - Static files check complete
+2025-03-25 23:25:59,060 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-25 23:25:59,060 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-25 23:25:59,062 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-25 23:25:59,063 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-25 23:25:59,064 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-25 23:25:59,788 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-25 23:25:59,789 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-25 23:25:59,816 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-25 23:26:00,029 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-25 23:26:00,029 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-25 23:26:00,031 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-25 23:26:00,032 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-25 23:26:00,032 - data_pipeline - INFO - Successfully initialized all components
+2025-03-25 23:26:00,032 - api - INFO - Loading API keys from .env file
+2025-03-25 23:26:00,033 - api - INFO - Successfully loaded 3 API keys
+2025-03-25 23:26:00,034 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-25 23:26:00,035 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-25 23:26:00,035 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-25 23:26:00,038 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-25 23:26:00,039 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-25 23:26:00,040 - quizagent - INFO - QuizAgent initialized
+2025-03-25 23:26:00,041 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-25 23:26:00,043 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-25 23:26:00,044 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-25 23:26:00,044 - topicagent - INFO - TopicAgent initialized
+2025-03-25 23:26:00,045 - questionagent - INFO - QuestionAgent initialized without shared state
+2025-03-25 23:26:00,045 - questionagent - INFO - Initialized Question Agent
+2025-03-25 23:26:00,045 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-25 23:26:00,045 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-25 23:27:08,529 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-25 23:27:08,531 - api - INFO - Response status: 200
+2025-03-25 23:27:09,507 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/patterns
+2025-03-25 23:27:09,509 - api - INFO - Response status: 200
+2025-03-25 23:31:23,535 - api - INFO - Request: OPTIONS http://127.0.0.1:8000/api/upload
+2025-03-25 23:31:23,537 - api - INFO - Response status: 200
+2025-03-25 23:31:23,540 - api - INFO - Request: POST http://127.0.0.1:8000/api/upload
+2025-03-25 23:31:23,544 - api - INFO - Received file upload: Real-Time Violence Detection System Using Deep Learning (1).pdf
+2025-03-25 23:31:23,572 - api - INFO - File saved to uploads\Real-Time Violence Detection System Using Deep Learning (1).pdf
+2025-03-25 23:31:23,578 - api - INFO - Extracting topics from text
+2025-03-25 23:31:23,579 - topicagent - INFO - Processing text of length 1492 to extract topics
+2025-03-25 23:31:34,039 - topicagent - INFO - Successfully extracted 5 topics
+2025-03-25 23:31:34,040 - api - INFO - Extracted 5 topics
+2025-03-25 23:31:34,040 - langchain_orchestrator - INFO - Set 5 topics in orchestrator
+2025-03-25 23:31:34,042 - api - INFO - Response status: 200
+2025-03-25 23:31:44,706 - api - INFO - Request: OPTIONS http://127.0.0.1:8000/api/chat
+2025-03-25 23:31:44,708 - api - INFO - Response status: 200
+2025-03-25 23:31:44,711 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-25 23:31:44,713 - api - INFO - Received chat message from user user1: start flow...
+2025-03-25 23:31:44,713 - api - INFO - Detected 'start flow' command
+2025-03-25 23:31:44,714 - langchain_orchestrator - INFO - Processing query: start flow...
+2025-03-25 23:31:44,715 - langchain_orchestrator - INFO - Detected 'start flow' command
+2025-03-25 23:31:44,716 - langchain_orchestrator - INFO - Creating multi-agent learning path
+2025-03-25 23:31:44,717 - langchain_orchestrator - INFO - Creating comprehensive curriculum with 5 topics
+2025-03-25 23:31:44,717 - langchain_orchestrator - INFO - Creating comprehensive curriculum with 5 topics
+2025-03-25 23:31:44,717 - langchain_orchestrator - INFO - Generating content for curriculum item: Understanding Violence Detection Model (type: explainer)
+2025-03-25 23:31:44,718 - langchain_orchestrator - INFO - Generating content with specific text for: Understanding Violence Detection Model (type: explainer)
+2025-03-25 23:31:44,719 - langchain_orchestrator - INFO - Using explainer agent with specific content
+2025-03-25 23:31:54,680 - explaineragent - INFO - Successfully generated explanation
+2025-03-25 23:31:54,681 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: start_curriculum, Time: 2025-03-25 23:31:54
+2025-03-25 23:31:54,682 - api - INFO - Response status: 200
+2025-03-25 23:33:56,130 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-25 23:33:56,131 - api - INFO - Received chat message from user user1: next...
+2025-03-25 23:33:56,132 - langchain_orchestrator - INFO - Processing query: next...
+2025-03-25 23:33:56,132 - langchain_orchestrator - INFO - Detected 'next' command
+2025-03-25 23:33:56,132 - langchain_orchestrator - INFO - Navigating next in learning flow
+2025-03-25 23:33:56,132 - langchain_orchestrator - INFO - Navigating next in the curriculum
+2025-03-25 23:33:56,133 - langchain_orchestrator - INFO - Generating content for curriculum item: Visual Representation of Violence Detection Model (type: diagram)
+2025-03-25 23:33:56,133 - langchain_orchestrator - INFO - Generating content with specific text for: Visual Representation of Violence Detection Model (type: diagram)
+2025-03-25 23:33:56,133 - langchain_orchestrator - INFO - Using diagram agent with specific content
+2025-03-25 23:33:59,852 - diagramagent - INFO - Successfully generated class diagram
+2025-03-25 23:33:59,853 - langchain_orchestrator - INFO - Adding comprehension check question
+2025-03-25 23:33:59,853 - langchain_orchestrator - INFO - Generating comprehension check for specific content
+2025-03-25 23:33:59,853 - quizagent - INFO - Generating quiz with 1 questions
+2025-03-25 23:34:03,417 - quizagent - DEBUG - Raw response: ```json
+{
+  "topic": "Violence Detection Model",
+  "questions": [
+    {
+      "question": "What is the core machine learning model used for classifying video frames in the described violence detection...
+2025-03-25 23:34:03,418 - quizagent - DEBUG - Cleaned response: {   "topic": "Violence Detection Model",   "questions": [     {       "question": "What is the core machine learning model used for classifying video frames in the described violence detection system?...
+2025-03-25 23:34:03,419 - quizagent - INFO - Successfully generated quiz with 1 questions on topic 'Violence Detection Model'
+2025-03-25 23:34:03,419 - langchain_orchestrator - INFO - Quiz question text: What is the core machine learning model used for classifying video frames in the described violence detection system?
+2025-03-25 23:34:03,420 - langchain_orchestrator - INFO - Quiz options: ['ResNet50', 'Inception V3', 'YOLOv5', 'VGG16']
+2025-03-25 23:34:03,420 - questionagent - INFO - Generating multiple_choice question
+2025-03-25 23:34:03,420 - questionagent - INFO - Generating multiple choice question
+2025-03-25 23:34:03,420 - langchain_orchestrator - INFO - Formatted question: {'type': 'multiple_choice', 'title': 'Question', 'message': 'What is the core machine learning model used for classifying video frames in the described violence detection system?', 'content': "The text explicitly states that a 'fine-tuned Inception V3 model' is used for the classification task.", 'options': [{'id': '1', 'text': 'ResNet50', 'is_correct': False}, {'id': '2', 'text': 'Inception V3', 'is_correct': True}, {'id': '3', 'text': 'YOLOv5', 'is_correct': False}, {'id': '4', 'text': 'VGG16', 'is_correct': False}], 'has_options': True, 'require_response': True}
+2025-03-25 23:34:03,422 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: navigate_next, Time: 2025-03-25 23:34:03
+2025-03-25 23:34:03,422 - api - INFO - Response status: 200
+2025-03-25 23:34:08,994 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-25 23:34:08,996 - api - INFO - Received chat message from user user1: next...
+2025-03-25 23:34:08,996 - langchain_orchestrator - INFO - Processing query: next...
+2025-03-25 23:34:08,996 - langchain_orchestrator - INFO - Detected 'next' command
+2025-03-25 23:34:08,998 - langchain_orchestrator - INFO - Navigating next in learning flow
+2025-03-25 23:34:08,998 - langchain_orchestrator - INFO - Navigating next in the curriculum
+2025-03-25 23:34:08,999 - langchain_orchestrator - INFO - Generating content for curriculum item: Quick Check: Violence Detection Model (type: practice)
+2025-03-25 23:34:08,999 - langchain_orchestrator - INFO - Generating content with specific text for: Quick Check: Violence Detection Model (type: practice)
+2025-03-25 23:34:08,999 - langchain_orchestrator - INFO - Using quiz agent with specific content
+2025-03-25 23:34:09,000 - quizagent - INFO - Generating quiz with 1 questions
+2025-03-25 23:34:12,724 - quizagent - DEBUG - Raw response: ```json
+{
+  "topic": "Violence Detection Model",
+  "questions": [
+    {
+      "question": "What underlying architecture does the violence detection model utilize?",
+      "options": [
+        {
+      ...
+2025-03-25 23:34:12,725 - quizagent - DEBUG - Cleaned response: {   "topic": "Violence Detection Model",   "questions": [     {       "question": "What underlying architecture does the violence detection model utilize?",       "options": [         {           "tex...
+2025-03-25 23:34:12,726 - quizagent - INFO - Successfully generated quiz with 1 questions on topic 'Violence Detection Model'
+2025-03-25 23:34:12,726 - questionagent - INFO - Generating multiple_choice question
+2025-03-25 23:34:12,728 - questionagent - INFO - Generating multiple choice question
+2025-03-25 23:34:12,728 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: navigate_next, Time: 2025-03-25 23:34:12
+2025-03-25 23:34:12,729 - api - INFO - Response status: 200
+2025-03-25 23:34:18,325 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-25 23:34:18,328 - api - INFO - Received chat message from user user1: next...
+2025-03-25 23:34:18,328 - langchain_orchestrator - INFO - Processing query: next...
+2025-03-25 23:34:18,329 - langchain_orchestrator - INFO - Detected 'next' command
+2025-03-25 23:34:18,329 - langchain_orchestrator - INFO - Navigating next in learning flow
+2025-03-25 23:34:18,329 - langchain_orchestrator - INFO - Navigating next in the curriculum
+2025-03-25 23:34:18,330 - langchain_orchestrator - INFO - Generating content for curriculum item: Understanding Model Selection (type: explainer)
+2025-03-25 23:34:18,330 - langchain_orchestrator - INFO - Generating content with specific text for: Understanding Model Selection (type: explainer)
+2025-03-25 23:34:18,331 - langchain_orchestrator - INFO - Using explainer agent with specific content
+2025-03-25 23:34:28,726 - explaineragent - INFO - Successfully generated explanation
+2025-03-25 23:34:28,727 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: navigate_next, Time: 2025-03-25 23:34:28
+2025-03-25 23:34:28,729 - api - INFO - Response status: 200
+2025-03-25 23:36:55,102 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-25 23:36:55,103 - api - INFO - Response status: 200
+2025-03-25 23:36:55,614 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/patterns
+2025-03-25 23:36:55,616 - api - INFO - Response status: 200
+2025-03-25 23:37:12,496 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-25 23:37:12,497 - api - INFO - Response status: 200
+2025-03-25 23:37:12,902 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/patterns
+2025-03-25 23:37:12,904 - api - INFO - Response status: 200
+2025-03-25 23:37:26,366 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-25 23:37:26,368 - api - INFO - Response status: 200
+2025-03-25 23:37:26,698 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/patterns
+2025-03-25 23:37:26,700 - api - INFO - Response status: 200
+2025-03-25 23:37:48,179 - api - INFO - Request: POST http://127.0.0.1:8000/api/upload
+2025-03-25 23:37:48,181 - api - INFO - Received file upload: Real-Time Violence Detection System Using Deep Learning (1).pdf
+2025-03-25 23:37:48,205 - api - INFO - File saved to uploads\Real-Time Violence Detection System Using Deep Learning (1).pdf
+2025-03-25 23:37:48,213 - api - INFO - Extracting topics from text
+2025-03-25 23:37:48,214 - topicagent - INFO - Processing text of length 1492 to extract topics
+2025-03-25 23:37:57,138 - topicagent - INFO - Successfully extracted 4 topics
+2025-03-25 23:37:57,138 - api - INFO - Extracted 4 topics
+2025-03-25 23:37:57,138 - langchain_orchestrator - INFO - Set 4 topics in orchestrator
+2025-03-25 23:37:57,140 - api - INFO - Response status: 200
+2025-03-25 23:38:02,086 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-25 23:38:02,087 - api - INFO - Received chat message from user user1: start flow...
+2025-03-25 23:38:02,088 - api - INFO - Detected 'start flow' command
+2025-03-25 23:38:02,088 - langchain_orchestrator - INFO - Processing query: start flow...
+2025-03-25 23:38:02,088 - langchain_orchestrator - INFO - Detected 'start flow' command
+2025-03-25 23:38:02,089 - langchain_orchestrator - INFO - Creating multi-agent learning path
+2025-03-25 23:38:02,089 - langchain_orchestrator - INFO - Creating comprehensive curriculum with 4 topics
+2025-03-25 23:38:02,089 - langchain_orchestrator - INFO - Creating comprehensive curriculum with 4 topics
+2025-03-25 23:38:02,091 - langchain_orchestrator - INFO - Generating content for curriculum item: Understanding Deep Learning Model for Violence Detection (type: explainer)
+2025-03-25 23:38:02,091 - langchain_orchestrator - INFO - Generating content with specific text for: Understanding Deep Learning Model for Violence Detection (type: explainer)
+2025-03-25 23:38:02,092 - langchain_orchestrator - INFO - Using explainer agent with specific content
+2025-03-25 23:38:10,796 - explaineragent - INFO - Successfully generated explanation
+2025-03-25 23:38:10,798 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: start_curriculum, Time: 2025-03-25 23:38:10
+2025-03-25 23:38:10,800 - api - INFO - Response status: 200
+2025-03-25 23:38:15,368 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-25 23:38:15,369 - api - INFO - Received chat message from user user1: next...
+2025-03-25 23:38:15,370 - langchain_orchestrator - INFO - Processing query: next...
+2025-03-25 23:38:15,370 - langchain_orchestrator - INFO - Detected 'next' command
+2025-03-25 23:38:15,370 - langchain_orchestrator - INFO - Navigating next in learning flow
+2025-03-25 23:38:15,371 - langchain_orchestrator - INFO - Navigating next in the curriculum
+2025-03-25 23:38:15,371 - langchain_orchestrator - INFO - Generating content for curriculum item: Visual Representation of Deep Learning Model for Violence Detection (type: diagram)
+2025-03-25 23:38:15,371 - langchain_orchestrator - INFO - Generating content with specific text for: Visual Representation of Deep Learning Model for Violence Detection (type: diagram)
+2025-03-25 23:38:15,372 - langchain_orchestrator - INFO - Using diagram agent with specific content
+2025-03-25 23:38:18,706 - diagramagent - INFO - Successfully generated class diagram
+2025-03-25 23:38:18,706 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: navigate_next, Time: 2025-03-25 23:38:18
+2025-03-25 23:38:18,707 - api - INFO - Response status: 200
+2025-03-25 23:38:34,250 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-25 23:38:34,252 - api - INFO - Received chat message from user user1: next...
+2025-03-25 23:38:34,252 - langchain_orchestrator - INFO - Processing query: next...
+2025-03-25 23:38:34,253 - langchain_orchestrator - INFO - Detected 'next' command
+2025-03-25 23:38:34,253 - langchain_orchestrator - INFO - Navigating next in learning flow
+2025-03-25 23:38:34,253 - langchain_orchestrator - INFO - Navigating next in the curriculum
+2025-03-25 23:38:34,255 - langchain_orchestrator - INFO - Generating content for curriculum item: Quick Check: Deep Learning Model for Violence Detection (type: practice)
+2025-03-25 23:38:34,255 - langchain_orchestrator - INFO - Generating content with specific text for: Quick Check: Deep Learning Model for Violence Detection (type: practice)
+2025-03-25 23:38:34,256 - langchain_orchestrator - INFO - Using quiz agent with specific content
+2025-03-25 23:38:34,256 - quizagent - INFO - Generating quiz with 1 questions
+2025-03-25 23:38:37,572 - quizagent - DEBUG - Raw response: ```json
+{
+  "topic": "Deep Learning Model for Violence Detection",
+  "questions": [
+    {
+      "question": "What is the core deep learning architecture used in the violence detection system described...
+2025-03-25 23:38:37,573 - quizagent - DEBUG - Cleaned response: {   "topic": "Deep Learning Model for Violence Detection",   "questions": [     {       "question": "What is the core deep learning architecture used in the violence detection system described?",     ...
+2025-03-25 23:38:37,573 - quizagent - INFO - Successfully generated quiz with 1 questions on topic 'Deep Learning Model for Violence Detection'
+2025-03-25 23:38:37,574 - questionagent - INFO - Generating multiple_choice question
+2025-03-25 23:38:37,574 - questionagent - INFO - Generating multiple choice question
+2025-03-25 23:38:37,575 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: navigate_next, Time: 2025-03-25 23:38:37
+2025-03-25 23:38:37,576 - api - INFO - Response status: 200
+2025-03-25 23:38:49,384 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-25 23:38:49,386 - api - INFO - Received chat message from user user1: Inception V3...
+2025-03-25 23:38:49,386 - langchain_orchestrator - INFO - Processing query: Inception V3...
+2025-03-25 23:38:49,386 - langchain_orchestrator - INFO - Routing to explainer agent
+2025-03-25 23:38:49,388 - explaineragent - WARNING - Text too short for meaningful explanation
+2025-03-25 23:38:49,388 - api - INFO - Response status: 200
+2025-03-25 23:40:52,145 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-25 23:40:52,146 - api - INFO - Response status: 200
+2025-03-25 23:40:52,635 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/patterns
+2025-03-25 23:40:52,637 - api - INFO - Response status: 200
+2025-03-25 23:41:41,458 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-25 23:41:41,462 - api - INFO - Response status: 200
+2025-03-25 23:41:41,753 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/patterns
+2025-03-25 23:41:41,755 - api - INFO - Response status: 200
+2025-03-25 23:41:49,193 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-25 23:41:49,194 - api - INFO - Response status: 200
+2025-03-25 23:41:49,480 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/patterns
+2025-03-25 23:41:49,481 - api - INFO - Response status: 200
+2025-03-25 23:42:03,087 - api - INFO - Request: OPTIONS http://127.0.0.1:8000/api/upload
+2025-03-25 23:42:03,087 - api - INFO - Response status: 200
+2025-03-25 23:42:03,093 - api - INFO - Request: POST http://127.0.0.1:8000/api/upload
+2025-03-25 23:42:03,096 - api - INFO - Received file upload: Real-Time Violence Detection System Using Deep Learning (1).pdf
+2025-03-25 23:42:03,112 - api - INFO - File saved to uploads\Real-Time Violence Detection System Using Deep Learning (1).pdf
+2025-03-25 23:42:03,119 - api - INFO - Extracting topics from text
+2025-03-25 23:42:03,119 - topicagent - INFO - Processing text of length 1492 to extract topics
+2025-03-25 23:42:13,711 - topicagent - INFO - Successfully extracted 4 topics
+2025-03-25 23:42:13,712 - api - INFO - Extracted 4 topics
+2025-03-25 23:42:13,712 - langchain_orchestrator - INFO - Set 4 topics in orchestrator
+2025-03-25 23:42:13,713 - api - INFO - Response status: 200
+2025-03-25 23:42:18,549 - api - INFO - Request: OPTIONS http://127.0.0.1:8000/api/chat
+2025-03-25 23:42:18,550 - api - INFO - Response status: 200
+2025-03-25 23:42:18,553 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-25 23:42:18,555 - api - INFO - Received chat message from user user1: start flow...
+2025-03-25 23:42:18,555 - api - INFO - Detected 'start flow' command
+2025-03-25 23:42:18,556 - langchain_orchestrator - INFO - Processing query: start flow...
+2025-03-25 23:42:18,556 - langchain_orchestrator - INFO - Detected 'start flow' command
+2025-03-25 23:42:18,557 - langchain_orchestrator - INFO - Creating multi-agent learning path
+2025-03-25 23:42:18,557 - langchain_orchestrator - INFO - Creating comprehensive curriculum with 4 topics
+2025-03-25 23:42:18,557 - langchain_orchestrator - INFO - Creating comprehensive curriculum with 4 topics
+2025-03-25 23:42:18,559 - langchain_orchestrator - INFO - Generating content for curriculum item: Understanding Deep Learning Model for Violence Detection (type: explainer)
+2025-03-25 23:42:18,559 - langchain_orchestrator - INFO - Generating content with specific text for: Understanding Deep Learning Model for Violence Detection (type: explainer)
+2025-03-25 23:42:18,561 - langchain_orchestrator - INFO - Using explainer agent with specific content
+2025-03-25 23:42:27,343 - explaineragent - INFO - Successfully generated explanation
+2025-03-25 23:42:27,344 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: start_curriculum, Time: 2025-03-25 23:42:27
+2025-03-25 23:42:27,346 - api - INFO - Response status: 200
+2025-03-25 23:42:32,260 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-25 23:42:32,261 - api - INFO - Received chat message from user user1: next...
+2025-03-25 23:42:32,261 - langchain_orchestrator - INFO - Processing query: next...
+2025-03-25 23:42:32,262 - langchain_orchestrator - INFO - Detected 'next' command
+2025-03-25 23:42:32,262 - langchain_orchestrator - INFO - Navigating next in learning flow
+2025-03-25 23:42:32,262 - langchain_orchestrator - INFO - Navigating next in the curriculum
+2025-03-25 23:42:32,264 - langchain_orchestrator - INFO - Generating content for curriculum item: Visual Representation of Deep Learning Model for Violence Detection (type: diagram)
+2025-03-25 23:42:32,264 - langchain_orchestrator - INFO - Generating content with specific text for: Visual Representation of Deep Learning Model for Violence Detection (type: diagram)
+2025-03-25 23:42:32,265 - langchain_orchestrator - INFO - Using diagram agent with specific content
+2025-03-25 23:42:36,052 - diagramagent - INFO - Successfully generated class diagram
+2025-03-25 23:42:36,053 - langchain_orchestrator - INFO - Adding comprehension check question
+2025-03-25 23:42:36,055 - langchain_orchestrator - INFO - Generating comprehension check for specific content
+2025-03-25 23:42:36,056 - quizagent - INFO - Generating quiz with 1 questions
+2025-03-25 23:42:39,602 - quizagent - DEBUG - Raw response: ```json
+{
+  "topic": "Deep Learning Model for Violence Detection",
+  "questions": [
+    {
+      "question": "What is the core deep learning architecture used in the violence detection model described?...
+2025-03-25 23:42:39,603 - quizagent - DEBUG - Cleaned response: {   "topic": "Deep Learning Model for Violence Detection",   "questions": [     {       "question": "What is the core deep learning architecture used in the violence detection model described?",      ...
+2025-03-25 23:42:39,605 - quizagent - INFO - Successfully generated quiz with 1 questions on topic 'Deep Learning Model for Violence Detection'
+2025-03-25 23:42:39,606 - langchain_orchestrator - INFO - Quiz question text: What is the core deep learning architecture used in the violence detection model described?
+2025-03-25 23:42:39,607 - langchain_orchestrator - INFO - Quiz options: ['ResNet50', 'Inception V3', 'VGG16', 'MobileNet']
+2025-03-25 23:42:39,608 - questionagent - INFO - Generating multiple_choice question
+2025-03-25 23:42:39,609 - questionagent - INFO - Generating multiple choice question
+2025-03-25 23:42:39,609 - langchain_orchestrator - INFO - Formatted question: {'type': 'multiple_choice', 'title': 'Question', 'message': 'What is the core deep learning architecture used in the violence detection model described?', 'content': 'The text explicitly states that the model utilizes the Inception V3 architecture.', 'options': [{'id': '1', 'text': 'ResNet50', 'is_correct': False}, {'id': '2', 'text': 'Inception V3', 'is_correct': True}, {'id': '3', 'text': 'VGG16', 'is_correct': False}, {'id': '4', 'text': 'MobileNet', 'is_correct': False}], 'has_options': True, 'require_response': True}
+2025-03-25 23:42:39,612 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: navigate_next, Time: 2025-03-25 23:42:39
+2025-03-25 23:42:39,614 - api - INFO - Response status: 200
+2025-03-25 23:43:09,350 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-25 23:43:09,352 - api - INFO - Received chat message from user user1: !answer:2:Inception V3...
+2025-03-25 23:43:09,352 - langchain_orchestrator - INFO - Processing query: !answer:2:Inception V3...
+2025-03-25 23:43:09,353 - langchain_orchestrator - INFO - Routing to explainer agent
+2025-03-25 23:43:09,353 - explaineragent - WARNING - Text too short for meaningful explanation
+2025-03-25 23:43:09,354 - api - INFO - Response status: 200
+2025-03-25 23:45:08,698 - api - INFO - Static files check complete
+2025-03-25 23:45:08,700 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-25 23:45:08,701 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-25 23:45:08,702 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-25 23:45:08,703 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-25 23:45:08,703 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-25 23:45:09,255 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-25 23:45:09,256 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-25 23:45:09,291 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-25 23:45:09,507 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-25 23:45:09,508 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-25 23:45:09,509 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-25 23:45:09,509 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-25 23:45:09,510 - data_pipeline - INFO - Successfully initialized all components
+2025-03-25 23:45:09,510 - api - INFO - Loading API keys from .env file
+2025-03-25 23:45:09,511 - api - INFO - Successfully loaded 3 API keys
+2025-03-25 23:45:09,512 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-25 23:45:09,513 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-25 23:45:09,514 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-25 23:45:09,516 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-25 23:45:09,517 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-25 23:45:09,517 - quizagent - INFO - QuizAgent initialized
+2025-03-25 23:45:09,518 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-25 23:45:09,519 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-25 23:45:09,520 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-25 23:45:09,520 - topicagent - INFO - TopicAgent initialized
+2025-03-25 23:45:09,521 - questionagent - INFO - QuestionAgent initialized without shared state
+2025-03-25 23:45:09,521 - questionagent - INFO - Initialized Question Agent
+2025-03-25 23:45:09,523 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-25 23:45:09,523 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-25 23:45:32,403 - api - INFO - Static files check complete
+2025-03-25 23:45:32,405 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-25 23:45:32,406 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-25 23:45:32,407 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-25 23:45:32,408 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-25 23:45:32,409 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-25 23:45:32,982 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-25 23:45:32,983 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-25 23:45:33,004 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-25 23:45:33,173 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-25 23:45:33,173 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-25 23:45:33,174 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-25 23:45:33,175 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-25 23:45:33,175 - data_pipeline - INFO - Successfully initialized all components
+2025-03-25 23:45:33,175 - api - INFO - Loading API keys from .env file
+2025-03-25 23:45:33,176 - api - INFO - Successfully loaded 3 API keys
+2025-03-25 23:45:33,178 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-25 23:45:33,179 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-25 23:45:33,179 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-25 23:45:33,181 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-25 23:45:33,183 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-25 23:45:33,183 - quizagent - INFO - QuizAgent initialized
+2025-03-25 23:45:33,184 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-25 23:45:33,185 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-25 23:45:33,186 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-25 23:45:33,187 - topicagent - INFO - TopicAgent initialized
+2025-03-25 23:45:33,188 - questionagent - INFO - QuestionAgent initialized without shared state
+2025-03-25 23:45:33,188 - questionagent - INFO - Initialized Question Agent
+2025-03-25 23:45:33,188 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-25 23:45:33,189 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-25 23:45:53,173 - api - INFO - Static files check complete
+2025-03-25 23:45:53,174 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-25 23:45:53,175 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-25 23:45:53,176 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-25 23:45:53,177 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-25 23:45:53,177 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-25 23:45:53,709 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-25 23:45:53,709 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-25 23:45:53,728 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-25 23:45:53,936 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-25 23:45:53,936 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-25 23:45:53,937 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-25 23:45:53,938 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-25 23:45:53,938 - data_pipeline - INFO - Successfully initialized all components
+2025-03-25 23:45:53,938 - api - INFO - Loading API keys from .env file
+2025-03-25 23:45:53,940 - api - INFO - Successfully loaded 3 API keys
+2025-03-25 23:45:53,941 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-25 23:45:53,942 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-25 23:45:53,942 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-25 23:45:53,943 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-25 23:45:53,946 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-25 23:45:53,946 - quizagent - INFO - QuizAgent initialized
+2025-03-25 23:45:53,947 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-25 23:45:53,948 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-25 23:45:53,949 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-25 23:45:53,950 - topicagent - INFO - TopicAgent initialized
+2025-03-25 23:45:53,951 - questionagent - INFO - QuestionAgent initialized without shared state
+2025-03-25 23:45:53,951 - questionagent - INFO - Initialized Question Agent
+2025-03-25 23:45:53,951 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-25 23:45:53,952 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-25 23:46:16,850 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-25 23:46:16,851 - api - INFO - Response status: 200
+2025-03-25 23:46:17,322 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/patterns
+2025-03-25 23:46:17,324 - api - INFO - Response status: 200
+2025-03-25 23:46:23,737 - api - INFO - Request: POST http://127.0.0.1:8000/api/upload
+2025-03-25 23:46:23,740 - api - INFO - Received file upload: Real-Time Violence Detection System Using Deep Learning (1).pdf
+2025-03-25 23:46:23,758 - api - INFO - File saved to uploads\Real-Time Violence Detection System Using Deep Learning (1).pdf
+2025-03-25 23:46:23,767 - api - INFO - Extracting topics from text
+2025-03-25 23:46:23,767 - topicagent - INFO - Processing text of length 1492 to extract topics
+2025-03-25 23:46:35,129 - topicagent - INFO - Successfully extracted 5 topics
+2025-03-25 23:46:35,130 - api - INFO - Extracted 5 topics
+2025-03-25 23:46:35,131 - langchain_orchestrator - INFO - Set 5 topics in orchestrator
+2025-03-25 23:46:35,133 - api - INFO - Response status: 200
+2025-03-25 23:46:55,119 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-25 23:46:55,120 - api - INFO - Received chat message from user user1: start flow...
+2025-03-25 23:46:55,121 - api - INFO - Detected 'start flow' command
+2025-03-25 23:46:55,121 - langchain_orchestrator - INFO - Processing query: start flow...
+2025-03-25 23:46:55,123 - langchain_orchestrator - INFO - Detected 'start flow' command
+2025-03-25 23:46:55,123 - langchain_orchestrator - INFO - Creating multi-agent learning path
+2025-03-25 23:46:55,123 - langchain_orchestrator - INFO - Creating comprehensive curriculum with 5 topics
+2025-03-25 23:46:55,123 - langchain_orchestrator - INFO - Creating comprehensive curriculum with 5 topics
+2025-03-25 23:46:55,123 - langchain_orchestrator - INFO - Generating content for curriculum item: Understanding Violence Detection Model (type: explainer)
+2025-03-25 23:46:55,125 - langchain_orchestrator - INFO - Generating content with specific text for: Understanding Violence Detection Model (type: explainer)
+2025-03-25 23:46:55,126 - langchain_orchestrator - INFO - Using explainer agent with specific content
+2025-03-25 23:47:05,552 - explaineragent - INFO - Successfully generated explanation
+2025-03-25 23:47:05,553 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: start_curriculum, Time: 2025-03-25 23:47:05
+2025-03-25 23:47:05,553 - api - INFO - Response status: 200
+2025-03-25 23:47:10,859 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-25 23:47:10,860 - api - INFO - Received chat message from user user1: next...
+2025-03-25 23:47:10,862 - langchain_orchestrator - INFO - Processing query: next...
+2025-03-25 23:47:10,862 - langchain_orchestrator - INFO - Detected 'next' command
+2025-03-25 23:47:10,862 - langchain_orchestrator - INFO - Navigating next in learning flow
+2025-03-25 23:47:10,862 - langchain_orchestrator - INFO - Navigating next in the curriculum
+2025-03-25 23:47:10,863 - langchain_orchestrator - INFO - Generating content for curriculum item: Visual Representation of Violence Detection Model (type: diagram)
+2025-03-25 23:47:10,863 - langchain_orchestrator - INFO - Generating content with specific text for: Visual Representation of Violence Detection Model (type: diagram)
+2025-03-25 23:47:10,864 - langchain_orchestrator - INFO - Using diagram agent with specific content
+2025-03-25 23:47:14,357 - diagramagent - INFO - Successfully generated class diagram
+2025-03-25 23:47:14,358 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: navigate_next, Time: 2025-03-25 23:47:14
+2025-03-25 23:47:14,359 - api - INFO - Response status: 200
+2025-03-25 23:47:21,715 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-25 23:47:21,717 - api - INFO - Received chat message from user user1: next...
+2025-03-25 23:47:21,717 - langchain_orchestrator - INFO - Processing query: next...
+2025-03-25 23:47:21,718 - langchain_orchestrator - INFO - Detected 'next' command
+2025-03-25 23:47:21,718 - langchain_orchestrator - INFO - Navigating next in learning flow
+2025-03-25 23:47:21,718 - langchain_orchestrator - INFO - Navigating next in the curriculum
+2025-03-25 23:47:21,720 - langchain_orchestrator - INFO - Generating content for curriculum item: Quick Check: Violence Detection Model (type: practice)
+2025-03-25 23:47:21,720 - langchain_orchestrator - INFO - Generating content with specific text for: Quick Check: Violence Detection Model (type: practice)
+2025-03-25 23:47:21,720 - langchain_orchestrator - INFO - Using quiz agent with specific content
+2025-03-25 23:47:21,721 - quizagent - INFO - Generating quiz with 1 questions
+2025-03-25 23:47:22,075 - quizagent - INFO - Switched to API key 2
+2025-03-25 23:47:26,850 - quizagent - DEBUG - Raw response: ```json
+{
+  "topic": "Violence Detection Model",
+  "questions": [
+    {
+      "question": "What is the core machine learning model used for classifying video frames in the described violence detection...
+2025-03-25 23:47:26,852 - quizagent - DEBUG - Cleaned response: {   "topic": "Violence Detection Model",   "questions": [     {       "question": "What is the core machine learning model used for classifying video frames in the described violence detection system?...
+2025-03-25 23:47:26,853 - quizagent - INFO - Successfully generated quiz with 1 questions on topic 'Violence Detection Model'
+2025-03-25 23:47:26,853 - questionagent - INFO - Generating multiple_choice question
+2025-03-25 23:47:26,865 - questionagent - INFO - Generating multiple choice question
+2025-03-25 23:47:26,867 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: navigate_next, Time: 2025-03-25 23:47:26
+2025-03-25 23:47:26,868 - api - INFO - Response status: 200
+2025-03-25 23:47:59,798 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-25 23:47:59,799 - api - INFO - Received chat message from user user1: !answer:2:Inception V3...
+2025-03-25 23:47:59,799 - langchain_orchestrator - INFO - Processing query: !answer:2:Inception V3...
+2025-03-25 23:47:59,800 - langchain_orchestrator - INFO - Detected formatted question response
+2025-03-25 23:47:59,800 - langchain_orchestrator - INFO - Processing answer: ID=2, Text=Inception V3
+2025-03-25 23:47:59,801 - api - INFO - Response status: 200
+2025-03-25 23:48:04,348 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-25 23:48:04,351 - api - INFO - Received chat message from user user1: next...
+2025-03-25 23:48:04,351 - langchain_orchestrator - INFO - Processing query: next...
+2025-03-25 23:48:04,351 - langchain_orchestrator - INFO - Detected 'next' command
+2025-03-25 23:48:04,352 - langchain_orchestrator - INFO - Navigating next in learning flow
+2025-03-25 23:48:04,352 - langchain_orchestrator - INFO - Navigating next in the curriculum
+2025-03-25 23:48:04,353 - langchain_orchestrator - INFO - Generating content for curriculum item: Understanding Model Selection (type: explainer)
+2025-03-25 23:48:04,353 - langchain_orchestrator - INFO - Generating content with specific text for: Understanding Model Selection (type: explainer)
+2025-03-25 23:48:04,354 - langchain_orchestrator - INFO - Using explainer agent with specific content
+2025-03-25 23:48:15,495 - explaineragent - INFO - Successfully generated explanation
+2025-03-25 23:48:15,495 - langchain_orchestrator - INFO - Adding comprehension check question
+2025-03-25 23:48:15,496 - langchain_orchestrator - INFO - Generating comprehension check for specific content
+2025-03-25 23:48:15,496 - quizagent - INFO - Generating quiz with 1 questions
+2025-03-25 23:48:19,486 - quizagent - DEBUG - Raw response: ```json
+{
+  "topic": "Violence Detection Model - Model Selection",
+  "questions": [
+    {
+      "question": "Why was Inception V3 chosen for the violence detection model?",
+      "options": [
+        ...
+2025-03-25 23:48:19,488 - quizagent - DEBUG - Cleaned response: {   "topic": "Violence Detection Model - Model Selection",   "questions": [     {       "question": "Why was Inception V3 chosen for the violence detection model?",       "options": [         {"text":...
+2025-03-25 23:48:19,488 - quizagent - INFO - Successfully generated quiz with 1 questions on topic 'Violence Detection Model - Model Selection'
+2025-03-25 23:48:19,488 - langchain_orchestrator - INFO - Quiz question text: Why was Inception V3 chosen for the violence detection model?
+2025-03-25 23:48:19,489 - langchain_orchestrator - INFO - Quiz options: ['Its small size and efficiency on mobile devices.', 'Its ability to process videos in real-time.', 'Its strong performance in image classification tasks.', 'Its superior ability to detect subtle movements.']
+2025-03-25 23:48:19,489 - questionagent - INFO - Generating multiple_choice question
+2025-03-25 23:48:19,490 - questionagent - INFO - Generating multiple choice question
+2025-03-25 23:48:19,490 - langchain_orchestrator - INFO - Formatted question: {'type': 'multiple_choice', 'title': 'Question', 'message': 'Why was Inception V3 chosen for the violence detection model?', 'content': 'The text explicitly states that Inception V3 was selected due to its performance in image classification.', 'options': [{'id': '1', 'text': 'Its small size and efficiency on mobile devices.', 'is_correct': False}, {'id': '2', 'text': 'Its ability to process videos in real-time.', 'is_correct': False}, {'id': '3', 'text': 'Its strong performance in image classification tasks.', 'is_correct': True}, {'id': '4', 'text': 'Its superior ability to detect subtle movements.', 'is_correct': False}], 'has_options': True, 'require_response': True}
+2025-03-25 23:48:19,491 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: navigate_next, Time: 2025-03-25 23:48:19
+2025-03-25 23:48:19,493 - api - INFO - Response status: 200
+2025-03-25 23:49:14,183 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-25 23:49:14,184 - api - INFO - Received chat message from user user1: !answer:3:Its strong performance in image classifi...
+2025-03-25 23:49:14,185 - langchain_orchestrator - INFO - Processing query: !answer:3:Its strong performance in image classifi...
+2025-03-25 23:49:14,185 - langchain_orchestrator - INFO - Detected formatted question response
+2025-03-25 23:49:14,185 - langchain_orchestrator - INFO - Processing answer: ID=3, Text=Its strong performance in image classification tasks.
+2025-03-25 23:49:14,186 - api - INFO - Response status: 200
+2025-03-25 23:49:17,220 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-25 23:49:17,221 - api - INFO - Received chat message from user user1: next...
+2025-03-25 23:49:17,221 - langchain_orchestrator - INFO - Processing query: next...
+2025-03-25 23:49:17,221 - langchain_orchestrator - INFO - Detected 'next' command
+2025-03-25 23:49:17,223 - langchain_orchestrator - INFO - Navigating next in learning flow
+2025-03-25 23:49:17,223 - langchain_orchestrator - INFO - Navigating next in the curriculum
+2025-03-25 23:49:17,224 - langchain_orchestrator - INFO - Generating content for curriculum item: Understanding Fine-tuning (type: explainer)
+2025-03-25 23:49:17,224 - langchain_orchestrator - INFO - Generating content with specific text for: Understanding Fine-tuning (type: explainer)
+2025-03-25 23:49:17,224 - langchain_orchestrator - INFO - Using explainer agent with specific content
+2025-03-25 23:49:27,587 - explaineragent - INFO - Successfully generated explanation
+2025-03-25 23:49:27,587 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: navigate_next, Time: 2025-03-25 23:49:27
+2025-03-25 23:49:27,588 - api - INFO - Response status: 200

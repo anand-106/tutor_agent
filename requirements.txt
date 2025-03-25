@@ -1,10 +1,35 @@
-fastapi
-uvicorn
-python-multipart
-python-dotenv
-google-generativeai
+# Core dependencies
+fastapi==0.104.1
+uvicorn==0.23.2
+python-multipart==0.0.6
+pydantic==2.4.2
+aiofiles==23.2.1
+
+# Data processing
+numpy==1.26.1
+pandas==2.1.1
+
+# LLM and agents
+google-generativeai>=0.4.0
+langchain==0.0.339
+langchain-community==0.0.19
+langchain-google-genai>=0.0.11,<1.0.0
+# Remove OpenAI dependencies
+# openai>=1.10.0,<2.0.0
+# langchain-openai==0.0.5
+
+# Vector stores and embeddings
+faiss-cpu==1.7.4
+sentence-transformers==2.2.2
+
+# Diagram support
+markdown==3.5.1
+
+# Utilities
+python-dotenv==1.0.0
+jinja2==3.1.2
+
 pymupdf
 python-docx
 chromadb>=0.4.22
-sentence-transformers
 pinecone 
