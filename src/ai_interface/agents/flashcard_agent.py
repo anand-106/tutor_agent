@@ -25,7 +25,10 @@ class FlashcardAgent(BaseAgent):
         self.logger.info(f"Generating {num_cards} flashcards from text of length {len(text)}")
         
         # Extract the main topic from the current_topic in shared state if available
-        topic = self.shared_state.get("current_topic", "Study Topic")
+        topic = self.get_shared_state_value("current_topic", "Study Topic") 
+        if isinstance(topic, dict) and "title" in topic:
+            topic = topic["title"]
+        
         self.logger.info(f"Using topic: {topic}")
         
         # Create a JSON prompt for structured flashcard generation

@@ -71,6 +71,14 @@ class LangChainOrchestrator:
             "progress": {}  # Make sure this is initialized as an empty dict
         }
         
+        # Now pass the shared_state to all agents
+        self.diagram_agent.shared_state = self.shared_state
+        self.quiz_agent.shared_state = self.shared_state
+        self.flashcard_agent.shared_state = self.shared_state
+        self.explainer_agent.shared_state = self.shared_state
+        self.topic_agent.shared_state = self.shared_state
+        self.question_agent.shared_state = self.shared_state
+        
         self.logger.info("LangChain Orchestrator initialization complete")
     
     def process(self, query: str, context: str = "", user_id: str = "user") -> Dict[str, Any]:

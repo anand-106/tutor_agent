@@ -2019,3 +2019,410 @@
 2025-03-25 23:49:27,587 - explaineragent - INFO - Successfully generated explanation
 2025-03-25 23:49:27,587 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: navigate_next, Time: 2025-03-25 23:49:27
 2025-03-25 23:49:27,588 - api - INFO - Response status: 200
+2025-03-25 23:59:56,074 - api - INFO - Request: OPTIONS http://127.0.0.1:8000/api/chat
+2025-03-25 23:59:56,075 - api - INFO - Response status: 200
+2025-03-25 23:59:56,077 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-25 23:59:56,079 - api - INFO - Received chat message from user user1: next...
+2025-03-25 23:59:56,079 - langchain_orchestrator - INFO - Processing query: next...
+2025-03-25 23:59:56,080 - langchain_orchestrator - INFO - Detected 'next' command
+2025-03-25 23:59:56,080 - langchain_orchestrator - INFO - Navigating next in learning flow
+2025-03-25 23:59:56,080 - langchain_orchestrator - INFO - Navigating next in the curriculum
+2025-03-25 23:59:56,081 - langchain_orchestrator - INFO - Generating content for curriculum item: Flashcards for Violence Detection Model (type: flashcards)
+2025-03-25 23:59:56,081 - langchain_orchestrator - INFO - Generating content with specific text for: Flashcards for Violence Detection Model (type: flashcards)
+2025-03-25 23:59:56,081 - langchain_orchestrator - INFO - Using flashcard agent with specific content
+2025-03-25 23:59:56,082 - flashcardagent - INFO - Generating 5 flashcards from text of length 125
+2025-03-25 23:59:56,082 - langchain_orchestrator - ERROR - Error generating content with specific text: 'NoneType' object has no attribute 'get'
+2025-03-25 23:59:56,084 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: navigate_next, Time: 2025-03-25 23:59:56
+2025-03-25 23:59:56,085 - api - INFO - Response status: 200
+2025-03-26 00:01:49,445 - api - INFO - Static files check complete
+2025-03-26 00:01:49,446 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-26 00:01:49,448 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-26 00:01:49,448 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-26 00:01:49,449 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-26 00:01:49,450 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-26 00:01:50,079 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-26 00:01:50,080 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-26 00:01:50,100 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-26 00:01:50,284 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-26 00:01:50,284 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-26 00:01:50,285 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-26 00:01:50,286 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-26 00:01:50,286 - data_pipeline - INFO - Successfully initialized all components
+2025-03-26 00:01:50,286 - api - INFO - Loading API keys from .env file
+2025-03-26 00:01:50,287 - api - INFO - Successfully loaded 3 API keys
+2025-03-26 00:01:50,288 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-26 00:01:50,289 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-26 00:01:50,290 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-26 00:01:50,291 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-26 00:01:50,292 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-26 00:01:50,292 - quizagent - INFO - QuizAgent initialized
+2025-03-26 00:01:50,293 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-26 00:01:50,293 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-26 00:01:50,294 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-26 00:01:50,294 - topicagent - INFO - TopicAgent initialized
+2025-03-26 00:01:50,295 - questionagent - INFO - QuestionAgent initialized without shared state
+2025-03-26 00:01:50,295 - questionagent - INFO - Initialized Question Agent
+2025-03-26 00:01:50,296 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-26 00:01:50,296 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-26 00:02:04,825 - api - INFO - Static files check complete
+2025-03-26 00:02:04,827 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-26 00:02:04,827 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-26 00:02:04,828 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-26 00:02:04,828 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-26 00:02:04,828 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-26 00:02:05,249 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-26 00:02:05,249 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-26 00:02:05,265 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-26 00:02:05,443 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-26 00:02:05,443 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-26 00:02:05,444 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-26 00:02:05,445 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-26 00:02:05,445 - data_pipeline - INFO - Successfully initialized all components
+2025-03-26 00:02:05,445 - api - INFO - Loading API keys from .env file
+2025-03-26 00:02:05,446 - api - INFO - Successfully loaded 3 API keys
+2025-03-26 00:02:05,448 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-26 00:02:05,449 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-26 00:02:05,449 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-26 00:02:05,451 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-26 00:02:05,452 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-26 00:02:05,453 - quizagent - INFO - QuizAgent initialized
+2025-03-26 00:02:05,454 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-26 00:02:05,455 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-26 00:02:05,456 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-26 00:02:05,457 - topicagent - INFO - TopicAgent initialized
+2025-03-26 00:02:05,458 - questionagent - INFO - QuestionAgent initialized without shared state
+2025-03-26 00:02:05,458 - questionagent - INFO - Initialized Question Agent
+2025-03-26 00:02:05,458 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-26 00:02:05,458 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-26 22:07:54,121 - api - INFO - Static files check complete
+2025-03-26 22:07:54,123 - data_pipeline - INFO - Initializing DataProcessingPipeline
+2025-03-26 22:07:54,125 - data_pipeline - DEBUG - Initialized DocumentProcessor
+2025-03-26 22:07:54,126 - data_pipeline - DEBUG - Initialized TextChunker
+2025-03-26 22:07:54,127 - vector_store - INFO - Initializing VectorStore with ChromaDB
+2025-03-26 22:07:54,128 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-03-26 22:07:55,047 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-03-26 22:07:55,048 - vector_store - DEBUG - Initialized SentenceTransformer model
+2025-03-26 22:07:55,084 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-03-26 22:07:55,338 - vector_store - INFO - Successfully initialized ChromaDB
+2025-03-26 22:07:55,339 - data_pipeline - DEBUG - Initialized VectorStore
+2025-03-26 22:07:55,341 - topic_extractor - INFO - Initialized Gemini model for topic extraction
+2025-03-26 22:07:55,341 - data_pipeline - DEBUG - Initialized TopicExtractor
+2025-03-26 22:07:55,342 - data_pipeline - INFO - Successfully initialized all components
+2025-03-26 22:07:55,342 - api - INFO - Loading API keys from .env file
+2025-03-26 22:07:55,343 - api - INFO - Successfully loaded 3 API keys
+2025-03-26 22:07:55,346 - langchain_orchestrator - INFO - Initializing LangChain Orchestrator
+2025-03-26 22:07:55,349 - langchain_orchestrator - INFO - Successfully initialized Gemini model
+2025-03-26 22:07:55,350 - langchain_orchestrator - INFO - Initializing specialized agents
+2025-03-26 22:07:55,351 - diagramagent - INFO - DiagramAgent initialized without shared state
+2025-03-26 22:07:55,354 - quizagent - INFO - QuizAgent initialized without shared state
+2025-03-26 22:07:55,354 - quizagent - INFO - QuizAgent initialized
+2025-03-26 22:07:55,356 - flashcardagent - INFO - FlashcardAgent initialized without shared state
+2025-03-26 22:07:55,359 - explaineragent - INFO - ExplainerAgent initialized without shared state
+2025-03-26 22:07:55,361 - topicagent - INFO - TopicAgent initialized without shared state
+2025-03-26 22:07:55,362 - topicagent - INFO - TopicAgent initialized
+2025-03-26 22:07:55,364 - questionagent - INFO - QuestionAgent initialized without shared state
+2025-03-26 22:07:55,365 - questionagent - INFO - Initialized Question Agent
+2025-03-26 22:07:55,365 - langchain_orchestrator - INFO - LangChain Orchestrator initialization complete
+2025-03-26 22:07:55,366 - api - INFO - LangChain orchestrator initialized successfully
+2025-03-26 22:08:54,599 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/knowledge
+2025-03-26 22:08:54,601 - api - INFO - Response status: 200
+2025-03-26 22:08:55,770 - api - INFO - Request: GET http://127.0.0.1:8000/api/user/user1/patterns
+2025-03-26 22:08:55,772 - api - INFO - Response status: 200
+2025-03-26 22:10:44,826 - api - INFO - Request: OPTIONS http://127.0.0.1:8000/api/upload
+2025-03-26 22:10:44,829 - api - INFO - Response status: 200
+2025-03-26 22:10:44,833 - api - INFO - Request: POST http://127.0.0.1:8000/api/upload
+2025-03-26 22:10:44,993 - api - INFO - Received file upload: 2D -Part2.pdf
+2025-03-26 22:10:45,027 - api - INFO - File saved to uploads\2D -Part2.pdf
+2025-03-26 22:10:45,134 - api - INFO - Extracting topics from text
+2025-03-26 22:10:45,135 - topicagent - INFO - Processing text of length 7744 to extract topics
+2025-03-26 22:11:07,546 - topicagent - INFO - Successfully extracted 3 topics
+2025-03-26 22:11:07,547 - topicagent - INFO - Updating shared state with 3 topics
+2025-03-26 22:11:07,547 - topicagent - INFO - TopicAgent updated shared_state['topics']
+2025-03-26 22:11:07,549 - topicagent - INFO - TopicAgent updated shared_state['current_topic']
+2025-03-26 22:11:07,550 - topicagent - INFO - Set current_topic to '2D Viewing and Clipping'
+2025-03-26 22:11:07,551 - api - INFO - Extracted 3 topics
+2025-03-26 22:11:07,551 - langchain_orchestrator - INFO - Set 3 topics in orchestrator
+2025-03-26 22:11:07,553 - api - INFO - Response status: 200
+2025-03-26 22:11:22,889 - api - INFO - Request: OPTIONS http://127.0.0.1:8000/api/chat
+2025-03-26 22:11:22,890 - api - INFO - Response status: 200
+2025-03-26 22:11:22,893 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-26 22:11:22,895 - api - INFO - Received chat message from user user1: start flow...
+2025-03-26 22:11:22,895 - api - INFO - Detected 'start flow' command
+2025-03-26 22:11:22,896 - langchain_orchestrator - INFO - Processing query: start flow...
+2025-03-26 22:11:22,896 - langchain_orchestrator - INFO - Detected 'start flow' command
+2025-03-26 22:11:22,897 - langchain_orchestrator - INFO - Creating multi-agent learning path
+2025-03-26 22:11:22,897 - langchain_orchestrator - INFO - Set current_topic to first available topic: 2D Viewing Transformation
+2025-03-26 22:11:22,897 - langchain_orchestrator - INFO - Creating comprehensive curriculum with 3 topics
+2025-03-26 22:11:22,898 - langchain_orchestrator - INFO - Creating comprehensive curriculum with 3 topics
+2025-03-26 22:11:22,899 - langchain_orchestrator - INFO - Generating content for curriculum item: Understanding 2D Viewing Transformation (type: explainer)
+2025-03-26 22:11:22,899 - langchain_orchestrator - INFO - Generating content with specific text for: Understanding 2D Viewing Transformation (type: explainer)
+2025-03-26 22:11:22,900 - langchain_orchestrator - INFO - Using explainer agent with specific content
+2025-03-26 22:11:34,572 - explaineragent - INFO - Successfully generated explanation
+2025-03-26 22:11:34,573 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: start_curriculum, Time: 2025-03-26 22:11:34
+2025-03-26 22:11:34,574 - api - INFO - Response status: 200
+2025-03-26 22:11:53,653 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-26 22:11:53,655 - api - INFO - Received chat message from user user1: next...
+2025-03-26 22:11:53,656 - langchain_orchestrator - INFO - Processing query: next...
+2025-03-26 22:11:53,657 - langchain_orchestrator - INFO - Detected 'next' command
+2025-03-26 22:11:53,657 - langchain_orchestrator - INFO - Navigating next in learning flow
+2025-03-26 22:11:53,659 - langchain_orchestrator - INFO - Navigating next in the curriculum
+2025-03-26 22:11:53,659 - langchain_orchestrator - INFO - Generating content for curriculum item: Visual Representation of 2D Viewing Transformation (type: diagram)
+2025-03-26 22:11:53,660 - langchain_orchestrator - INFO - Generating content with specific text for: Visual Representation of 2D Viewing Transformation (type: diagram)
+2025-03-26 22:11:53,660 - langchain_orchestrator - INFO - Using diagram agent with specific content
+2025-03-26 22:11:57,621 - diagramagent - INFO - Successfully generated flowchart diagram
+2025-03-26 22:11:57,621 - langchain_orchestrator - INFO - Adding comprehension check question
+2025-03-26 22:11:57,623 - langchain_orchestrator - INFO - Generating comprehension check for specific content
+2025-03-26 22:11:57,623 - quizagent - INFO - Generating quiz with 1 questions
+2025-03-26 22:11:57,623 - quizagent - INFO - QuizAgent accessed shared_state['current_topic']
+2025-03-26 22:11:57,624 - quizagent - INFO - Using topic '{'title': '2D Viewing Transformation', 'content': 'Explains the process of mapping world coordinates to device coordinates for display, involving translation, rotation, and scaling.', 'subtopics': [{'title': 'Coordinate Systems', 'content': 'Defines world coordinate systems (picture coordinates) and device coordinate systems (display coordinates).', 'subtopics': []}, {'title': 'Viewing Transformation Pipeline', 'content': 'Describes the steps involved in mapping a window (world coordinates) to a viewport (device coordinates).', 'subtopics': []}, {'title': 'Window and Viewport', 'content': 'Defines the concept of a window (area to be viewed) and a viewport (area on the display device).', 'subtopics': []}, {'title': 'Normalization', 'content': 'Explains the process of normalizing coordinates to a range between 0 and 1 for simplified transformations.', 'subtopics': []}]}' from shared state
+2025-03-26 22:11:57,626 - quizagent - INFO - Focusing quiz on topic: {'title': '2D Viewing Transformation', 'content': 'Explains the process of mapping world coordinates to device coordinates for display, involving translation, rotation, and scaling.', 'subtopics': [{'title': 'Coordinate Systems', 'content': 'Defines world coordinate systems (picture coordinates) and device coordinate systems (display coordinates).', 'subtopics': []}, {'title': 'Viewing Transformation Pipeline', 'content': 'Describes the steps involved in mapping a window (world coordinates) to a viewport (device coordinates).', 'subtopics': []}, {'title': 'Window and Viewport', 'content': 'Defines the concept of a window (area to be viewed) and a viewport (area on the display device).', 'subtopics': []}, {'title': 'Normalization', 'content': 'Explains the process of normalizing coordinates to a range between 0 and 1 for simplified transformations.', 'subtopics': []}]}
+2025-03-26 22:12:02,823 - quizagent - DEBUG - Raw response: ```json
+{
+  "topic": "2D Viewing Transformation",
+  "questions": [
+    {
+      "question": "In 2D viewing transformation, what is the primary purpose of normalization?",
+      "options": [
+        {
+ ...
+2025-03-26 22:12:02,825 - quizagent - DEBUG - Cleaned response: {   "topic": "2D Viewing Transformation",   "questions": [     {       "question": "In 2D viewing transformation, what is the primary purpose of normalization?",       "options": [         {          ...
+2025-03-26 22:12:02,826 - quizagent - INFO - Successfully generated quiz with 1 questions on topic '2D Viewing Transformation'
+2025-03-26 22:12:02,826 - quizagent - INFO - QuizAgent updated shared_state['current_topic']
+2025-03-26 22:12:02,827 - quizagent - INFO - Updated current_topic in shared state to '2D Viewing Transformation'
+2025-03-26 22:12:02,827 - quizagent - INFO - QuizAgent accessed shared_state['progress']
+2025-03-26 22:12:02,828 - quizagent - INFO - Initializing progress for topic '2D Viewing Transformation' in shared state
+2025-03-26 22:12:02,828 - quizagent - INFO - QuizAgent accessed shared_state['progress']
+2025-03-26 22:12:02,829 - quizagent - INFO - QuizAgent updated shared_state['progress']
+2025-03-26 22:12:02,829 - langchain_orchestrator - INFO - Quiz question text: In 2D viewing transformation, what is the primary purpose of normalization?
+2025-03-26 22:12:02,830 - langchain_orchestrator - INFO - Quiz options: ['To rotate the world coordinates to match the device orientation.', 'To simplify calculations by mapping coordinates to a standard range.', 'To scale the world coordinates to fit within the device viewport.', 'To translate the world coordinates to the origin of the device coordinate system.']
+2025-03-26 22:12:02,831 - questionagent - INFO - Generating multiple_choice question
+2025-03-26 22:12:02,831 - questionagent - INFO - Generating multiple choice question
+2025-03-26 22:12:02,832 - langchain_orchestrator - INFO - Formatted question: {'type': 'multiple_choice', 'title': 'Question', 'message': 'In 2D viewing transformation, what is the primary purpose of normalization?', 'content': 'Normalization simplifies transformations by mapping coordinates, typically to a range between 0 and 1, making subsequent calculations easier and more efficient.', 'options': [{'id': '1', 'text': 'To rotate the world coordinates to match the device orientation.', 'is_correct': False}, {'id': '2', 'text': 'To simplify calculations by mapping coordinates to a standard range.', 'is_correct': True}, {'id': '3', 'text': 'To scale the world coordinates to fit within the device viewport.', 'is_correct': False}, {'id': '4', 'text': 'To translate the world coordinates to the origin of the device coordinate system.', 'is_correct': False}], 'has_options': True, 'require_response': True}
+2025-03-26 22:12:02,835 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: navigate_next, Time: 2025-03-26 22:12:02
+2025-03-26 22:12:02,837 - api - INFO - Response status: 200
+2025-03-26 22:12:43,481 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-26 22:12:43,483 - api - INFO - Received chat message from user user1: !answer:2:To simplify calculations by mapping coor...
+2025-03-26 22:12:43,484 - langchain_orchestrator - INFO - Processing query: !answer:2:To simplify calculations by mapping coor...
+2025-03-26 22:12:43,485 - langchain_orchestrator - INFO - Detected formatted question response
+2025-03-26 22:12:43,486 - langchain_orchestrator - INFO - Processing answer: ID=2, Text=To simplify calculations by mapping coordinates to a standard range.
+2025-03-26 22:12:43,487 - api - INFO - Response status: 200
+2025-03-26 22:12:46,218 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-26 22:12:46,220 - api - INFO - Received chat message from user user1: !answer:2:To simplify calculations by mapping coor...
+2025-03-26 22:12:46,221 - langchain_orchestrator - INFO - Processing query: !answer:2:To simplify calculations by mapping coor...
+2025-03-26 22:12:46,221 - langchain_orchestrator - INFO - Detected formatted question response
+2025-03-26 22:12:46,222 - langchain_orchestrator - INFO - Processing answer: ID=2, Text=To simplify calculations by mapping coordinates to a standard range.
+2025-03-26 22:12:46,223 - api - INFO - Response status: 200
+2025-03-26 22:12:51,022 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-26 22:12:51,024 - api - INFO - Received chat message from user user1: next...
+2025-03-26 22:12:51,025 - langchain_orchestrator - INFO - Processing query: next...
+2025-03-26 22:12:51,026 - langchain_orchestrator - INFO - Detected 'next' command
+2025-03-26 22:12:51,026 - langchain_orchestrator - INFO - Navigating next in learning flow
+2025-03-26 22:12:51,027 - langchain_orchestrator - INFO - Navigating next in the curriculum
+2025-03-26 22:12:51,027 - langchain_orchestrator - INFO - Generating content for curriculum item: Quick Check: 2D Viewing Transformation (type: practice)
+2025-03-26 22:12:51,028 - langchain_orchestrator - INFO - Generating content with specific text for: Quick Check: 2D Viewing Transformation (type: practice)
+2025-03-26 22:12:51,030 - langchain_orchestrator - INFO - Using quiz agent with specific content
+2025-03-26 22:12:51,030 - quizagent - INFO - Generating quiz with 1 questions
+2025-03-26 22:12:51,031 - quizagent - INFO - QuizAgent accessed shared_state['current_topic']
+2025-03-26 22:12:51,032 - quizagent - INFO - Using topic '{'title': '2D Viewing Transformation', 'content': 'Explains the process of mapping world coordinates to device coordinates for display, involving translation, rotation, and scaling.', 'subtopics': [{'title': 'Coordinate Systems', 'content': 'Defines world coordinate systems (picture coordinates) and device coordinate systems (display coordinates).', 'subtopics': []}, {'title': 'Viewing Transformation Pipeline', 'content': 'Describes the steps involved in mapping a window (world coordinates) to a viewport (device coordinates).', 'subtopics': []}, {'title': 'Window and Viewport', 'content': 'Defines the concept of a window (area to be viewed) and a viewport (area on the display device).', 'subtopics': []}, {'title': 'Normalization', 'content': 'Explains the process of normalizing coordinates to a range between 0 and 1 for simplified transformations.', 'subtopics': []}]}' from shared state
+2025-03-26 22:12:51,036 - quizagent - INFO - Focusing quiz on topic: {'title': '2D Viewing Transformation', 'content': 'Explains the process of mapping world coordinates to device coordinates for display, involving translation, rotation, and scaling.', 'subtopics': [{'title': 'Coordinate Systems', 'content': 'Defines world coordinate systems (picture coordinates) and device coordinate systems (display coordinates).', 'subtopics': []}, {'title': 'Viewing Transformation Pipeline', 'content': 'Describes the steps involved in mapping a window (world coordinates) to a viewport (device coordinates).', 'subtopics': []}, {'title': 'Window and Viewport', 'content': 'Defines the concept of a window (area to be viewed) and a viewport (area on the display device).', 'subtopics': []}, {'title': 'Normalization', 'content': 'Explains the process of normalizing coordinates to a range between 0 and 1 for simplified transformations.', 'subtopics': []}]}
+2025-03-26 22:12:56,410 - quizagent - DEBUG - Raw response: ```json
+{
+  "topic": "2D Viewing Transformation",
+  "questions": [
+    {
+      "question": "What is the primary purpose of the 2D viewing transformation pipeline?",
+      "options": [
+        {"text":...
+2025-03-26 22:12:56,413 - quizagent - DEBUG - Cleaned response: {   "topic": "2D Viewing Transformation",   "questions": [     {       "question": "What is the primary purpose of the 2D viewing transformation pipeline?",       "options": [         {"text": "To con...
+2025-03-26 22:12:56,414 - quizagent - INFO - Successfully generated quiz with 1 questions on topic '2D Viewing Transformation'
+2025-03-26 22:12:56,415 - quizagent - INFO - QuizAgent updated shared_state['current_topic']
+2025-03-26 22:12:56,416 - quizagent - INFO - Updated current_topic in shared state to '2D Viewing Transformation'
+2025-03-26 22:12:56,416 - quizagent - INFO - QuizAgent accessed shared_state['progress']
+2025-03-26 22:12:56,417 - questionagent - INFO - Generating multiple_choice question
+2025-03-26 22:12:56,417 - questionagent - INFO - Generating multiple choice question
+2025-03-26 22:12:56,418 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: navigate_next, Time: 2025-03-26 22:12:56
+2025-03-26 22:12:56,421 - api - INFO - Response status: 200
+2025-03-26 22:13:26,015 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-26 22:13:26,018 - api - INFO - Received chat message from user user1: !answer:1:To convert device coordinates to world c...
+2025-03-26 22:13:26,019 - langchain_orchestrator - INFO - Processing query: !answer:1:To convert device coordinates to world c...
+2025-03-26 22:13:26,020 - langchain_orchestrator - INFO - Detected formatted question response
+2025-03-26 22:13:26,021 - langchain_orchestrator - INFO - Processing answer: ID=1, Text=To convert device coordinates to world coordinates.
+2025-03-26 22:13:26,023 - api - INFO - Response status: 200
+2025-03-26 22:13:32,872 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-26 22:13:32,876 - api - INFO - Received chat message from user user1: next...
+2025-03-26 22:13:32,878 - langchain_orchestrator - INFO - Processing query: next...
+2025-03-26 22:13:32,878 - langchain_orchestrator - INFO - Detected 'next' command
+2025-03-26 22:13:32,879 - langchain_orchestrator - INFO - Navigating next in learning flow
+2025-03-26 22:13:32,880 - langchain_orchestrator - INFO - Navigating next in the curriculum
+2025-03-26 22:13:32,881 - langchain_orchestrator - INFO - Generating content for curriculum item: Understanding Coordinate Systems (type: explainer)
+2025-03-26 22:13:32,882 - langchain_orchestrator - INFO - Generating content with specific text for: Understanding Coordinate Systems (type: explainer)
+2025-03-26 22:13:32,885 - langchain_orchestrator - INFO - Using explainer agent with specific content
+2025-03-26 22:13:46,598 - explaineragent - INFO - Successfully generated explanation
+2025-03-26 22:13:46,599 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: navigate_next, Time: 2025-03-26 22:13:46
+2025-03-26 22:13:46,600 - api - INFO - Response status: 200
+2025-03-26 22:13:56,091 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-26 22:13:56,093 - api - INFO - Received chat message from user user1: next...
+2025-03-26 22:13:56,095 - langchain_orchestrator - INFO - Processing query: next...
+2025-03-26 22:13:56,095 - langchain_orchestrator - INFO - Detected 'next' command
+2025-03-26 22:13:56,096 - langchain_orchestrator - INFO - Navigating next in learning flow
+2025-03-26 22:13:56,096 - langchain_orchestrator - INFO - Navigating next in the curriculum
+2025-03-26 22:13:56,097 - langchain_orchestrator - INFO - Generating content for curriculum item: Quick Check: Coordinate Systems (type: practice)
+2025-03-26 22:13:56,097 - langchain_orchestrator - INFO - Generating content with specific text for: Quick Check: Coordinate Systems (type: practice)
+2025-03-26 22:13:56,098 - langchain_orchestrator - INFO - Using quiz agent with specific content
+2025-03-26 22:13:56,099 - quizagent - INFO - Generating quiz with 1 questions
+2025-03-26 22:13:56,100 - quizagent - INFO - QuizAgent accessed shared_state['current_topic']
+2025-03-26 22:13:56,100 - quizagent - INFO - Using topic '{'title': '2D Viewing Transformation', 'content': 'Explains the process of mapping world coordinates to device coordinates for display, involving translation, rotation, and scaling.', 'subtopics': [{'title': 'Coordinate Systems', 'content': 'Defines world coordinate systems (picture coordinates) and device coordinate systems (display coordinates).', 'subtopics': []}, {'title': 'Viewing Transformation Pipeline', 'content': 'Describes the steps involved in mapping a window (world coordinates) to a viewport (device coordinates).', 'subtopics': []}, {'title': 'Window and Viewport', 'content': 'Defines the concept of a window (area to be viewed) and a viewport (area on the display device).', 'subtopics': []}, {'title': 'Normalization', 'content': 'Explains the process of normalizing coordinates to a range between 0 and 1 for simplified transformations.', 'subtopics': []}]}' from shared state
+2025-03-26 22:13:56,104 - quizagent - INFO - Focusing quiz on topic: {'title': '2D Viewing Transformation', 'content': 'Explains the process of mapping world coordinates to device coordinates for display, involving translation, rotation, and scaling.', 'subtopics': [{'title': 'Coordinate Systems', 'content': 'Defines world coordinate systems (picture coordinates) and device coordinate systems (display coordinates).', 'subtopics': []}, {'title': 'Viewing Transformation Pipeline', 'content': 'Describes the steps involved in mapping a window (world coordinates) to a viewport (device coordinates).', 'subtopics': []}, {'title': 'Window and Viewport', 'content': 'Defines the concept of a window (area to be viewed) and a viewport (area on the display device).', 'subtopics': []}, {'title': 'Normalization', 'content': 'Explains the process of normalizing coordinates to a range between 0 and 1 for simplified transformations.', 'subtopics': []}]}
+2025-03-26 22:14:00,594 - quizagent - DEBUG - Raw response: ```json
+{
+  "topic": "2D Viewing Transformation",
+  "questions": [
+    {
+      "question": "What is the primary difference between world coordinates and device coordinates in 2D viewing transformation...
+2025-03-26 22:14:00,595 - quizagent - DEBUG - Cleaned response: {   "topic": "2D Viewing Transformation",   "questions": [     {       "question": "What is the primary difference between world coordinates and device coordinates in 2D viewing transformations?",    ...
+2025-03-26 22:14:00,596 - quizagent - INFO - Successfully generated quiz with 1 questions on topic '2D Viewing Transformation'
+2025-03-26 22:14:00,596 - quizagent - INFO - QuizAgent updated shared_state['current_topic']
+2025-03-26 22:14:00,598 - quizagent - INFO - Updated current_topic in shared state to '2D Viewing Transformation'
+2025-03-26 22:14:00,599 - quizagent - INFO - QuizAgent accessed shared_state['progress']
+2025-03-26 22:14:00,599 - questionagent - INFO - Generating multiple_choice question
+2025-03-26 22:14:00,600 - questionagent - INFO - Generating multiple choice question
+2025-03-26 22:14:00,601 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: navigate_next, Time: 2025-03-26 22:14:00
+2025-03-26 22:14:00,602 - api - INFO - Response status: 200
+2025-03-26 22:14:06,880 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-26 22:14:06,882 - api - INFO - Received chat message from user user1: !answer:2:World coordinates represent the position...
+2025-03-26 22:14:06,883 - langchain_orchestrator - INFO - Processing query: !answer:2:World coordinates represent the position...
+2025-03-26 22:14:06,883 - langchain_orchestrator - INFO - Detected formatted question response
+2025-03-26 22:14:06,885 - langchain_orchestrator - INFO - Processing answer: ID=2, Text=World coordinates represent the position of objects in the scene, while device coordinates represent the position on the display device.
+2025-03-26 22:14:06,886 - api - INFO - Response status: 200
+2025-03-26 22:14:09,869 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-26 22:14:09,872 - api - INFO - Received chat message from user user1: next...
+2025-03-26 22:14:09,873 - langchain_orchestrator - INFO - Processing query: next...
+2025-03-26 22:14:09,873 - langchain_orchestrator - INFO - Detected 'next' command
+2025-03-26 22:14:09,874 - langchain_orchestrator - INFO - Navigating next in learning flow
+2025-03-26 22:14:09,874 - langchain_orchestrator - INFO - Navigating next in the curriculum
+2025-03-26 22:14:09,875 - langchain_orchestrator - INFO - Generating content for curriculum item: Understanding Viewing Transformation Pipeline (type: explainer)
+2025-03-26 22:14:09,877 - langchain_orchestrator - INFO - Generating content with specific text for: Understanding Viewing Transformation Pipeline (type: explainer)
+2025-03-26 22:14:09,878 - langchain_orchestrator - INFO - Using explainer agent with specific content
+2025-03-26 22:14:22,672 - explaineragent - INFO - Successfully generated explanation
+2025-03-26 22:14:22,673 - langchain_orchestrator - INFO - Adding comprehension check question
+2025-03-26 22:14:22,673 - langchain_orchestrator - INFO - Generating comprehension check for specific content
+2025-03-26 22:14:22,674 - quizagent - INFO - Generating quiz with 1 questions
+2025-03-26 22:14:22,675 - quizagent - INFO - QuizAgent accessed shared_state['current_topic']
+2025-03-26 22:14:22,675 - quizagent - INFO - Using topic '{'title': '2D Viewing Transformation', 'content': 'Explains the process of mapping world coordinates to device coordinates for display, involving translation, rotation, and scaling.', 'subtopics': [{'title': 'Coordinate Systems', 'content': 'Defines world coordinate systems (picture coordinates) and device coordinate systems (display coordinates).', 'subtopics': []}, {'title': 'Viewing Transformation Pipeline', 'content': 'Describes the steps involved in mapping a window (world coordinates) to a viewport (device coordinates).', 'subtopics': []}, {'title': 'Window and Viewport', 'content': 'Defines the concept of a window (area to be viewed) and a viewport (area on the display device).', 'subtopics': []}, {'title': 'Normalization', 'content': 'Explains the process of normalizing coordinates to a range between 0 and 1 for simplified transformations.', 'subtopics': []}]}' from shared state
+2025-03-26 22:14:22,677 - quizagent - INFO - Focusing quiz on topic: {'title': '2D Viewing Transformation', 'content': 'Explains the process of mapping world coordinates to device coordinates for display, involving translation, rotation, and scaling.', 'subtopics': [{'title': 'Coordinate Systems', 'content': 'Defines world coordinate systems (picture coordinates) and device coordinate systems (display coordinates).', 'subtopics': []}, {'title': 'Viewing Transformation Pipeline', 'content': 'Describes the steps involved in mapping a window (world coordinates) to a viewport (device coordinates).', 'subtopics': []}, {'title': 'Window and Viewport', 'content': 'Defines the concept of a window (area to be viewed) and a viewport (area on the display device).', 'subtopics': []}, {'title': 'Normalization', 'content': 'Explains the process of normalizing coordinates to a range between 0 and 1 for simplified transformations.', 'subtopics': []}]}
+2025-03-26 22:14:26,631 - quizagent - DEBUG - Raw response: ```json
+{
+  "topic": "2D Viewing Transformation",
+  "questions": [
+    {
+      "question": "What is the primary purpose of the 2D viewing transformation pipeline?",
+      "options": [
+        {"text":...
+2025-03-26 22:14:26,632 - quizagent - DEBUG - Cleaned response: {   "topic": "2D Viewing Transformation",   "questions": [     {       "question": "What is the primary purpose of the 2D viewing transformation pipeline?",       "options": [         {"text": "Conver...
+2025-03-26 22:14:26,633 - quizagent - INFO - Successfully generated quiz with 1 questions on topic '2D Viewing Transformation'
+2025-03-26 22:14:26,633 - quizagent - INFO - QuizAgent updated shared_state['current_topic']
+2025-03-26 22:14:26,634 - quizagent - INFO - Updated current_topic in shared state to '2D Viewing Transformation'
+2025-03-26 22:14:26,634 - quizagent - INFO - QuizAgent accessed shared_state['progress']
+2025-03-26 22:14:26,635 - langchain_orchestrator - INFO - Quiz question text: What is the primary purpose of the 2D viewing transformation pipeline?
+2025-03-26 22:14:26,635 - langchain_orchestrator - INFO - Quiz options: ['Converting device coordinates to world coordinates.', 'Mapping a viewport to a window.', 'Mapping a window in world coordinates to a viewport in device coordinates.', 'Performing only scaling and rotation on an object.']
+2025-03-26 22:14:26,636 - questionagent - INFO - Generating multiple_choice question
+2025-03-26 22:14:26,637 - questionagent - INFO - Generating multiple choice question
+2025-03-26 22:14:26,637 - langchain_orchestrator - INFO - Formatted question: {'type': 'multiple_choice', 'title': 'Question', 'message': 'What is the primary purpose of the 2D viewing transformation pipeline?', 'content': 'The 2D viewing transformation pipeline takes a section of the world (the window) defined in world coordinates and transforms it to fit within a designated area on the display device (the viewport) which uses device coordinates.', 'options': [{'id': '1', 'text': 'Converting device coordinates to world coordinates.', 'is_correct': False}, {'id': '2', 'text': 'Mapping a viewport to a window.', 'is_correct': False}, {'id': '3', 'text': 'Mapping a window in world coordinates to a viewport in device coordinates.', 'is_correct': True}, {'id': '4', 'text': 'Performing only scaling and rotation on an object.', 'is_correct': False}], 'has_options': True, 'require_response': True}
+2025-03-26 22:14:26,647 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: navigate_next, Time: 2025-03-26 22:14:26
+2025-03-26 22:14:26,648 - api - INFO - Response status: 200
+2025-03-26 22:17:39,475 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-26 22:17:39,484 - api - INFO - Received chat message from user user1: !answer:1:Converting device coordinates to world c...
+2025-03-26 22:17:39,485 - langchain_orchestrator - INFO - Processing query: !answer:1:Converting device coordinates to world c...
+2025-03-26 22:17:39,486 - langchain_orchestrator - INFO - Detected formatted question response
+2025-03-26 22:17:39,487 - langchain_orchestrator - INFO - Processing answer: ID=1, Text=Converting device coordinates to world coordinates.
+2025-03-26 22:17:39,489 - api - INFO - Response status: 200
+2025-03-26 22:17:46,327 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-26 22:17:46,330 - api - INFO - Received chat message from user user1: next...
+2025-03-26 22:17:46,331 - langchain_orchestrator - INFO - Processing query: next...
+2025-03-26 22:17:46,331 - langchain_orchestrator - INFO - Detected 'next' command
+2025-03-26 22:17:46,332 - langchain_orchestrator - INFO - Navigating next in learning flow
+2025-03-26 22:17:46,333 - langchain_orchestrator - INFO - Navigating next in the curriculum
+2025-03-26 22:17:46,333 - langchain_orchestrator - INFO - Generating content for curriculum item: Quick Check: Viewing Transformation Pipeline (type: practice)
+2025-03-26 22:17:46,334 - langchain_orchestrator - INFO - Generating content with specific text for: Quick Check: Viewing Transformation Pipeline (type: practice)
+2025-03-26 22:17:46,335 - langchain_orchestrator - INFO - Using quiz agent with specific content
+2025-03-26 22:17:46,335 - quizagent - INFO - Generating quiz with 1 questions
+2025-03-26 22:17:46,335 - quizagent - INFO - QuizAgent accessed shared_state['current_topic']
+2025-03-26 22:17:46,336 - quizagent - INFO - Using topic '{'title': '2D Viewing Transformation', 'content': 'Explains the process of mapping world coordinates to device coordinates for display, involving translation, rotation, and scaling.', 'subtopics': [{'title': 'Coordinate Systems', 'content': 'Defines world coordinate systems (picture coordinates) and device coordinate systems (display coordinates).', 'subtopics': []}, {'title': 'Viewing Transformation Pipeline', 'content': 'Describes the steps involved in mapping a window (world coordinates) to a viewport (device coordinates).', 'subtopics': []}, {'title': 'Window and Viewport', 'content': 'Defines the concept of a window (area to be viewed) and a viewport (area on the display device).', 'subtopics': []}, {'title': 'Normalization', 'content': 'Explains the process of normalizing coordinates to a range between 0 and 1 for simplified transformations.', 'subtopics': []}]}' from shared state
+2025-03-26 22:17:46,340 - quizagent - INFO - Focusing quiz on topic: {'title': '2D Viewing Transformation', 'content': 'Explains the process of mapping world coordinates to device coordinates for display, involving translation, rotation, and scaling.', 'subtopics': [{'title': 'Coordinate Systems', 'content': 'Defines world coordinate systems (picture coordinates) and device coordinate systems (display coordinates).', 'subtopics': []}, {'title': 'Viewing Transformation Pipeline', 'content': 'Describes the steps involved in mapping a window (world coordinates) to a viewport (device coordinates).', 'subtopics': []}, {'title': 'Window and Viewport', 'content': 'Defines the concept of a window (area to be viewed) and a viewport (area on the display device).', 'subtopics': []}, {'title': 'Normalization', 'content': 'Explains the process of normalizing coordinates to a range between 0 and 1 for simplified transformations.', 'subtopics': []}]}
+2025-03-26 22:17:51,228 - quizagent - DEBUG - Raw response: ```json
+{
+  "topic": "2D Viewing Transformation",
+  "questions": [
+    {
+      "question": "What is the primary purpose of the 2D viewing transformation pipeline?",
+      "options": [
+        {"text":...
+2025-03-26 22:17:51,229 - quizagent - DEBUG - Cleaned response: {   "topic": "2D Viewing Transformation",   "questions": [     {       "question": "What is the primary purpose of the 2D viewing transformation pipeline?",       "options": [         {"text": "To con...
+2025-03-26 22:17:51,230 - quizagent - INFO - Successfully generated quiz with 1 questions on topic '2D Viewing Transformation'
+2025-03-26 22:17:51,231 - quizagent - INFO - QuizAgent updated shared_state['current_topic']
+2025-03-26 22:17:51,231 - quizagent - INFO - Updated current_topic in shared state to '2D Viewing Transformation'
+2025-03-26 22:17:51,232 - quizagent - INFO - QuizAgent accessed shared_state['progress']
+2025-03-26 22:17:51,232 - questionagent - INFO - Generating multiple_choice question
+2025-03-26 22:17:51,233 - questionagent - INFO - Generating multiple choice question
+2025-03-26 22:17:51,235 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: navigate_next, Time: 2025-03-26 22:17:51
+2025-03-26 22:17:51,237 - api - INFO - Response status: 200
+2025-03-26 22:18:45,596 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-26 22:18:45,598 - api - INFO - Received chat message from user user1: !answer:1:To convert device coordinates to world c...
+2025-03-26 22:18:45,599 - langchain_orchestrator - INFO - Processing query: !answer:1:To convert device coordinates to world c...
+2025-03-26 22:18:45,600 - langchain_orchestrator - INFO - Detected formatted question response
+2025-03-26 22:18:45,600 - langchain_orchestrator - INFO - Processing answer: ID=1, Text=To convert device coordinates to world coordinates.
+2025-03-26 22:18:45,603 - api - INFO - Response status: 200
+2025-03-26 22:18:55,717 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-26 22:18:55,719 - api - INFO - Received chat message from user user1: next...
+2025-03-26 22:18:55,720 - langchain_orchestrator - INFO - Processing query: next...
+2025-03-26 22:18:55,721 - langchain_orchestrator - INFO - Detected 'next' command
+2025-03-26 22:18:55,721 - langchain_orchestrator - INFO - Navigating next in learning flow
+2025-03-26 22:18:55,722 - langchain_orchestrator - INFO - Navigating next in the curriculum
+2025-03-26 22:18:55,724 - langchain_orchestrator - INFO - Generating content for curriculum item: Understanding Window and Viewport (type: explainer)
+2025-03-26 22:18:55,724 - langchain_orchestrator - INFO - Generating content with specific text for: Understanding Window and Viewport (type: explainer)
+2025-03-26 22:18:55,725 - langchain_orchestrator - INFO - Using explainer agent with specific content
+2025-03-26 22:19:07,330 - explaineragent - INFO - Successfully generated explanation
+2025-03-26 22:19:07,331 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: navigate_next, Time: 2025-03-26 22:19:07
+2025-03-26 22:19:07,332 - api - INFO - Response status: 200
+2025-03-26 22:20:44,211 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-26 22:20:44,213 - api - INFO - Received chat message from user user1: next...
+2025-03-26 22:20:44,214 - langchain_orchestrator - INFO - Processing query: next...
+2025-03-26 22:20:44,214 - langchain_orchestrator - INFO - Detected 'next' command
+2025-03-26 22:20:44,215 - langchain_orchestrator - INFO - Navigating next in learning flow
+2025-03-26 22:20:44,215 - langchain_orchestrator - INFO - Navigating next in the curriculum
+2025-03-26 22:20:44,216 - langchain_orchestrator - INFO - Generating content for curriculum item: Understanding Normalization (type: explainer)
+2025-03-26 22:20:44,217 - langchain_orchestrator - INFO - Generating content with specific text for: Understanding Normalization (type: explainer)
+2025-03-26 22:20:44,218 - langchain_orchestrator - INFO - Using explainer agent with specific content
+2025-03-26 22:20:57,158 - explaineragent - INFO - Successfully generated explanation
+2025-03-26 22:20:57,158 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: navigate_next, Time: 2025-03-26 22:20:57
+2025-03-26 22:20:57,159 - api - INFO - Response status: 200
+2025-03-26 22:21:06,175 - api - INFO - Request: POST http://127.0.0.1:8000/api/chat
+2025-03-26 22:21:06,177 - api - INFO - Received chat message from user user1: next...
+2025-03-26 22:21:06,177 - langchain_orchestrator - INFO - Processing query: next...
+2025-03-26 22:21:06,178 - langchain_orchestrator - INFO - Detected 'next' command
+2025-03-26 22:21:06,178 - langchain_orchestrator - INFO - Navigating next in learning flow
+2025-03-26 22:21:06,178 - langchain_orchestrator - INFO - Navigating next in the curriculum
+2025-03-26 22:21:06,181 - langchain_orchestrator - INFO - Generating content for curriculum item: Quick Check: Normalization (type: practice)
+2025-03-26 22:21:06,182 - langchain_orchestrator - INFO - Generating content with specific text for: Quick Check: Normalization (type: practice)
+2025-03-26 22:21:06,182 - langchain_orchestrator - INFO - Using quiz agent with specific content
+2025-03-26 22:21:06,183 - quizagent - INFO - Generating quiz with 1 questions
+2025-03-26 22:21:06,184 - quizagent - INFO - QuizAgent accessed shared_state['current_topic']
+2025-03-26 22:21:06,184 - quizagent - INFO - Using topic '{'title': '2D Viewing Transformation', 'content': 'Explains the process of mapping world coordinates to device coordinates for display, involving translation, rotation, and scaling.', 'subtopics': [{'title': 'Coordinate Systems', 'content': 'Defines world coordinate systems (picture coordinates) and device coordinate systems (display coordinates).', 'subtopics': []}, {'title': 'Viewing Transformation Pipeline', 'content': 'Describes the steps involved in mapping a window (world coordinates) to a viewport (device coordinates).', 'subtopics': []}, {'title': 'Window and Viewport', 'content': 'Defines the concept of a window (area to be viewed) and a viewport (area on the display device).', 'subtopics': []}, {'title': 'Normalization', 'content': 'Explains the process of normalizing coordinates to a range between 0 and 1 for simplified transformations.', 'subtopics': []}]}' from shared state
+2025-03-26 22:21:06,188 - quizagent - INFO - Focusing quiz on topic: {'title': '2D Viewing Transformation', 'content': 'Explains the process of mapping world coordinates to device coordinates for display, involving translation, rotation, and scaling.', 'subtopics': [{'title': 'Coordinate Systems', 'content': 'Defines world coordinate systems (picture coordinates) and device coordinate systems (display coordinates).', 'subtopics': []}, {'title': 'Viewing Transformation Pipeline', 'content': 'Describes the steps involved in mapping a window (world coordinates) to a viewport (device coordinates).', 'subtopics': []}, {'title': 'Window and Viewport', 'content': 'Defines the concept of a window (area to be viewed) and a viewport (area on the display device).', 'subtopics': []}, {'title': 'Normalization', 'content': 'Explains the process of normalizing coordinates to a range between 0 and 1 for simplified transformations.', 'subtopics': []}]}
+2025-03-26 22:21:10,178 - quizagent - DEBUG - Raw response: ```json
+{
+  "topic": "2D Viewing Transformation",
+  "questions": [
+    {
+      "question": "What is the primary purpose of normalizing coordinates in a 2D viewing transformation?",
+      "options": [
+...
+2025-03-26 22:21:10,180 - quizagent - DEBUG - Cleaned response: {   "topic": "2D Viewing Transformation",   "questions": [     {       "question": "What is the primary purpose of normalizing coordinates in a 2D viewing transformation?",       "options": [         ...
+2025-03-26 22:21:10,180 - quizagent - INFO - Successfully generated quiz with 1 questions on topic '2D Viewing Transformation'
+2025-03-26 22:21:10,181 - quizagent - INFO - QuizAgent updated shared_state['current_topic']
+2025-03-26 22:21:10,182 - quizagent - INFO - Updated current_topic in shared state to '2D Viewing Transformation'
+2025-03-26 22:21:10,182 - quizagent - INFO - QuizAgent accessed shared_state['progress']
+2025-03-26 22:21:10,182 - questionagent - INFO - Generating multiple_choice question
+2025-03-26 22:21:10,184 - questionagent - INFO - Generating multiple choice question
+2025-03-26 22:21:10,185 - langchain_orchestrator - INFO - Tracking interaction - User: user1, Intent: navigate_next, Time: 2025-03-26 22:21:10
+2025-03-26 22:21:10,187 - api - INFO - Response status: 200
